@@ -6,8 +6,8 @@ require 'English'
 module Dev
   module Kit
     module System
+      SUDO_PROMPT = Dev::UI.fmt("{{info:(sudo)}} Password: ")
       class << self
-        SUDO_PROMPT = Dev::UI.fmt("{{info:(sudo)}} Password: ")
 
         # Ask for sudo access with a message explaning the need for it
         # Will make subsequent commands capable of running with sudo for a period of time
