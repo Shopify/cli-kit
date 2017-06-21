@@ -35,6 +35,7 @@ module Dev
         # - `*a`: A splat of arguments evaluated as a command. (e.g. `'rm', folder` is equivalent to `rm #{folder}`)
         # - `sudo`: If truthy, run this command with sudo. If String, pass to `sudo_reason`
         # - `env`: process environment with which to execute this command
+        # - `**kwargs`: additional arguments to pass to Open3.capture2
         #
         # #### Returns
         # - `output`: output (STDOUT) of the command execution
@@ -43,8 +44,8 @@ module Dev
         # #### Usage
         # `out, stat = Dev::Kit::System.capture2('ls', 'a_folder')`
         #
-        def capture2(*a, sudo: false, env: ENV)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture2)
+        def capture2(*a, sudo: false, env: ENV, **kwargs)
+          delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
         end
 
         # Execute a command in the user's environment
@@ -55,6 +56,7 @@ module Dev
         # - `*a`: A splat of arguments evaluated as a command. (e.g. `'rm', folder` is equivalent to `rm #{folder}`)
         # - `sudo`: If truthy, run this command with sudo. If String, pass to `sudo_reason`
         # - `env`: process environment with which to execute this command
+        # - `**kwargs`: additional arguments to pass to Open3.capture2e
         #
         # #### Returns
         # - `output`: output (STDOUT merged with STDERR) of the command execution
@@ -63,8 +65,8 @@ module Dev
         # #### Usage
         # `out_and_err, stat = Dev::Kit::System.capture2e('ls', 'a_folder')`
         #
-        def capture2e(*a, sudo: false, env: ENV)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture2e)
+        def capture2e(*a, sudo: false, env: ENV, **kwargs)
+          delegate_open3(*a, sudo: sudo, env: env, method: :capture2e, **kwargs)
         end
 
         # Execute a command in the user's environment
@@ -75,6 +77,7 @@ module Dev
         # - `*a`: A splat of arguments evaluated as a command. (e.g. `'rm', folder` is equivalent to `rm #{folder}`)
         # - `sudo`: If truthy, run this command with sudo. If String, pass to `sudo_reason`
         # - `env`: process environment with which to execute this command
+        # - `**kwargs`: additional arguments to pass to Open3.capture3
         #
         # #### Returns
         # - `output`: STDOUT of the command execution
@@ -84,8 +87,8 @@ module Dev
         # #### Usage
         # `out, err, stat = Dev::Kit::System.capture3('ls', 'a_folder')`
         #
-        def capture3(*a, sudo: false, env: ENV)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture3)
+        def capture3(*a, sudo: false, env: ENV, **kwargs)
+          delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
         end
 
         # Execute a command in the user's environment
@@ -147,9 +150,9 @@ module Dev
           a
         end
 
-        def delegate_open3(*a, sudo: raise, env: raise, method: raise)
+        def delegate_open3(*a, sudo: raise, env: raise, method: raise, **kwargs)
           a = apply_sudo(*a, sudo)
-          Open3.send(method, env, *resolve_path(a, env))
+          Open3.send(method, env, *resolve_path(a, env), **kwargs)
         rescue Errno::EINTR
           raise(Errno::EINTR, "command interrupted: #{a.join(' ')}")
         end
