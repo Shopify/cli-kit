@@ -145,7 +145,7 @@ module Dev
         private
 
         def apply_sudo(*a, sudo)
-          a.unshift('sudo', '-S', '-p', SUDO_PROMPT) if sudo
+          a.unshift('sudo', '-S', '-p', SUDO_PROMPT, '--') if sudo
           sudo_reason(sudo) if sudo.is_a?(String)
           a
         end
