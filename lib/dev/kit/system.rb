@@ -29,13 +29,14 @@ module Dev
 
         # Execute a command in the user's environment
         # This is meant to be largely equivalent to backticks, only with the env passed in.
-        # Captures the results of the command without output to the console
+        # Captures stdout of the command without outputting to the console. Stderr of the
+        # command is redirected to $stderr
         #
         # #### Parameters
         # - `*a`: A splat of arguments evaluated as a command. (e.g. `'rm', folder` is equivalent to `rm #{folder}`)
         # - `sudo`: If truthy, run this command with sudo. If String, pass to `sudo_reason`
         # - `env`: process environment with which to execute this command
-        # - `**kwargs`: additional arguments to pass to Open3.capture2
+        # - `stdin_data`: a string to send to the stdin of the child process
         #
         # #### Returns
         # - `output`: output (STDOUT) of the command execution
@@ -44,8 +45,37 @@ module Dev
         # #### Usage
         # `out, stat = Dev::Kit::System.capture2('ls', 'a_folder')`
         #
-        def capture2(*a, sudo: false, env: ENV, **kwargs)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
+        def capture2(*a, sudo: false, env: ENV, stdin_data: '')
+          write_thread = nil
+          a = apply_sudo(*a, sudo)
+
+          in_r, in_w = IO.pipe
+          out_r, out_w = IO.pipe
+          err_r, err_w = IO.pipe
+          pid = Process.spawn(env, *resolve_path(a, env), :in => in_r, :out => out_w, :err => err_w)
+          in_r.close
+          out_w.close
+          err_w.close
+          write_thread = Thread.new do
+            in_w.write(stdin_data)
+            in_w.close
+          end
+
+          loop do
+            begin
+              data = err_r.readpartial(4096)
+              $stderr.write data
+            rescue EOFError
+              break
+            end
+          end
+
+          _, status = Process.wait2(pid)
+          [out_r.read, status]
+        rescue Errno::EINTR
+          raise(Errno::EINTR, "command interrupted: #{a.join(' ')}")
+        ensure
+          write_thread.kill if write_thread
         end
 
         # Execute a command in the user's environment
@@ -120,8 +150,8 @@ module Dev
             { out_r => ->(data) { yield(data.force_encoding(Encoding::UTF_8), '') },
               err_r => ->(data) { yield('', data.force_encoding(Encoding::UTF_8)) }, }
           else
-            { out_r => ->(data) { STDOUT.write(data) },
-              err_r => ->(data) { STDOUT.write(data) }, }
+            { out_r => ->(data) { $stdout.write(data) },
+              err_r => ->(data) { $stdout.write(data) }, }
           end
 
           loop do
