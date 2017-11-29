@@ -124,6 +124,7 @@ module Dev
               err_r => ->(data) { STDOUT.write(data) }, }
           end
 
+          previous_trailing = Hash.new('')
           loop do
             ios = [err_r, out_r].reject(&:closed?)
             break if ios.empty?
@@ -131,7 +132,9 @@ module Dev
             readers, = IO.select(ios)
             readers.each do |io|
               begin
-                handlers[io].call(io.readpartial(4096))
+                data, trailing = split_partial_characters(io.readpartial(4096))
+                handlers[io].call(previous_trailing[io] + data)
+                previous_trailing[io] = trailing
               rescue IOError
                 io.close
               end
@@ -143,6 +146,23 @@ module Dev
         end
 
         private
+
+        # Split off trailing partial UTF-8 Characters. UTF-8 Multibyte characters start with a 11xxxxxx byte that tells
+        # how many following bytes are part of this character, followed by some number of 10xxxxxx bytes.  This simple
+        # algorithm will split off a whole trailing multi-byte character.
+        def split_partial_characters(data)
+          found_start = false
+          trailing = data.bytes.reverse.take_while do |byte|
+            if found_start
+              false
+            else
+              found_start = byte >= 128 + 64 # 11xxxxxx
+              byte >= 128 # 1xxxxxxx
+            end
+          end.reverse
+          return [data, ''] if trailing.empty?
+          [data.byteslice(0, data.bytesize-trailing.length), trailing.map(&:chr).join]
+        end
 
         def apply_sudo(*a, sudo)
           a.unshift('sudo', '-S', '-p', SUDO_PROMPT, '--') if sudo
