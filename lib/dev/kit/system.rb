@@ -145,24 +145,26 @@ module Dev
           $CHILD_STATUS
         end
 
-        private
-
         # Split off trailing partial UTF-8 Characters. UTF-8 Multibyte characters start with a 11xxxxxx byte that tells
         # how many following bytes are part of this character, followed by some number of 10xxxxxx bytes.  This simple
         # algorithm will split off a whole trailing multi-byte character.
         def split_partial_characters(data)
-          found_start = false
-          trailing = data.bytes.reverse.take_while do |byte|
-            if found_start
-              false
-            else
-              found_start = byte >= 128 + 64 # 11xxxxxx
-              byte >= 128 # 1xxxxxxx
-            end
-          end.reverse
-          return [data, ''] if trailing.empty?
-          [data.byteslice(0, data.bytesize-trailing.length), trailing.map(&:chr).join]
+          last_byte = data.getbyte(-1)
+          return [data, ''] if (last_byte & 0b1000_0000).zero?
+
+          # UTF-8 is up to 6 characters per rune, so we could never want to trim more than that, and we want to avoid
+          # allocating an array for the whole of data with bytes
+          min_bound = -[6, data.bytesize].min
+          final_bytes = data.byteslice(min_bound..-1).bytes
+          partial_character_sub_index = final_bytes.rindex { |byte| byte & 0b1100_0000 == 0b1100_0000 }
+          # Bail out for non UTF-8
+          return [data, ''] unless partial_character_sub_index
+          partial_character_index = min_bound + partial_character_sub_index
+
+          [data.byteslice(0...partial_character_index), data.byteslice(partial_character_index..-1)]
         end
+
+        private
 
         def apply_sudo(*a, sudo)
           a.unshift('sudo', '-S', '-p', SUDO_PROMPT, '--') if sudo
