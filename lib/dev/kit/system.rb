@@ -124,6 +124,7 @@ module Dev
               err_r => ->(data) { STDOUT.write(data) }, }
           end
 
+          previous_trailing = Hash.new('')
           loop do
             ios = [err_r, out_r].reject(&:closed?)
             break if ios.empty?
@@ -131,7 +132,9 @@ module Dev
             readers, = IO.select(ios)
             readers.each do |io|
               begin
-                handlers[io].call(io.readpartial(4096))
+                data, trailing = split_partial_characters(io.readpartial(4096))
+                handlers[io].call(previous_trailing[io] + data)
+                previous_trailing[io] = trailing
               rescue IOError
                 io.close
               end
@@ -140,6 +143,25 @@ module Dev
 
           Process.wait(pid)
           $CHILD_STATUS
+        end
+
+        # Split off trailing partial UTF-8 Characters. UTF-8 Multibyte characters start with a 11xxxxxx byte that tells
+        # how many following bytes are part of this character, followed by some number of 10xxxxxx bytes.  This simple
+        # algorithm will split off a whole trailing multi-byte character.
+        def split_partial_characters(data)
+          last_byte = data.getbyte(-1)
+          return [data, ''] if (last_byte & 0b1000_0000).zero?
+
+          # UTF-8 is up to 6 characters per rune, so we could never want to trim more than that, and we want to avoid
+          # allocating an array for the whole of data with bytes
+          min_bound = -[6, data.bytesize].min
+          final_bytes = data.byteslice(min_bound..-1).bytes
+          partial_character_sub_index = final_bytes.rindex { |byte| byte & 0b1100_0000 == 0b1100_0000 }
+          # Bail out for non UTF-8
+          return [data, ''] unless partial_character_sub_index
+          partial_character_index = min_bound + partial_character_sub_index
+
+          [data.byteslice(0...partial_character_index), data.byteslice(partial_character_index..-1)]
         end
 
         private
