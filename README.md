@@ -1,2 +1,2 @@
-# dev-kit
+# cli-kit
 

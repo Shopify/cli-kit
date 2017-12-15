@@ -4,12 +4,12 @@ require 'rubygems'
 require 'bundler/setup'
 
 root = File.expand_path('../..', __FILE__)
-DEV_TEST_ROOT = root + '/test'
+CLI_TEST_ROOT = root + '/test'
 
-$LOAD_PATH.unshift(DEV_TEST_ROOT)
+$LOAD_PATH.unshift(CLI_TEST_ROOT)
 
 def test_files
-  Dir.glob(DEV_TEST_ROOT + "/**/*_test.rb")
+  Dir.glob(CLI_TEST_ROOT + "/**/*_test.rb")
 end
 
 if ARGV.empty?
