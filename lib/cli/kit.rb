@@ -1,7 +1,7 @@
-require 'dev/ui'
+require 'cli/ui'
 
-module Dev
+module CLI
   module Kit
-    autoload :System, 'dev/kit/system'
+    autoload :System, 'cli/kit/system'
   end
 end

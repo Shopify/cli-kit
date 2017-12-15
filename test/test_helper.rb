@@ -6,7 +6,7 @@ begin
   addpath.call("lib")
 end
 
-require 'dev/kit'
+require 'cli/kit'
 
 require 'fileutils'
 require 'tmpdir'

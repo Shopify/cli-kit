@@ -1,12 +1,12 @@
-require 'dev/kit'
+require 'cli/kit'
 
 require 'open3'
 require 'English'
 
-module Dev
+module CLI
   module Kit
     module System
-      SUDO_PROMPT = Dev::UI.fmt("{{info:(sudo)}} Password: ")
+      SUDO_PROMPT = CLI::UI.fmt("{{info:(sudo)}} Password: ")
       class << self
 
         # Ask for sudo access with a message explaning the need for it
@@ -22,8 +22,8 @@ module Dev
           # See if sudo has a cached password
           `env SUDO_ASKPASS=/usr/bin/false sudo -A true`
           return if $CHILD_STATUS.success?
-          Dev::UI.with_frame_color(:blue) do
-            puts(Dev::UI.fmt("{{i}} #{msg}"))
+          CLI::UI.with_frame_color(:blue) do
+            puts(CLI::UI.fmt("{{i}} #{msg}"))
           end
         end
 
@@ -42,7 +42,7 @@ module Dev
         # - `status`: boolean success status of the command execution
         #
         # #### Usage
-        # `out, stat = Dev::Kit::System.capture2('ls', 'a_folder')`
+        # `out, stat = CLI::Kit::System.capture2('ls', 'a_folder')`
         #
         def capture2(*a, sudo: false, env: ENV, **kwargs)
           delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
@@ -63,7 +63,7 @@ module Dev
         # - `status`: boolean success status of the command execution
         #
         # #### Usage
-        # `out_and_err, stat = Dev::Kit::System.capture2e('ls', 'a_folder')`
+        # `out_and_err, stat = CLI::Kit::System.capture2e('ls', 'a_folder')`
         #
         def capture2e(*a, sudo: false, env: ENV, **kwargs)
           delegate_open3(*a, sudo: sudo, env: env, method: :capture2e, **kwargs)
@@ -85,7 +85,7 @@ module Dev
         # - `status`: boolean success status of the command execution
         #
         # #### Usage
-        # `out, err, stat = Dev::Kit::System.capture3('ls', 'a_folder')`
+        # `out, err, stat = CLI::Kit::System.capture3('ls', 'a_folder')`
         #
         def capture3(*a, sudo: false, env: ENV, **kwargs)
           delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
@@ -104,7 +104,7 @@ module Dev
         # - `status`: boolean success status of the command execution
         #
         # #### Usage
-        # `stat = Dev::Kit::System.system('ls', 'a_folder')`
+        # `stat = CLI::Kit::System.system('ls', 'a_folder')`
         #
         def system(*a, sudo: false, env: ENV, **kwargs)
           a = apply_sudo(*a, sudo)

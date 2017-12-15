@@ -1,6 +1,6 @@
 require 'test_helper'
 
-module Dev
+module CLI
   module Kit
     class SystemTest < MiniTest::Test
       def test_split_partial_characters_doesnt_split_single_byte_characters
