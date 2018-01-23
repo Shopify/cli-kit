@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    dev-kit (0.1.0)
-      dev-ui (>= 0.1.0)
+    cli-kit (2.0.0)
+      cli-ui (>= 1.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -11,7 +11,7 @@ GEM
     ast (2.3.0)
     builder (3.2.3)
     byebug (9.0.6)
-    dev-ui (0.1.0)
+    cli-ui (1.0.0)
     metaclass (0.0.4)
     method_source (0.8.2)
     minitest (5.10.2)
@@ -45,7 +45,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.15)
   byebug
-  dev-kit!
+  cli-kit!
   method_source
   minitest (>= 5.0.0)
   minitest-reporters
