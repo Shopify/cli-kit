@@ -63,7 +63,7 @@ module CLI
       end
 
       def self.format_error_message(msg)
-        CLI::UI.fmt("{{red:#{e.message}}}")
+        CLI::UI.fmt("{{red:#{msg}}}")
       end
 
       def self.handle_abort
