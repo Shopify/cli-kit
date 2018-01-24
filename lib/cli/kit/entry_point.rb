@@ -48,7 +48,7 @@ module CLI
         command_name = args.shift
         @args = args
 
-        ret = EntryPoint.handle_abort do
+        ret = self.class.handle_abort do
           @command, @command_name = lookup_command(command_name)
           :success
         end
@@ -99,14 +99,14 @@ module CLI
       end
 
       def call
-        with_logging(EntryPoint.log_file) do
-          EntryPoint.handle_abort do
+        with_logging(self.class.log_file) do
+          self.class.handle_abort do
             if @command.nil?
               CLI::UI::Frame.open("Command not found", color: :red, timing: false) do
                 STDERR.puts(CLI::UI.fmt("{{command:#{CLI::Kit.tool_name} #{@command_name}}} was not found"))
               end
 
-              cmds = EntryPoint.commands_and_aliases
+              cmds = self.class.commands_and_aliases
               if cmds.all? { |cmd| cmd.is_a?(String) }
                 possible_matches = cmds.min_by(2) do |cmd|
                   CLI::Kit::Levenshtein.distance(cmd, @command_name)
