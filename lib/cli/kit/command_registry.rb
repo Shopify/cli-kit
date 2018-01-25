@@ -52,7 +52,7 @@ module CLI
       end
 
       def resolve_global_command(name)
-        name = aliases.fetch(name, name)
+        name = resolve_alias(name)
         command_class = const_get(commands.fetch(name, ""))
         return nil unless command_class.defined?
         [command_class, name]
