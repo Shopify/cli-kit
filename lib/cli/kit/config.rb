@@ -19,10 +19,7 @@ module CLI
       # #### Example Usage
       # `config.get('name.of.config')`
       #
-      def get(section, name = nil)
-        section, name = section.split('.', 2) if name.nil?
-        # TODO: Remove this and all global configs
-        return get("global", section) if name.nil?
+      def get(section, name)
         all_configs.dig("[#{section}]", name) || false
       end
 
@@ -36,10 +33,7 @@ module CLI
       # #### Example Usage
       # `config.set('section', 'name.of.config', 'value')`
       #
-      def set(section, name = nil, value)
-        section, name = section.split('.', 2) if name.nil?
-        # TODO: Remove this and all global configs
-        return set("global", section, value) if name.nil?
+      def set(section, name, value)
         all_configs["[#{section}]"] ||= {}
         all_configs["[#{section}]"][name] = value.nil? ? nil : value.to_s
         write_config
