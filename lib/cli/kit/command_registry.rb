@@ -20,6 +20,10 @@ module CLI
         raise NotImplementedError
       end
 
+      def contextual_command_names
+        []
+      end
+
       def self.extended(base)
         raise "multiple registries unsupported" if self.registry_target
         self.registry_target = base

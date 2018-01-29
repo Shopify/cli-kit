@@ -11,6 +11,7 @@ module CLI
     autoload :CommandRegistry, 'cli/kit/command_registry'
     autoload :Config,          'cli/kit/config'
     autoload :EntryPoint,      'cli/kit/entry_point'
+    autoload :Help,            'cli/kit/help'
     autoload :Ini,             'cli/kit/ini'
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :ReportErrors,    'cli/kit/report_errors'
