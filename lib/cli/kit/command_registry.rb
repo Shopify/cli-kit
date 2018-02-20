@@ -67,6 +67,10 @@ module CLI
         [contextual_command_class(name), name]
       end
 
+      def contextual_command_names
+        []
+      end
+
       def command_names
         contextual_command_names + commands.keys
       end
