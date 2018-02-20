@@ -3,7 +3,7 @@ require 'cli/kit'
 module CLI
   module Kit
     module CommandRegistry
-      attr_accessor :commands, :aliases
+      attr_accessor :commands, :aliases, :command_path
       class << self
         attr_accessor :registry_target
       end
@@ -27,7 +27,15 @@ module CLI
         base.aliases = {}
       end
 
-      def register(const, name, path)
+      def register(const, name = nil, path = nil)
+        if name.nil?
+          name = dash_case(const)
+        end
+
+        if path.nil?
+          path = File.join(command_path, snake_case(const))
+        end
+
         autoload(const, path)
         commands[name] = const
       end
@@ -77,6 +85,20 @@ module CLI
 
       def exist?(name)
         !resolve_command(name).first.nil?
+      end
+
+      private
+
+      def snake_case(camel_case, seperator = "_")
+        camel_case.to_s # MyCoolThing::MyAPIModule
+          .gsub(/::/, '/') # MyCoolThing/MyAPIModule
+          .gsub(/([A-Z]+)([A-Z][a-z])/, "\\1#{seperator}\\2") # MyCoolThing::MyAPI_Module
+          .gsub(/([a-z\d])([A-Z])/, "\\1#{seperator}\\2") # My_Cool_Thing::My_API_Module
+          .downcase # my_cool_thing/my_api_module
+      end
+
+      def dash_case(camel_case)
+        snake_case(camel_case, "-")
       end
     end
   end
