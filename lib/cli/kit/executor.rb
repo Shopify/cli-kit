@@ -4,14 +4,13 @@ require 'English'
 module CLI
   module Kit
     class Executor
-      def initialize(tool_name:, command_registry:, log_file: nil)
+      def initialize(
+        tool_name:, command_registry:, error_handler:, log_file: nil
+      )
         @tool_name = tool_name
         @command_registry = command_registry
+        @error_handler = error_handler
         @log_file = log_file
-      end
-
-      def format_error_message(msg)
-        CLI::UI.fmt("{{red:#{msg}}}")
       end
 
       def with_logging(&block)
@@ -45,7 +44,7 @@ module CLI
       def call(command, command_name, args)
         trap_signals
         with_logging do
-          CLI::Kit::Errors.handle_abort do
+          @error_handler.handle_abort do
             if command.nil?
               command_not_found(command_name)
               raise CLI::Kit::AbortSilent # Already output message
