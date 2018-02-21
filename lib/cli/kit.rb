@@ -44,7 +44,7 @@ module CLI
     #   * Think carefully about whether Abort or Bug is more appropriate. Is this
     #       a bug in the tool? Or is it just user error, transient network
     #       failure, etc.?
-    #   * One case where it's ok to rescue (other than EntryPoint or tests):
+    #   * One case where it's ok to rescue (cli-kit internals or tests aside):
     #       1. rescue Abort or Bug
     #       2. Print a contextualized error message
     #       3. Re-raise AbortSilent or BugSilent respectively.

@@ -5,8 +5,9 @@ require 'English'
 module CLI
   module Kit
     class Executor
-      def initialize(tool_name:, log_file: nil)
+      def initialize(tool_name:, command_registry:, log_file: nil)
         @tool_name = tool_name
+        @command_registry = command_registry
         @log_file = log_file
       end
 
@@ -20,8 +21,7 @@ module CLI
       end
 
       def commands_and_aliases
-        reg = command_registry
-        reg.command_names + reg.aliases.keys
+        @command_registry.command_names + @command_registry.aliases.keys
       end
 
       def trap_signals
@@ -62,7 +62,7 @@ module CLI
           STDERR.puts(CLI::UI.fmt("{{command:#{@tool_name} #{name}}} was not found"))
         end
 
-        cmds = self.class.commands_and_aliases
+        cmds = commands_and_aliases
         if cmds.all? { |cmd| cmd.is_a?(String) }
           possible_matches = cmds.min_by(2) do |cmd|
             CLI::Kit::Levenshtein.distance(cmd, name)
