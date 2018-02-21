@@ -1,5 +1,4 @@
 require 'cli/kit'
-require 'cli/ui'
 
 module CLI
   module Kit

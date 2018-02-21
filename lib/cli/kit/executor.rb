@@ -1,5 +1,4 @@
 require 'cli/kit'
-require 'cli/ui'
 require 'English'
 
 module CLI
