@@ -1,5 +1,5 @@
 require 'cli/ui'
-require_relative '../ruby_backports/enumerable.rb'
+require 'cli/kit/ruby_backports/enumerable'
 
 module CLI
   module Kit
