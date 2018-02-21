@@ -3,17 +3,15 @@ require_relative '../ruby_backports/enumerable.rb'
 
 module CLI
   module Kit
-    class << self
-      attr_accessor :tool_name
-    end
-
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
     autoload :Config,          'cli/kit/config'
-    autoload :EntryPoint,      'cli/kit/entry_point'
+    autoload :Errors,          'cli/kit/errors'
+    autoload :Executor,        'cli/kit/executor'
     autoload :Ini,             'cli/kit/ini'
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :ReportErrors,    'cli/kit/report_errors'
+    autoload :Resolver,        'cli/kit/resolver'
     autoload :System,          'cli/kit/system'
 
     EXIT_FAILURE_BUT_NOT_BUG = 30
@@ -46,7 +44,7 @@ module CLI
     #   * Think carefully about whether Abort or Bug is more appropriate. Is this
     #       a bug in the tool? Or is it just user error, transient network
     #       failure, etc.?
-    #   * One case where it's ok to rescue these outside of EntryPoint (or tests):
+    #   * One case where it's ok to rescue (other than EntryPoint or tests):
     #       1. rescue Abort or Bug
     #       2. Print a contextualized error message
     #       3. Re-raise AbortSilent or BugSilent respectively.
