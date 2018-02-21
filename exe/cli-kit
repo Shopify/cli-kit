@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby --disable-gems
+
+cmd  = ARGV.shift
+name = ARGV.shift
+
+if cmd != 'new' || name.nil?
+  abort 'usage: cli-kit new <appname>'
+end
+
+if name !~ /[a-z]+/
+  # TODO: obviously we can handle more than this.
+  abort 'name must be entirely lowercase alphabetical'
+end
+
+require 'fileutils'
+
+if File.exist?(name)
+  abort "directory already exists: #{name}"
+end
+
+def notify_create(f)
+  puts "% #{f}"
+end
+
+FileUtils.mkdir(name)
+notify_create(name)
+
+
