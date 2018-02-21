@@ -6,6 +6,10 @@ module CLI
     class Config
       XDG_CONFIG_HOME = 'XDG_CONFIG_HOME'
 
+      def initialize(tool_name:)
+        @tool_name = tool_name
+      end
+
       # Returns the config corresponding to `name` from the config file
       # `false` is returned if it doesn't exist
       #
@@ -68,7 +72,7 @@ module CLI
       #
       def file
         config_home = ENV.fetch(XDG_CONFIG_HOME, '~/.config')
-        File.expand_path(File.join(CLI::Kit.tool_name, 'config'), config_home)
+        File.expand_path(File.join(@tool_name, 'config'), config_home)
       end
 
       private

@@ -8,8 +8,6 @@ module CLI
       def setup
         super
 
-        CLI::Kit.tool_name ||= 'tool'
-
         @tmpdir = Dir.mktmpdir
         @prev_xdg = ENV['XDG_CONFIG_HOME']
         ENV['XDG_CONFIG_HOME'] = @tmpdir
