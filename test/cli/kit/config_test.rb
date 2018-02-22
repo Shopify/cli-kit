@@ -12,8 +12,7 @@ module CLI
         @prev_xdg = ENV['XDG_CONFIG_HOME']
         ENV['XDG_CONFIG_HOME'] = @tmpdir
         @file = File.join(@tmpdir, 'tool', 'config')
-
-        @config = Config.new
+        @config = Config.new(tool_name: 'tool')
       end
 
       def teardown

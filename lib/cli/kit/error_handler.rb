@@ -1,11 +1,12 @@
 require 'cli/kit'
+require 'English'
 
 module CLI
   module Kit
     class ErrorHandler
-      def initialize(exception_reporter = NullExceptionReporter)
-        @exception_reporter_or_proc = exception_reporter
-        install!
+      def initialize(log_file:, exception_reporter:)
+        @log_file = log_file
+        @exception_reporter_or_proc = exception_reporter || NullExceptionReporter
       end
 
       module NullExceptionReporter
@@ -14,12 +15,20 @@ module CLI
         end
       end
 
+      def call(&block)
+        install!
+        handle_abort(&block)
+      end
+
+      private
+
       def install!
         at_exit { handle_final_exception(@exception || $ERROR_INFO) }
       end
 
       def handle_abort
         yield
+        CLI::Kit::EXIT_SUCCESS
       rescue CLI::Kit::GenericAbort => e
         is_bug    = e.is_a?(CLI::Kit::Bug) || e.is_a?(CLI::Kit::BugSilent)
         is_silent = e.is_a?(CLI::Kit::AbortSilent) || e.is_a?(CLI::Kit::BugSilent)
@@ -32,8 +41,6 @@ module CLI
         STDERR.puts(format_error_message("Interrupt"))
         return CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
-
-      private
 
       def handle_final_exception(error)
         notify_with = nil
@@ -66,7 +73,7 @@ module CLI
 
         if notify_with
           logs = begin
-            File.read(CLI::Kit.log_file)
+            File.read(@log_file)
           rescue => e
             "(#{e.class}: #{e.message})"
           end
