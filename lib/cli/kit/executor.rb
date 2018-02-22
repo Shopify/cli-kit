@@ -4,22 +4,13 @@ require 'English'
 module CLI
   module Kit
     class Executor
-      def initialize(
-        tool_name:, command_registry:, error_handler:, log_file: nil
-      )
-        @tool_name = tool_name
-        @command_registry = command_registry
-        @error_handler = error_handler
-        @log_file = log_file
-      end
-
       def with_logging(&block)
-        return yield unless @log_file
-        CLI::UI.log_output_to(@log_file, &block)
+        return yield unless CLI::Kit.log_file
+        CLI::UI.log_output_to(CLI::Kit.log_file, &block)
       end
 
       def commands_and_aliases
-        @command_registry.command_names + @command_registry.aliases.keys
+        CLI::Kit.command_registry.command_names + CLI::Kit.command_registry.aliases.keys
       end
 
       def trap_signals
@@ -44,7 +35,7 @@ module CLI
       def call(command, command_name, args)
         trap_signals
         with_logging do
-          @error_handler.handle_abort do
+          CLI::Kit.error_handler.handle_abort do
             if command.nil?
               command_not_found(command_name)
               raise CLI::Kit::AbortSilent # Already output message
@@ -57,7 +48,7 @@ module CLI
 
       def command_not_found(name)
         CLI::UI::Frame.open("Command not found", color: :red, timing: false) do
-          STDERR.puts(CLI::UI.fmt("{{command:#{@tool_name} #{name}}} was not found"))
+          STDERR.puts(CLI::UI.fmt("{{command:#{CLI::Kit.tool_name} #{name}}} was not found"))
         end
 
         cmds = commands_and_aliases
@@ -76,7 +67,7 @@ module CLI
           if possible_matches.any?
             CLI::UI::Frame.open("{{bold:Did you mean?}}", timing: false, color: :blue) do
               possible_matches.each do |possible_match|
-                STDERR.puts CLI::UI.fmt("{{command:#{@tool_name} #{possible_match}}}")
+                STDERR.puts CLI::UI.fmt("{{command:#{CLI::Kit.tool_name} #{possible_match}}}")
               end
             end
           end

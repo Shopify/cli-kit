@@ -12,6 +12,7 @@ module CLI
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :Resolver,        'cli/kit/resolver'
     autoload :System,          'cli/kit/system'
+    autoload :AppConfig,       'cli/kit/app_config'
 
     EXIT_FAILURE_BUT_NOT_BUG = 30
     EXIT_BUG                 = 1
@@ -52,5 +53,41 @@ module CLI
     Bug          = Class.new(GenericAbort)
     BugSilent    = Class.new(GenericAbort)
     AbortSilent  = Class.new(GenericAbort)
+
+    def self.configure
+      @app_config ||= AppConfig.new
+      yield @app_config if block_given?
+      raise Bug.new("Must specify a tool name") unless @app_config.tool_name
+      raise Bug.new("Must specify a default command") unless @app_config.default_command
+      @app_config
+    end
+
+    def self.command_registry
+      @app_config.command_registry
+    end
+
+    def self.default_command
+      @app_config.default_command
+    end
+
+    def self.error_handler
+      @app_config.error_handler
+    end
+
+    def self.executor
+      @app_config.executor
+    end
+
+    def self.log_file
+      @app_config.log_file
+    end
+
+    def self.resolver
+      @app_config.resolver
+    end
+
+    def self.tool_name
+      @app_config.tool_name
+    end
   end
 end

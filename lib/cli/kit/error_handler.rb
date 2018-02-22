@@ -3,9 +3,9 @@ require 'cli/kit'
 module CLI
   module Kit
     class ErrorHandler
-      def initialize(log_file: nil, exception_reporter: NullExceptionReporter)
-        @log_file = log_file
+      def initialize(exception_reporter = NullExceptionReporter)
         @exception_reporter_or_proc = exception_reporter
+        install!
       end
 
       module NullExceptionReporter
@@ -66,11 +66,11 @@ module CLI
 
         if notify_with
           logs = begin
-            File.read(@log_file)
+            File.read(CLI::Kit.log_file)
           rescue => e
             "(#{e.class}: #{e.message})"
           end
-          exceptiono_reporter.report(notify_with, logs)
+          exception_reporter.report(notify_with, logs)
         end
       end
 

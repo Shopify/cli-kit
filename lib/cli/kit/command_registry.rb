@@ -19,10 +19,9 @@ module CLI
         end
       end
 
-      def initialize(default:, contextual_resolver: NullContextualResolver)
+      def initialize(contextual_resolver = NullContextualResolver)
         @commands = {}
         @aliases  = {}
-        @default = default
         @contextual_resolver = contextual_resolver
       end
 
@@ -37,7 +36,7 @@ module CLI
       end
 
       def lookup_command(name)
-        name = @default if name.to_s.empty?
+        name = CLI::Kit.default_command if name.to_s.empty?
         resolve_command(name)
       end
 
