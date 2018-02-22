@@ -19,10 +19,11 @@ module CLI
         end
       end
 
-      def initialize(contextual_resolver = NullContextualResolver)
+      def initialize(default:, contextual_resolver: nil)
         @commands = {}
         @aliases  = {}
-        @contextual_resolver = contextual_resolver
+        @default = default
+        @contextual_resolver = contextual_resolver || NullContextualResolver
       end
 
       def resolved_commands
@@ -36,38 +37,12 @@ module CLI
       end
 
       def lookup_command(name)
-        name = CLI::Kit.default_command if name.to_s.empty?
+        name = @default if name.to_s.empty?
         resolve_command(name)
       end
 
       def add_alias(from, to)
         aliases[from] = to unless aliases[from]
-      end
-
-      def resolve_command(name)
-        resolve_global_command(name) || \
-          resolve_contextual_command(name) || \
-          [nil, resolve_alias(name)]
-      end
-
-      def resolve_alias(name)
-        aliases[name] || @contextual_resolver.aliases.fetch(name, name)
-      end
-
-      def resolve_global_command(name)
-        name = resolve_alias(name)
-        klass = resolve_class(commands.fetch(name, ""))
-        return nil unless klass.defined? # (BaseCommand)
-        [klass, name]
-      rescue NameError
-        nil
-      end
-
-      def resolve_contextual_command(name)
-        name = resolve_alias(name)
-        found = @contextual_resolver.command_names.include?(name)
-        return nil unless found
-        [@contextual_resolver.command_class(name), name]
       end
 
       def command_names
@@ -80,11 +55,38 @@ module CLI
 
       private
 
+      def resolve_alias(name)
+        aliases[name] || @contextual_resolver.aliases.fetch(name, name)
+      end
+
+      def resolve_command(name)
+        name = resolve_alias(name)
+        resolve_global_command(name) || \
+          resolve_contextual_command(name) || \
+          [nil, name]
+      end
+
+      def resolve_global_command(name)
+        klass = resolve_class(commands.fetch(name, nil))
+        return nil unless klass
+        [klass, name]
+      rescue NameError
+        nil
+      end
+
+      def resolve_contextual_command(name)
+        found = @contextual_resolver.command_names.include?(name)
+        return nil unless found
+        [@contextual_resolver.command_class(name), name]
+      end
+
       def resolve_class(class_or_proc)
         if class_or_proc.is_a?(Class)
           class_or_proc
-        else
+        elsif class_or_proc.respond_to?(:call)
           class_or_proc.call
+        else
+          class_or_proc
         end
       end
     end

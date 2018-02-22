@@ -7,11 +7,11 @@ module CLI
         true
       end
 
-      def self.statsd_increment(metric, **kwargs)
+      def self.statsd_increment(_metric, **_kwargs)
         nil
       end
 
-      def self.statsd_time(metric, **kwargs)
+      def self.statsd_time(_metric, **_kwargs)
         yield
       end
 
@@ -31,7 +31,7 @@ module CLI
         end
       end
 
-      def call(args, command_name)
+      def call(_args, _command_name)
         raise NotImplementedError
       end
 

@@ -8,7 +8,6 @@ module CLI
     module System
       SUDO_PROMPT = CLI::UI.fmt("{{info:(sudo)}} Password: ")
       class << self
-
         # Ask for sudo access with a message explaning the need for it
         # Will make subsequent commands capable of running with sudo for a period of time
         #
