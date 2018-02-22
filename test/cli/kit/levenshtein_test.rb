@@ -27,7 +27,7 @@ module CLI
         assert_distance 1, '變形金剛4:絕跡重生', '變形金剛4: 絕跡重生'
         assert_distance 1, '連勝文',             '連勝丼'
         assert_distance 1, '馬英九',             '馬英丸'
-        assert_distance 1, '良い',               'いい'
+        assert_distance 1, '良い',              'いい'
       end
 
       private
