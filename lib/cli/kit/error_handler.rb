@@ -10,7 +10,7 @@ module CLI
       end
 
       module NullExceptionReporter
-        def self.report(exception, logs)
+        def self.report(_exception, _logs)
           nil
         end
       end
@@ -54,9 +54,9 @@ module CLI
           unless skip.include?(error.message)
             notify_with = error
           end
-        when SystemExit  # "exit N" called
+        when SystemExit # "exit N" called
           case error.status
-          when CLI::Kit::EXIT_SUCCESS  # submit nothing if it was `exit 0`
+          when CLI::Kit::EXIT_SUCCESS # submit nothing if it was `exit 0`
           when CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
             # if it was `exit 30`, translate the exit code to 1, and submit nothing
             # 30 is used to signal normal failures that are not indicative of bugs.
@@ -92,7 +92,6 @@ module CLI
       def format_error_message(msg)
         CLI::UI.fmt("{{red:#{msg}}}")
       end
-
 
       def print_error_message(e)
         STDERR.puts(format_error_message(e.message))

@@ -5,7 +5,7 @@ module CLI
   module Kit
     class Executor
       def initialize(log_file:)
-        @log_file  = log_file
+        @log_file = log_file
       end
 
       def call(command, command_name, args)
