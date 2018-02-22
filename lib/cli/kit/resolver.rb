@@ -26,7 +26,7 @@ module CLI
 
       def command_not_found(name)
         CLI::UI::Frame.open("Command not found", color: :red, timing: false) do
-          STDERR.puts(CLI::UI.fmt("{{command:#{@tool_name} #{name}}} was not found"))
+          $stderr.puts(CLI::UI.fmt("{{command:#{@tool_name} #{name}}} was not found"))
         end
 
         cmds = commands_and_aliases
@@ -45,7 +45,7 @@ module CLI
           if possible_matches.any?
             CLI::UI::Frame.open("{{bold:Did you mean?}}", timing: false, color: :blue) do
               possible_matches.each do |possible_match|
-                STDERR.puts CLI::UI.fmt("{{command:#{@tool_name} #{possible_match}}}")
+                $stderr.puts CLI::UI.fmt("{{command:#{@tool_name} #{possible_match}}}")
               end
             end
           end

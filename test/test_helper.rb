@@ -17,5 +17,7 @@ require 'bundler/setup'
 
 require 'byebug'
 
+CLI::UI::StdoutRouter.enable
+
 require 'minitest/autorun'
 require 'mocha/mini_test'
