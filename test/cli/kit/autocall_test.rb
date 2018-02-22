@@ -3,7 +3,7 @@ require 'test_helper'
 module CLI
   module Kit
     class AutocallTest < MiniTest::Test
-      def test_autocall_works
+      def test_autocall
         mod = Module.new do
           extend Autocall
           autocall(:Foo) { 42 }
