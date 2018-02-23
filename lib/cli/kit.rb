@@ -10,7 +10,7 @@ module CLI
     autoload :ErrorHandler,    'cli/kit/error_handler'
     autoload :Executor,        'cli/kit/executor'
     autoload :Ini,             'cli/kit/ini'
-    autoload :Levenshtein,     'cli/kit/levenshtein'
+    autoload :JaroWinkler,     'cli/kit/jaro_winkler'
     autoload :Resolver,        'cli/kit/resolver'
     autoload :System,          'cli/kit/system'
 
