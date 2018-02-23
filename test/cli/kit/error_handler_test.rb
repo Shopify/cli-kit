@@ -22,74 +22,81 @@ module CLI
       end
 
       def test_success
-        @rep.expects(:report).never
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_SUCCESS,
+          expect_out:    "neato\n",
+          expect_err:    "",
+          expect_report: false,
+        ) do
           puts 'neato'
         end
-        assert_equal("neato\n", out)
-        assert_empty(err)
-        assert_equal(CLI::Kit::EXIT_SUCCESS, code)
       end
 
       def test_abort_silent
-        @rep.expects(:report).never
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    "",
+          expect_report: false,
+        ) do
           raise(CLI::Kit::AbortSilent)
         end
-        assert_empty(out)
-        assert_empty(err)
-        assert_equal(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG, code)
       end
 
       def test_abort
-        @rep.expects(:report).never
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    /foo/,
+          expect_report: false,
+        ) do
           raise(CLI::Kit::Abort, 'foo')
         end
-        assert_empty(out)
-        assert_match(/foo/, err)
-        assert_equal(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG, code)
       end
 
       def test_bug_silent
-        @rep.expects(:report).once.with(is_a(CLI::Kit::BugSilent), 'words')
         File.write(@tf.path, 'words')
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    "",
+          expect_report: [is_a(CLI::Kit::BugSilent), 'words'],
+        ) do
           raise(CLI::Kit::BugSilent)
         end
-        assert_empty(out)
-        assert_empty(err)
-        assert_equal(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG, code)
       end
 
       def test_bug
-        @rep.expects(:report).once.with(is_a(CLI::Kit::Bug), '')
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    /foo/,
+          expect_report: [is_a(CLI::Kit::Bug), ''],
+        ) do
           raise(CLI::Kit::Bug, 'foo')
         end
-        assert_empty(out)
-        assert_match(/foo/, err)
-        assert_equal(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG, code)
       end
 
       def test_interrupt
-        @rep.expects(:report).never
-        out, err, code = with_handler do
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    /Interrupt/,
+          expect_report: false,
+        ) do
           raise(Interrupt)
         end
-        assert_empty(out)
-        assert_match(/Interrupt/, err)
-        assert_equal(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG, code)
       end
 
       def test_unhandled
-        @rep.expects(:report).once.with(is_a(RuntimeError), '')
-        out, err, code = with_handler do
-          raise 'wups'
+        run_test(
+          expect_code:   :unhandled,
+          expect_out:    "",
+          expect_err:    "",
+          expect_report: [is_a(RuntimeError), ''],
+        ) do
+          raise('wups')
         end
-        assert_empty(out)
-        assert_empty(err)
-        assert_equal(:unhandled, code)
       end
 
       # the rest of these are hard because they kind of rely on the handler
@@ -136,6 +143,25 @@ module CLI
         end
         [out, err, code]
       end
+
+      def run_test(expect_code:, expect_out:, expect_err:, expect_report:)
+        if expect_report
+          @rep.expects(:report).once.with(*expect_report)
+        else
+          @rep.expects(:report).never
+        end
+        out, err, code = with_handler do
+          yield
+        end
+        assert_equal(expect_out, out)
+        if expect_err.is_a?(Regexp)
+          assert_match(expect_err, err)
+        else
+          assert_equal(expect_err, err)
+        end
+        assert_equal(expect_code, code)
+      end
+
     end
   end
 end
