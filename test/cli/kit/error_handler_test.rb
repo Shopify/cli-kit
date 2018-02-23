@@ -123,9 +123,7 @@ module CLI
         code = nil
         out, err = capture_io do
           begin
-            CLI::UI::StdoutRouter.with_enabled do
-              code = @eh.call { yield }
-            end
+            code = @eh.call { yield }
           rescue => e
             # This is cheating, but it's the easiest way I could think of to
             # work around not wanting to actually have to call an at_exit
