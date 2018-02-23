@@ -32,13 +32,13 @@ module CLI
         cmds = commands_and_aliases
         if cmds.all? { |cmd| cmd.is_a?(String) }
           possible_matches = cmds.min_by(2) do |cmd|
-            CLI::Kit::Levenshtein.distance(cmd, name)
+            CLI::Kit::JaroWinkler.distance(cmd, name)
           end
 
           # We don't want to match against any possible command
           # so reject anything that is too far away
           possible_matches.reject! do |possible_match|
-            CLI::Kit::Levenshtein.distance(possible_match, name) > 3
+            CLI::Kit::JaroWinkler.distance(possible_match, name) > 3
           end
 
           # If we have any matches left, tell the user
