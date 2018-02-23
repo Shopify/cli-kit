@@ -1,0 +1,77 @@
+#!/usr/bin/ruby --disable-gems
+
+$LOAD_PATH.unshift(File.expand_path("../../vendor/deps/cli-ui/lib", __FILE__))
+require 'cli/ui'
+require 'open3'
+require 'fileutils'
+
+def bail(msg)
+  STDERR.puts(CLI::UI.fmt("{{red:{{bold:[ERROR]}} #{msg}}}"))
+  exit 1
+end
+
+def warn(msg)
+  STDERR.puts(CLI::UI.fmt("{{red:{{bold:[WARNING]}} #{msg}}}"))
+end
+
+def source_path
+  File.expand_path(ENV.fetch('SOURCE_ROOT', File.expand_path('../../..', __FILE__)))
+end
+
+deps = %w(cli-ui cli-kit)
+
+deps.each do |dep|
+  path = File.expand_path(dep, source_path)
+
+  unless Dir.exist?(path)
+    bail("dependency is not checked out: {{yellow:#{dep}}} {{bold:{{blue:(try {{green:dev clone}})}}}}")
+  end
+
+  head_sha = nil
+  dirty = false
+
+  Dir.chdir(path) do
+    _, _, stat = Open3.capture3('git fetch origin master')
+    bail("couldn't git fetch in dependency: {{yellow:#{dep}}}") unless stat.success?
+
+    head_sha, stat = Open3.capture2('git rev-parse HEAD')
+    bail("couldn't determine HEAD: {{yellow:#{dep}}}") unless stat.success?
+    head_sha.chomp!
+
+    fetch_head_sha, stat = Open3.capture2('git rev-parse FETCH_HEAD')
+    bail("couldn't determine FETCH_HEAD: {{yellow:#{dep}}}") unless stat.success?
+    fetch_head_sha.chomp!
+
+    git_status, stat = Open3.capture2('git status --porcelain')
+    bail("couldn't determine git status: {{yellow:#{dep}}}") unless stat.success?
+
+    if head_sha != fetch_head_sha
+      warn(
+        "Copied files from {{yellow:#{path}}} to satisfy dependency {{yellow:#{dep}}}.\n" \
+        "  However, the repo at {{yellow:#{path}}} isn't up to date.\n" \
+        "  The checked-out revision is {{yellow:#{head_sha[0..8]}}}, and "\
+        "{{yellow:origin/master}} is {{yellow:#{fetch_head_sha[0..8]}}}.\n" \
+        "  Unless you know what you're doing, you should {{green:cd}} to that repo and {{green:git pull}}, then run this again."
+      )
+    end
+
+    unless git_status.chomp.empty?
+      dirty = true
+      warn("importing uncommitted changes from dependency: {{yellow:#{dep}}}")
+    end
+  end
+
+  depdir = File.expand_path("../../vendor/deps/#{dep}", __FILE__)
+  FileUtils.rm_rf(depdir)
+  FileUtils.mkdir_p(depdir)
+  dstlib = File.expand_path('lib', depdir)
+  srclib = File.expand_path('lib', path)
+
+  FileUtils.cp_r(srclib, dstlib)
+
+  rev = head_sha
+  rev << " (dirty)" if dirty
+  rev << "\n"
+
+  File.write("#{depdir}/REVISION", rev)
+end

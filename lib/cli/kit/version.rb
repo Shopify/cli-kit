@@ -1,5 +1,5 @@
 module CLI
   module Kit
-    VERSION = "3.0.0.pre"
+    VERSION = "3.0.0.beta"
   end
 end
