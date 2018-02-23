@@ -9,8 +9,7 @@ module CLI
       end
 
       def call(command, command_name, args)
-        trap_signals
-        with_logging { command.call(args, command_name) }
+        with_traps { with_logging { command.call(args, command_name) } }
       end
 
       private
@@ -20,22 +19,35 @@ module CLI
         CLI::UI.log_output_to(@log_file, &block)
       end
 
-      def trap_signals
-        trap('QUIT') do
-          z = caller
-          CLI::UI.raw do
-            STDERR.puts('SIGQUIT: quit')
-            STDERR.puts(z)
+      def with_traps
+        twrap('QUIT', method(:quit_handler)) do
+          twrap('INFO', method(:info_handler)) do
+            yield
           end
-          exit 1
         end
-        trap('INFO') do
-          z = caller
-          CLI::UI.raw do
-            STDERR.puts('SIGINFO:')
-            STDERR.puts(z)
-            # Thread.list.map { |t| t.backtrace }
-          end
+      end
+
+      def twrap(signal, handler)
+        prev_handler = trap(signal, handler)
+        yield
+      ensure
+        trap(signal, prev_handler)
+      end
+
+      def quit_handler(_sig)
+        z = caller
+        CLI::UI.raw do
+          $stderr.puts('SIGQUIT: quit')
+          $stderr.puts(z)
+        end
+        exit 1
+      end
+
+      def info_handler(_sig)
+        z = caller
+        CLI::UI.raw do
+          $stderr.puts('SIGINFO:')
+          $stderr.puts(z)
         end
       end
     end
