@@ -17,10 +17,10 @@ module CLI
         end
         assert_match(/tool foo.* was not found/, err)
       end
-    end
 
-    def test_more
-      skip
+      def test_more
+        skip
+      end
     end
   end
 end
