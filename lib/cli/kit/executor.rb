@@ -40,7 +40,7 @@ module CLI
           $stderr.puts('SIGQUIT: quit')
           $stderr.puts(z)
         end
-        exit 1
+        exit(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
       end
 
       def info_handler(_sig)

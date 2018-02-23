@@ -47,7 +47,7 @@ module CLI
       end
 
       def test_sigquit_handling
-        @exe.expects(:exit).with(1)
+        @exe.expects(:exit).with(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
         out, err = capture_io do
           exe.call(->(*) { Process.kill('QUIT', Process.pid) }, 'foo', [])
         end

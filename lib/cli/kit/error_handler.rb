@@ -38,7 +38,7 @@ module CLI
 
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       rescue Interrupt
-        STDERR.puts(format_error_message("Interrupt"))
+        $stderr.puts(format_error_message("Interrupt"))
         return CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
@@ -58,9 +58,9 @@ module CLI
           case error.status
           when CLI::Kit::EXIT_SUCCESS # submit nothing if it was `exit 0`
           when CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
-            # if it was `exit 30`, translate the exit code to 1, and submit nothing
+            # if it was `exit 30`, translate the exit code to 1, and submit nothing.
             # 30 is used to signal normal failures that are not indicative of bugs.
-            # But users should see it presented as 1.
+            # However, users should see it presented as 1.
             exit 1
           else
             # A weird termination status happened. `error.exception "message"` will maintain backtrace
@@ -94,7 +94,7 @@ module CLI
       end
 
       def print_error_message(e)
-        STDERR.puts(format_error_message(e.message))
+        $stderr.puts(format_error_message(e.message))
       end
     end
   end
