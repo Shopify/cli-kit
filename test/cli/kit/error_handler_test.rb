@@ -117,7 +117,6 @@ module CLI
         skip
       end
 
-
       private
 
       def with_handler
