@@ -15,7 +15,7 @@ module CLI
 
         cmd, resolved_name, args = nil
         out, err = capture_io do
-          cmd, resolved_name, args = res.call(['f', 'a', 'b'])
+          cmd, resolved_name, args = res.call(%w(f a b))
         end
 
         assert_empty(out)
@@ -23,7 +23,7 @@ module CLI
 
         assert_equal(32, cmd)
         assert_equal('foo', resolved_name)
-        assert_equal(['a', 'b'], args)
+        assert_equal(%w(a b), args)
       end
 
       def test_resolver_no_match
