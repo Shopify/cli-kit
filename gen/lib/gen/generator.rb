@@ -19,6 +19,8 @@ module Gen
       'Gemfile'            => false,
       'exe/__app__-gems'   => false,
       'exe/__app__-vendor' => 'exe/__app__',
+      'dev-gems.yml'       => false,
+      'dev-vendor.yml'     => 'dev.yml',
     }.freeze
     private_constant :VENDOR_TRANSLATIONS
 
@@ -27,6 +29,8 @@ module Gen
       'bin/update-deps'    => false,
       'exe/__app__-gems'   => 'exe/__app__',
       'exe/__app__-vendor' => false,
+      'dev-gems.yml'       => 'dev.yml',
+      'dev-vendor.yml'     => false,
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 
@@ -36,7 +40,7 @@ module Gen
         "project name must match {{bold:#{VALID_PROJECT_NAME}}} (but can be changed later)"
       ) unless project_name =~ VALID_PROJECT_NAME
       @project_name = project_name
-      @title_case = @project_name[0].upcase + @project_name[1..-1]
+      @title_case_project_name = @project_name.sub(/^./, &:upcase)
     end
 
     def run
@@ -54,9 +58,10 @@ module Gen
     def ask_vendor?
       vendor = nil
       CLI::UI::Frame.open('Configuration') do
-        vendor = CLI::UI.ask('How would you like the application to consume {{command:cli-kit}} and {{command:cli-ui}}?') do |c|
-          c.option('Vendor (faster execution, more difficult to update deps)') { 'vendor' }
-          c.option('Bundler (slower execution, easer dep management)') { 'bundler' }
+        q = 'How would you like the application to consume {{command:cli-kit}} and {{command:cli-ui}}?'
+        vendor = CLI::UI::Prompt.ask(q) do |c|
+          c.option('Vendor  {{italic:(faster execution, more difficult to update deps)}}') { 'vendor' }
+          c.option('Bundler {{italic:(slower execution, easier dep management)}}') { 'bundler' }
         end
       end
       vendor == 'vendor'
@@ -85,8 +90,8 @@ module Gen
         else
           content = apply_template_variables(File.read(source))
           File.write(target, content)
-          File.chmod(File.stat(source).mode, target)
         end
+        File.chmod(File.stat(source).mode, target)
       end
     end
 
@@ -101,7 +106,21 @@ module Gen
     end
 
     def apply_template_variables(s)
-      s.gsub(/__app__/, @project_name).gsub(/__App__/, @title_case)
+      s
+        .gsub(/__app__/, @project_name)
+        .gsub(/__App__/, @title_case_project_name)
+        .gsub(/__cli-kit-version__/, cli_kit_version)
+        .gsub(/__cli-ui-version__/, cli_ui_version)
+    end
+
+    def cli_kit_version
+      require 'cli/kit/version'
+      CLI::Kit::VERSION.to_s
+    end
+
+    def cli_ui_version
+      require 'cli/ui/version'
+      CLI::UI::VERSION.to_s
     end
 
     def info(create:)
