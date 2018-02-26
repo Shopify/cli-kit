@@ -1,17 +1,27 @@
-#!/usr/bin/ruby --disable-gems
+#!/usr/bin/env ruby --disable-gems
 
 $LOAD_PATH.unshift(File.expand_path("../../vendor/deps/cli-ui/lib", __FILE__))
-require 'cli/ui'
 require 'open3'
 require 'fileutils'
 
+def fmt(tag, msg)
+  # Not really CLI::UI.fmt compatible: no nesting support, for example.
+  fmt_msg = msg
+    .gsub(/{{yellow:(.*?)}}/,     "\x1b[33m\\1\x1b[31m")
+    .gsub(/{{green:(.*?)}}/,      "\x1b[32m\\1\x1b[31m")
+    .gsub(/{{blue:(.*?)}}/,       "\x1b[34m\\1\x1b[31m")
+    .gsub(/{{bold_blue:(.*?)}}/,  "\x1b[1;34m\\1\x1b[0;31m")
+    .gsub(/{{bold_green:(.*?)}}/, "\x1b[1;32m\\1\x1b[0;31m")
+  "\x1b[1;31m[#{tag}] \x1b[0;31m#{fmt_msg}\x1b[0m"
+end
+
 def bail(msg)
-  STDERR.puts(CLI::UI.fmt("{{red:{{bold:[ERROR]}} #{msg}}}"))
+  STDERR.puts(fmt("ERROR", msg))
   exit 1
 end
 
 def warn(msg)
-  STDERR.puts(CLI::UI.fmt("{{red:{{bold:[WARNING]}} #{msg}}}"))
+  STDERR.puts(fmt("WARNING", msg))
 end
 
 def source_path
@@ -24,7 +34,12 @@ deps.each do |dep|
   path = File.expand_path(dep, source_path)
 
   unless Dir.exist?(path)
-    bail("dependency is not checked out: {{yellow:#{dep}}} {{bold:{{blue:(try {{green:dev clone}})}}}}")
+    bail(
+      "dependency is not checked out: {{yellow:#{dep}}}.\n" \
+      "  This repo {{bold_blue:(github.com/shopify/#{dep})}} must be cloned at {{bold_blue:#{path}}} for this script to succeed.\n" \
+      "  Alternatively, you can set {{bold_blue:SOURCE_ROOT}} to a directory containing {{yellow:#{dep}}}.\n" \
+      "  {{bold_blue:SOURCE_ROOT}} defaults to {{bold_blue:../}}."
+    )
   end
 
   head_sha = nil

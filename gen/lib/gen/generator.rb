@@ -1,6 +1,8 @@
 require 'gen'
 require 'fileutils'
+require 'open3'
 require 'pathname'
+require 'tmpdir'
 
 module Gen
   class Generator
@@ -48,6 +50,7 @@ module Gen
       create_project_dir
       if vendor
         copy_files(translations: VENDOR_TRANSLATIONS)
+        update_deps
       else
         copy_files(translations: BUNDLER_TRANSLATIONS)
       end
@@ -95,6 +98,26 @@ module Gen
       end
     end
 
+    def update_deps
+      Dir.mktmpdir do |tmp|
+        clone(tmp, 'cli-ui')
+        clone(tmp, 'cli-kit')
+        info(run: 'bin/update-deps')
+        Dir.chdir(@project_name) do
+          system({ 'SOURCE_ROOT' => tmp }, 'bin/update-deps')
+        end
+      end
+    end
+
+    def clone(dir, repo)
+      info(clone: repo)
+      out, stat = Open3.capture2e('git', '-C', dir, 'clone', "https://github.com/shopify/#{repo}")
+      unless stat.success?
+        STDERR.puts(out)
+        error("git clone failed")
+      end
+    end
+
     def each_template_file
       return enum_for(:each_template_file) unless block_given?
 
@@ -123,8 +146,14 @@ module Gen
       CLI::UI::VERSION.to_s
     end
 
-    def info(create:)
-      puts(CLI::UI.fmt("\t{{bold:{{blue:create}}\t#{create}}}"))
+    def info(create: nil, clone: nil, run: nil)
+      if clone
+        puts(CLI::UI.fmt("\t{{bold:{{yellow:clone}}\t#{clone}}}"))
+      elsif create
+        puts(CLI::UI.fmt("\t{{bold:{{blue:create}}\t#{create}}}"))
+      elsif run
+        puts(CLI::UI.fmt("\t{{bold:{{green:run}}\t#{run}}}"))
+      end
     end
 
     def error(msg)
