@@ -6,6 +6,8 @@ require 'fileutils'
 
 def fmt(tag, msg)
   # Not really CLI::UI.fmt compatible: no nesting support, for example.
+  # While we could pull in CLI::UI here, it makes it more difficult to
+  # bootstrap a new project and to fix a broken vendor.
   fmt_msg = msg
     .gsub(/{{yellow:(.*?)}}/,     "\x1b[33m\\1\x1b[31m")
     .gsub(/{{green:(.*?)}}/,      "\x1b[32m\\1\x1b[31m")
@@ -62,7 +64,7 @@ deps.each do |dep|
 
     if head_sha != fetch_head_sha
       warn(
-        "Copied files from {{yellow:#{path}}} to satisfy dependency {{yellow:#{dep}}}.\n" \
+        "Copying files from {{yellow:#{path}}} to satisfy dependency {{yellow:#{dep}}}.\n" \
         "  However, the repo at {{yellow:#{path}}} isn't up to date.\n" \
         "  The checked-out revision is {{yellow:#{head_sha[0..8]}}}, and "\
         "{{yellow:origin/master}} is {{yellow:#{fetch_head_sha[0..8]}}}.\n" \
