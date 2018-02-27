@@ -68,7 +68,7 @@ module CLI
 
       def resolve_global_command(name)
         klass = resolve_class(commands.fetch(name, nil))
-        return nil unless klass
+        return nil unless klass && klass.defined?
         [klass, name]
       rescue NameError
         nil
