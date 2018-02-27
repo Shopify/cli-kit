@@ -13,6 +13,10 @@ to build a number of internal developer tools, along with
 
 ## Example Usage
 
-You can see example usage [here](https://github.com/Shopify/cli-kit-example). We may one day build
-an application generator, as this framework paradigm requires a small amount of boilerplate. For
-now, the best way to get going is to use this example application as a starting point.
+```bash
+gem install cli-kit
+cli-kit new myproject
+```
+
+You can see example usage [here](https://github.com/Shopify/cli-kit-example). This app is similar to
+the one that the generator generates.
