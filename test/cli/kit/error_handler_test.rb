@@ -161,7 +161,6 @@ module CLI
         end
         assert_equal(expect_code, code)
       end
-
     end
   end
 end

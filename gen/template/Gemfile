@@ -1,0 +1,4 @@
+source 'https://rubygems.org'
+
+gem 'cli-kit', '~> __cli-kit-version__'
+gem 'cli-ui', '~> __cli-ui-version__'
