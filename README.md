@@ -49,8 +49,8 @@ run:
 ### Registering the Command
 
 Let's say that you'd like your program to be able to handle a specific task, and you'd like to
-_register_ a new handler for the command for that task, like `todo add` to add an item to a to-do
-list.
+_register_ a new handler for the command for that task, like `myproject add` to add 2 numbers, like
+in a calculator app.
 To do this, open `/lib/myproject/commands.rb`. Then, add a new line into the module, like this:
 ```ruby
 register :Add, 'add', 'myproject/commands/add'
