@@ -37,7 +37,8 @@ run:
 ### Folder Structure
 * `/exe/` - Location of the executables for your application.
 * `/lib/` - Location of the resources for your app (modules, classes, helpers, etc).
-    * `myproject.rb` - The main file for your application.
+    * `myproject.rb` - This file is the starting point for where to look for all other files. It
+    configures autoload and autocall for the app.
     * `myproject/` - Stores the various commands/entry points.
         * `entry_point.rb` - This is the file that is first called from the executable. It handles 
         loading and commands.
@@ -88,8 +89,8 @@ The `call(args, _name)` method is what actually runs when the `myproject add` co
 Let's say that you are trying to compute the sum of 2 numbers that the user has specified as
 arguments.  For example:
 ```ruby
-def call(_args, _name)
-  sum = _args.map(&:to_i).inject(&:+)
+def call(args, _name)
+  sum = args.map(&:to_i).inject(&:+)
   puts sum
 end
 ```
