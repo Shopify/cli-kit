@@ -28,10 +28,14 @@ module CLI
       end
 
       def twrap(signal, handler)
-        prev_handler = trap(signal, handler)
-        yield
-      ensure
-        trap(signal, prev_handler)
+        return yield unless Signal.list.key?(signal)
+
+        begin
+          prev_handler = trap(signal, handler)
+          yield
+        ensure
+          trap(signal, prev_handler)
+        end
       end
 
       def quit_handler(_sig)
