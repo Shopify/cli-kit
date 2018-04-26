@@ -5,6 +5,10 @@ AllCops:
   Exclude: [ 'gen/template/**/*' ]
   TargetRubyVersion: 2.3
 
+Style/ClassAndModuleChildren:
+  Exclude:
+    - lib/cli/kit/support/test_helper.rb
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
