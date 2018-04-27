@@ -27,7 +27,6 @@ module Gen
     private_constant :VENDOR_TRANSLATIONS
 
     BUNDLER_TRANSLATIONS = {
-      'bin'                => false,
       'bin/update-deps'    => false,
       'exe/__app__-gems'   => 'exe/__app__',
       'exe/__app__-vendor' => false,
