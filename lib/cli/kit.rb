@@ -12,6 +12,7 @@ module CLI
     autoload :Ini,             'cli/kit/ini'
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :Resolver,        'cli/kit/resolver'
+    autoload :Support,         'cli/kit/support'
     autoload :System,          'cli/kit/system'
 
     EXIT_FAILURE_BUT_NOT_BUG = 30
