@@ -46,21 +46,26 @@ module CLI
         @ini
       end
 
+      def git_format
+        to_ini(@ini, git_format: true).flatten.join("\n")
+      end
+
       def to_s
         to_ini(@ini).flatten.join("\n")
       end
 
       private
 
-      def to_ini(h)
+      def to_ini(h, git_format: false)
+        optional_tab = git_format ? "\t" : ""
         str = []
         h.each do |k, v|
           if section_designator?(k)
-            str << "" unless str.empty?
+            str << "" unless str.empty? || git_format
             str << k
-            str << to_ini(v)
+            str << to_ini(v, git_format: git_format)
           else
-            str << "#{k} = #{v}"
+            str << "#{optional_tab}#{k} = #{v}"
           end
         end
         str
