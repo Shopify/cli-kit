@@ -43,6 +43,27 @@ module CLI
         write_config
       end
 
+      # Unsets a config value in the config file
+      #
+      # #### Parameters
+      # `section` : the section of the config you are deleting
+      # `name` : the name of the config you are deleting
+      #
+      # #### Example Usage
+      # `config.unset('section', 'name.of.config')`
+      #
+      def unset(section, name)
+        set(section, name, nil)
+      end
+
+      # Gets the hash for the entire section
+      #
+      # #### Parameters
+      # `section` : the section of the config you are getting
+      #
+      # #### Example Usage
+      # `config.get_section('section')`
+      #
       def get_section(section)
         (all_configs["[#{section}]"] || {}).dup
       end
