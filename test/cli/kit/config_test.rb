@@ -50,6 +50,13 @@ module CLI
         assert_equal("#{ENV['HOME']}/.test", @config.get_path('section', 'some-key'))
       end
 
+      def test_config_unset
+        @config.set('section', 'some-key', '~/.test')
+        assert_equal("[section]\nsome-key = ~/.test", File.read(@file))
+        @config.unset('section', 'some-key')
+        assert_equal("", File.read(@file))
+      end
+
       def test_config_mutli_argument_get
         @config.set('some-parent', 'some-key', 'some-value')
         assert_equal 'some-value', @config.get('some-parent', 'some-key')
