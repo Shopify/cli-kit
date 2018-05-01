@@ -2,11 +2,21 @@ module CLI
   module Kit
     module Support
       module TestHelper
-        def assert_all_commands_run
-          errors = CLI::Kit::System.capture_commands do
-            yield
-          end
-          assert_nil errors, message: errors
+        def setup
+          super
+          CLI::Kit::System.reset!
+        end
+
+        def assert_all_commands_run(should_raise: true)
+          errors = CLI::Kit::System.error_message
+          CLI::Kit::System.reset!
+          assert false, errors if should_raise && !errors.nil?
+          errors
+        end
+
+        def teardown
+          super
+          assert_all_commands_run
         end
 
         class FakeSuccess
@@ -127,23 +137,17 @@ module CLI
                   }
                 end
 
-                # Captures all commands and returns errors
+                # Resets the faked commands
                 #
-                # #### Returns
-                # `error` (String) nil if no errors, otherwise a string representing the error
-                #
-                def capture_commands
-                  raise ArgumentError, 'block must be given' unless block_given?
-                  @delegate_open3 ||= {}
-                  yield
-                  determine_errors
-                ensure
+                def reset!
                   @delegate_open3 = {}
                 end
 
-                private
-
-                def determine_errors
+                # Returns the errors associated to a test run
+                #
+                # #### Returns
+                # `errors` (String) a string representing errors found on this run, nil if none
+                def error_message
                   errors = {
                     unexpected: [],
                     not_run: [],
@@ -196,6 +200,8 @@ module CLI
                   return nil if final_error.empty?
                   "\n" + final_error.join("\n") # Initial new line for formatting reasons
                 end
+
+                private
 
                 def expected_command(*a, sudo: raise, env: raise)
                   expected_cmd = @delegate_open3[a.join(' ')]
