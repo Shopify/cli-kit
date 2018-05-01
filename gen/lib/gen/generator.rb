@@ -27,7 +27,6 @@ module Gen
     private_constant :VENDOR_TRANSLATIONS
 
     BUNDLER_TRANSLATIONS = {
-      'bin'                => false,
       'bin/update-deps'    => false,
       'exe/__app__-gems'   => 'exe/__app__',
       'exe/__app__-vendor' => false,
@@ -59,6 +58,9 @@ module Gen
     private
 
     def ask_vendor?
+      return 'vendor' if ENV['DEPS'] == 'vendor'
+      return 'bundler' if ENV['DEPS'] == 'bundler'
+
       vendor = nil
       CLI::UI::Frame.open('Configuration') do
         q = 'How would you like the application to consume {{command:cli-kit}} and {{command:cli-ui}}?'

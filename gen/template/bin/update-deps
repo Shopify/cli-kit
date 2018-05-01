@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby --disable-gems
+#!/usr/bin/env ruby
 
 $LOAD_PATH.unshift(File.expand_path("../../vendor/deps/cli-ui/lib", __FILE__))
 require 'open3'
@@ -39,6 +39,7 @@ deps.each do |dep|
     bail(
       "dependency is not checked out: {{yellow:#{dep}}}.\n" \
       "  This repo {{bold_blue:(github.com/shopify/#{dep})}} must be cloned at {{bold_blue:#{path}}} for this script to succeed.\n" \
+      "  Currently, SOURCE_ROOT is set to {{bold_blue:#{source_path}}}.\n" \
       "  Alternatively, you can set {{bold_blue:SOURCE_ROOT}} to a directory containing {{yellow:#{dep}}}.\n" \
       "  {{bold_blue:SOURCE_ROOT}} defaults to {{bold_blue:../}}."
     )

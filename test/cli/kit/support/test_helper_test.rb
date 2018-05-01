@@ -8,10 +8,8 @@ module CLI
 
         def test_when_all_commands_not_run
           CLI::Kit::System.fake('banana', success: true)
-          errors = CLI::Kit::System.capture_commands do
-            # do nothing
-          end
 
+          errors = assert_all_commands_run(should_raise: false)
           expected_err = <<~EOF
 
           Expected commands were not run:
@@ -21,10 +19,9 @@ module CLI
         end
 
         def test_when_unexpected_command
-          errors = CLI::Kit::System.capture_commands do
-            CLI::Kit::System.system('banana')
-          end
+          CLI::Kit::System.system('banana')
 
+          errors = assert_all_commands_run(should_raise: false)
           expected_err = <<~EOF
 
           Unexpected command invocations:
@@ -37,11 +34,10 @@ module CLI
           CLI::Kit::System.fake('banana', success: true)
           CLI::Kit::System.fake('kiwi', success: true)
 
-          errors = CLI::Kit::System.capture_commands do
-            CLI::Kit::System.system('banana', sudo: true, env: { kiwi: false })
-            CLI::Kit::System.system('kiwi', sudo: true, env: { kiwi: false })
-          end
+          CLI::Kit::System.system('banana', sudo: true, env: { kiwi: false })
+          CLI::Kit::System.system('kiwi', sudo: true, env: { kiwi: false })
 
+          errors = assert_all_commands_run(should_raise: false)
           expected_err = <<~EOF
 
           Commands were not run as expected:
@@ -62,13 +58,12 @@ module CLI
           CLI::Kit::System.fake('apple', success: true)
           CLI::Kit::System.fake('orange', success: true)
 
-          errors = CLI::Kit::System.capture_commands do
-            CLI::Kit::System.system('banana').success?
-            CLI::Kit::System.capture2('kiwi').last.success?
-            CLI::Kit::System.capture2e('apple').last.success?
-            CLI::Kit::System.capture3('orange').last.success?
-          end
+          CLI::Kit::System.system('banana').success?
+          CLI::Kit::System.capture2('kiwi').last.success?
+          CLI::Kit::System.capture2e('apple').last.success?
+          CLI::Kit::System.capture3('orange').last.success?
 
+          errors = assert_all_commands_run(should_raise: false)
           assert_nil errors, "errors should have been nil"
         end
 
@@ -78,20 +73,18 @@ module CLI
           CLI::Kit::System.fake('apple', success: true)
           CLI::Kit::System.fake('orange', success: true)
 
-          assert_all_commands_run do
-            CLI::Kit::System.system('banana').success?
-            CLI::Kit::System.capture2('kiwi').last.success?
-            CLI::Kit::System.capture2e('apple').last.success?
-            CLI::Kit::System.capture3('orange').last.success?
-          end
+          CLI::Kit::System.system('banana').success?
+          CLI::Kit::System.capture2('kiwi').last.success?
+          CLI::Kit::System.capture2e('apple').last.success?
+          CLI::Kit::System.capture3('orange').last.success?
+
+          errors = assert_all_commands_run(should_raise: false)
+          assert_nil errors
         end
 
         def test_when_commands_run_properly
-          errors = CLI::Kit::System.capture_commands do
-            CLI::Kit::System.fake('banana', success: true)
-            assert CLI::Kit::System.system('banana').success?
-          end
-          assert_nil errors, "errors should have been nil"
+          CLI::Kit::System.fake('banana', success: true)
+          assert CLI::Kit::System.system('banana').success?
         end
       end
     end
