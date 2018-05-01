@@ -10,7 +10,7 @@ module CLI
       end
 
       def test_resolver_match
-        reg.add(32, 'foo')
+        reg.add(CLI::Kit::BaseCommand, 'foo')
         reg.add_alias('f', 'foo')
 
         cmd, resolved_name, args = nil
@@ -21,7 +21,7 @@ module CLI
         assert_empty(out)
         assert_empty(err)
 
-        assert_equal(32, cmd)
+        assert_equal(CLI::Kit::BaseCommand, cmd)
         assert_equal('foo', resolved_name)
         assert_equal(%w(a b), args)
       end

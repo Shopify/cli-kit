@@ -37,13 +37,17 @@ module CLI
       end
 
       def test_siginfo_handling
-        out, err = capture_io do
-          exe.call(->(*) { Process.kill('INFO', Process.pid) }, 'foo', [])
+        if Signal.list.key?('INFO')
+          out, err = capture_io do
+            exe.call(->(*) { Process.kill('INFO', Process.pid) }, 'foo', [])
+          end
+          assert_empty(out)
+          lines = err.lines
+          assert_equal("SIGINFO:\n", lines.shift)
+          assert_is_stack_trace(lines)
+        else
+          pass 'INFO isnt available on this system, but that is ok'
         end
-        assert_empty(out)
-        lines = err.lines
-        assert_equal("SIGINFO:\n", lines.shift)
-        assert_is_stack_trace(lines)
       end
 
       def test_sigquit_handling

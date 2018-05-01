@@ -2,4 +2,9 @@ sudo: false
 language: ruby
 rvm:
   - 2.3.3
+  - 2.5.0
+os:
+  - linux
+  - osx
 before_install: gem install bundler -v 1.15.0
+script: bin/testunit

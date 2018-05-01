@@ -29,7 +29,7 @@ module CLI
         assert_lookup(reg, nil, 'dflt', nil)
         assert_lookup(reg, nil, 'dflt', 'dflt')
 
-        cmd = Class.new
+        cmd = CLI::Kit::BaseCommand
         reg.add(cmd, 'dflt')
         assert_lookup(reg, cmd, 'dflt', nil)
         assert_lookup(reg, cmd, 'dflt', 'dflt')
@@ -40,16 +40,16 @@ module CLI
       end
 
       def test_lazy_evaluation
-        cmd = ->() { 42 }
+        cmd = ->() { CLI::Kit::BaseCommand }
         reg.add(cmd, 'cmd')
-        assert_lookup(reg, 42, 'cmd', 'cmd')
+        assert_lookup(reg, CLI::Kit::BaseCommand, 'cmd', 'cmd')
       end
 
       def test_alias
         reg.add_alias('a', 'abc')
         assert_lookup(reg, nil, 'abc', 'a')
 
-        cmd = Class.new
+        cmd = CLI::Kit::BaseCommand
         reg.add(cmd, 'abc')
         assert_lookup(reg, cmd, 'abc', 'a')
       end
@@ -57,7 +57,7 @@ module CLI
       def test_exist?
         reg.add_alias('a', 'abc')
         reg.add_alias('x', 'xyz')
-        cmd = Class.new
+        cmd = CLI::Kit::BaseCommand
         reg.add(cmd, 'abc')
 
         assert reg.exist?('abc')
