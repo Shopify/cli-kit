@@ -53,12 +53,11 @@ module CLI
       def test_config_get_bool_on_invalid
         @config.set('section', 'foo-key', "yes")
         assert_equal("yes", @config.get('section', 'foo-key'))
-        begin
+
+        e = assert_raises CLI::Kit::Abort do
           @config.get_bool('section', 'foo-key')
-          raise 'Expected "Invalid config"'
-        rescue CLI::Kit::Abort => e
-          assert_match(/^Invalid config/, e.message)
         end
+        assert_equal "Invalid config: section.foo-key is expected to be true or false", e.message
       end
 
       def test_config_key_never_padded_with_whitespace
