@@ -25,6 +25,42 @@ module CLI
         refute @config.get('section', 'invalid-key-no-existing')
       end
 
+      def test_config_get_bool_non_existant
+        refute @config.get('section', 'invalid-key-no-existing') # doesn't exist yet
+        refute @config.get_bool('section', 'invalid-key-no-existing') # defaults to false
+      end
+
+      def test_config_get_bool_on_string
+        @config.set('section', 'foo-key', 'true')
+        assert_equal('true', @config.get('section', 'foo-key')) # doesn't parse by default
+        assert_equal(true, @config.get_bool('section', 'foo-key'))
+
+        @config.set('section', 'foo-key', 'false')
+        assert_equal('false', @config.get('section', 'foo-key')) # doesn't parse by default
+        assert_equal(false, @config.get_bool('section', 'foo-key'))
+      end
+
+      def test_config_get_bool_on_bool
+        @config.set('section', 'foo-key', true)
+        assert_equal('true', @config.get('section', 'foo-key'))
+        assert_equal(true, @config.get_bool('section', 'foo-key'))
+
+        @config.set('section', 'foo-key', false)
+        assert_equal('false', @config.get('section', 'foo-key'))
+        assert_equal(false, @config.get_bool('section', 'foo-key'))
+      end
+
+      def test_config_get_bool_on_invalid
+        @config.set('section', 'foo-key', "yes")
+        assert_equal("yes", @config.get('section', 'foo-key'))
+        begin
+          @config.get_bool('section', 'foo-key')
+          raise 'Expected "Invalid config"'
+        rescue CLI::Kit::Abort => e
+          assert_match(/^Invalid config/, e.message)
+        end
+      end
+
       def test_config_key_never_padded_with_whitespace
         # There was a bug that occured when a key was reset
         # We split on `=` and 'key ' became the new key (with a space)

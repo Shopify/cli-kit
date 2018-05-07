@@ -27,6 +27,18 @@ module CLI
         all_configs.dig("[#{section}]", name) || false
       end
 
+      # Coalesce and enforce the value of a config to a boolean
+      def get_bool(section, name)
+        case get(section, name).to_s
+        when "true"
+          true
+        when "false"
+          false
+        else
+          raise CLI::Kit::Abort, "Invalid config: #{section}.#{name} is expected to be true or false"
+        end
+      end
+
       # Sets the config value in the config file
       #
       # #### Parameters
