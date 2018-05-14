@@ -9,14 +9,28 @@ module CLI
       end
 
       def call(command, command_name, args)
-        with_traps { with_logging { command.call(args, command_name) } }
+        with_traps do
+          with_logging do |id|
+            begin
+              command.call(args, command_name)
+            rescue => e
+              $stderr.puts "This command ran with ID: #{id}"
+              $stderr.puts "Please include this information in any issues/report along with relevant logs"
+              raise e
+            end
+          end
+        end
       end
 
       private
 
       def with_logging(&block)
         return yield unless @log_file
-        CLI::UI.log_output_to(@log_file, &block)
+        CLI::UI.log_output_to(@log_file) do
+          CLI::UI::StdoutRouter.with_id(on_streams: [CLI::UI::StdoutRouter.duplicate_output_to]) do |id|
+            block.call(id)
+          end
+        end
       end
 
       def with_traps

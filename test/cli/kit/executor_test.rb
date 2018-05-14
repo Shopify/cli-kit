@@ -18,21 +18,44 @@ module CLI
         exe = Executor.new(log_file: @tf.path)
         out, err = capture_io do
           CLI::UI::StdoutRouter.with_enabled do
-            exe.call(method(:simple_command), 'foo', %w(a b))
+            exe.call(SimpleCommand, 'foo', %w(a b))
           end
         end
         assert_equal(%(foo: ["a", "b"]\n), out)
         assert_empty(err)
       end
 
+      def test_call_with_exception
+        SimpleCommand.any_instance.expects(:call).raises(StandardError)
+        CLI::UI::StdoutRouter.expects(:with_id).yields("12345")
+
+        exe = Executor.new(log_file: @tf.path)
+        out, err = capture_io do
+          assert_raises StandardError do
+            CLI::UI::StdoutRouter.with_enabled do
+              exe.call(SimpleCommand, 'foo', %w(a b))
+            end
+          end
+        end
+
+        assert_equal(<<~EOF, err)
+        This command ran with ID: 12345
+        Please include this information in any issues/report along with relevant logs
+        EOF
+        assert_empty(out)
+      end
+
       def test_command_runs
         out, err = capture_io do
           CLI::UI::StdoutRouter.with_enabled do
-            exe.call(method(:simple_command), 'foo', %w(a b))
+            exe.call(SimpleCommand, 'foo', %w(a b))
           end
         end
         assert_equal(%(foo: ["a", "b"]\n), out)
-        assert_equal(%(foo: ["a", "b"]\n), File.read(@tf.path))
+        assert_match(
+          /\[\d{5}\] foo: \["a", "b"\]\n/,
+          File.read(@tf.path)
+        )
         assert_empty(err)
       end
 
@@ -70,8 +93,10 @@ module CLI
         end
       end
 
-      def simple_command(args, name)
-        puts("#{name}: #{args.inspect}")
+      class SimpleCommand < BaseCommand
+        def call(args, name)
+          puts("#{name}: #{args.inspect}")
+        end
       end
     end
   end
