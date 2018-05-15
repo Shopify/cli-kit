@@ -21,3 +21,11 @@ CLI::UI::StdoutRouter.enable
 
 require 'minitest/autorun'
 require 'mocha/mini_test'
+
+def with_env(env)
+  original_env_hash = ENV.to_h
+  ENV.replace(original_env_hash.merge(env))
+  yield
+ensure
+  ENV.replace(original_env_hash)
+end
