@@ -17,12 +17,28 @@ module CLI
         assert_debug_log_entry("hello", "INFO")
       end
 
+      def test_info_without_debug_log
+        out, _ = capture_io do
+          @logger.info("hello", debug: false)
+        end
+        assert_equal "\e[0mhello", out.chomp
+        assert_empty File.read(@tmp_file.path).chomp
+      end
+
       def test_warn
         out, _ = capture_io do
           @logger.warn("hello")
         end
         assert_equal "\e[0;33mhello\e[0m", out.chomp
         assert_debug_log_entry("hello", "WARN")
+      end
+
+      def test_warn_without_debug_log
+        out, _ = capture_io do
+          @logger.warn("hello", debug: false)
+        end
+        assert_equal "\e[0;33mhello\e[0m", out.chomp
+        assert_empty File.read(@tmp_file.path).chomp
       end
 
       def test_error
@@ -33,12 +49,28 @@ module CLI
         assert_debug_log_entry("hello", "ERROR")
       end
 
+      def test_error_without_debug_log
+        _, err = capture_io do
+          @logger.error("hello", debug: false)
+        end
+        assert_equal "\e[0;31mhello\e[0m", err.chomp
+        assert_empty File.read(@tmp_file.path).chomp
+      end
+
       def test_fatal
         _, err = capture_io do
           @logger.fatal("hello")
         end
         assert_equal "\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp
         assert_debug_log_entry("hello", "FATAL")
+      end
+
+      def test_fatal_without_debug_log
+        _, err = capture_io do
+          @logger.fatal("hello", debug: false)
+        end
+        assert_equal "\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp
+        assert_empty File.read(@tmp_file.path).chomp
       end
 
       def test_debug_without_debug_env

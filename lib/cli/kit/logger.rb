@@ -16,36 +16,40 @@ module CLI
       # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
       #
       # @param msg [String] the message to log
-      def info(msg)
+      # @param debug [Boolean] determines if the debug logger will receive the log (default true)
+      def info(msg, debug: true)
         $stdout.puts CLI::UI.fmt(msg)
-        @debug_logger.info(format_debug(msg))
+        @debug_logger.info(format_debug(msg)) if debug
       end
 
       # Functionally equivalent to Logger#warn
       # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
       #
       # @param msg [String] the message to log
-      def warn(msg)
+      # @param debug [Boolean] determines if the debug logger will receive the log (default true)
+      def warn(msg, debug: true)
         $stdout.puts CLI::UI.fmt("{{yellow:#{msg}}}")
-        @debug_logger.warn(format_debug(msg))
+        @debug_logger.warn(format_debug(msg)) if debug
       end
 
       # Functionally equivalent to Logger#error
       # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
       #
       # @param msg [String] the message to log
-      def error(msg)
+      # @param debug [Boolean] determines if the debug logger will receive the log (default true)
+      def error(msg, debug: true)
         $stderr.puts CLI::UI.fmt("{{red:#{msg}}}")
-        @debug_logger.error(format_debug(msg))
+        @debug_logger.error(format_debug(msg)) if debug
       end
 
       # Functionally equivalent to Logger#fatal
       # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
       #
       # @param msg [String] the message to log
-      def fatal(msg)
+      # @param debug [Boolean] determines if the debug logger will receive the log (default true)
+      def fatal(msg, debug: true)
         $stderr.puts CLI::UI.fmt("{{red:{{bold:Fatal:}} #{msg}}}")
-        @debug_logger.fatal(format_debug(msg))
+        @debug_logger.fatal(format_debug(msg)) if debug
       end
 
       # Similar to Logger#debug, however will not output to STDOUT unless DEBUG env var is set
