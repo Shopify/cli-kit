@@ -17,8 +17,7 @@ module CLI
 
       def self.call(args, command_name)
         cmd = new
-        stats_tags = ["task:#{cmd.class}"]
-        stats_tags << "subcommand:#{args.first}" if args && args.first && cmd.has_subcommands?
+        stats_tags = cmd.stats_tags(args)
         begin
           statsd_increment("cli.command.invoked", tags: stats_tags)
           statsd_time("cli.command.time", tags: stats_tags) do
@@ -29,6 +28,12 @@ module CLI
           statsd_increment("cli.command.exception", tags: stats_tags + ["exception:#{e.class}"])
           raise e
         end
+      end
+
+      def stats_tags(args)
+        tags = ["task:#{self.class}"]
+        tags << "subcommand:#{args.first}" if args&.first && has_subcommands?
+        tags
       end
 
       def call(_args, _command_name)
