@@ -11,6 +11,7 @@ module CLI
     autoload :Executor,        'cli/kit/executor'
     autoload :Ini,             'cli/kit/ini'
     autoload :Levenshtein,     'cli/kit/levenshtein'
+    autoload :Logger,          'cli/kit/logger'
     autoload :Resolver,        'cli/kit/resolver'
     autoload :Support,         'cli/kit/support'
     autoload :System,          'cli/kit/system'

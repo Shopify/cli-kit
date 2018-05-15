@@ -1,0 +1,68 @@
+require 'logger'
+require 'fileutils'
+
+module CLI
+  module Kit
+    class Logger
+      # Constructor for CLI::Kit::Logger
+      #
+      # @param debug_log_file [String] path to the file where debug logs should be stored
+      def initialize(debug_log_file:)
+        FileUtils.mkpath(File.dirname(debug_log_file))
+        @debug_logger = ::Logger.new(debug_log_file)
+      end
+
+      # Functionally equivalent to Logger#info
+      # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
+      #
+      # @param msg [String] the message to log
+      def info(msg)
+        $stdout.puts CLI::UI.fmt(msg)
+        @debug_logger.info(format_debug(msg))
+      end
+
+      # Functionally equivalent to Logger#warn
+      # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
+      #
+      # @param msg [String] the message to log
+      def warn(msg)
+        $stdout.puts CLI::UI.fmt("{{yellow:#{msg}}}")
+        @debug_logger.warn(format_debug(msg))
+      end
+
+      # Functionally equivalent to Logger#error
+      # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
+      #
+      # @param msg [String] the message to log
+      def error(msg)
+        $stderr.puts CLI::UI.fmt("{{red:#{msg}}}")
+        @debug_logger.error(format_debug(msg))
+      end
+
+      # Functionally equivalent to Logger#fatal
+      # Also logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
+      #
+      # @param msg [String] the message to log
+      def fatal(msg)
+        $stderr.puts CLI::UI.fmt("{{red:{{bold:Fatal:}} #{msg}}}")
+        @debug_logger.fatal(format_debug(msg))
+      end
+
+      # Similar to Logger#debug, however will not output to STDOUT unless DEBUG env var is set
+      # Logs to the debug file, taking into account CLI::UI::StdoutRouter.current_id
+      #
+      # @param msg [String] the message to log
+      def debug(msg)
+        $stdout.puts CLI::UI.fmt(msg) if ENV['DEBUG']
+        @debug_logger.debug(format_debug(msg))
+      end
+
+      private
+
+      def format_debug(msg)
+        return msg unless CLI::UI::StdoutRouter.current_id
+        "[#{CLI::UI::StdoutRouter.current_id[:id]}] #{msg}"
+      end
+    end
+  end
+end

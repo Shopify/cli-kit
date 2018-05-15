@@ -1,10 +1,12 @@
 require 'cli/kit'
 require 'English'
+require 'fileutils'
 
 module CLI
   module Kit
     class Executor
       def initialize(log_file:)
+        FileUtils.mkpath(File.dirname(log_file))
         @log_file = log_file
       end
 
