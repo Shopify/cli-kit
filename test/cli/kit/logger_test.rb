@@ -106,7 +106,7 @@ module CLI
         timestamp_reg = "\\[\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{6} #\\d+\\]"
         reg = "#{level.chars.first}, #{timestamp_reg}\\s+#{level} -- :"
         reg += " \\[\\d+\\]" if id
-        reg += " #{msg}"
+        reg += " \\e\\[0m#{msg}"
         assert_match Regexp.new(reg), File.read(@tmp_file.path).chomp
       end
     end

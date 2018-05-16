@@ -4,12 +4,15 @@ require 'fileutils'
 module CLI
   module Kit
     class Logger
+      MAX_LOG_SIZE = 5 * 1024 * 1000 # 5MB
+      MAX_NUM_LOGS = 10
+
       # Constructor for CLI::Kit::Logger
       #
       # @param debug_log_file [String] path to the file where debug logs should be stored
       def initialize(debug_log_file:)
         FileUtils.mkpath(File.dirname(debug_log_file))
-        @debug_logger = ::Logger.new(debug_log_file)
+        @debug_logger = ::Logger.new(debug_log_file, MAX_NUM_LOGS, MAX_LOG_SIZE)
       end
 
       # Functionally equivalent to Logger#info
@@ -64,6 +67,7 @@ module CLI
       private
 
       def format_debug(msg)
+        msg = CLI::UI.fmt(msg)
         return msg unless CLI::UI::StdoutRouter.current_id
         "[#{CLI::UI::StdoutRouter.current_id[:id]}] #{msg}"
       end
