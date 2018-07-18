@@ -5,6 +5,7 @@ CLI::UI::StdoutRouter.enable
 
 module Gen
   extend CLI::Kit::Autocall
+  extend CLI::Kit::SubmoduleLoader
 
   TOOL_NAME = 'cli-kit'
   ROOT      = File.expand_path('../../..', __FILE__)
@@ -13,10 +14,9 @@ module Gen
   LOG_FILE = File.join(TOOL_CONFIG_PATH, 'logs', 'log.log')
   DEBUG_LOG_FILE = File.join(TOOL_CONFIG_PATH, 'logs', 'debug.log')
 
-  autoload(:Generator, 'gen/generator')
-
-  autoload(:EntryPoint, 'gen/entry_point')
-  autoload(:Commands,   'gen/commands')
+  autoload_submodule :Generator
+  autoload_submodule :EntryPoint
+  autoload_submodule :Commands
 
   autocall(:Config)  { CLI::Kit::Config.new(tool_name: TOOL_NAME) }
   autocall(:Command) { CLI::Kit::BaseCommand }
