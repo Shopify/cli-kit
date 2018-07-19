@@ -83,7 +83,7 @@ module CLI
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       rescue Interrupt
         $stderr.puts(format_error_message("Interrupt"))
-        return CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
+        CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
       def exception_reporter

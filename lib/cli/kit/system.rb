@@ -117,10 +117,10 @@ module CLI
 
           handlers = if block_given?
             { out_r => ->(data) { yield(data.force_encoding(Encoding::UTF_8), '') },
-              err_r => ->(data) { yield('', data.force_encoding(Encoding::UTF_8)) }, }
+              err_r => ->(data) { yield('', data.force_encoding(Encoding::UTF_8)) } }
           else
             { out_r => ->(data) { STDOUT.write(data) },
-              err_r => ->(data) { STDOUT.write(data) }, }
+              err_r => ->(data) { STDOUT.write(data) } }
           end
 
           previous_trailing = Hash.new('')
