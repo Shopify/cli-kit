@@ -26,7 +26,7 @@ module CLI
             'key' => 'val',
             'key2' => 'val',
             '[global]' => { 'key' => 'val', 'key2' => 'val' },
-            'key3' => 'val'
+            'key3' => 'val',
           }, helper.parse
         )
       end
