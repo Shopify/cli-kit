@@ -6,10 +6,12 @@ module __App__
 
     def test_example
       CLI::Kit::System.fake("ls -al", stdout: "a\nb", success: true)
-      assert_all_commands_run do
-        out, = CLI::Kit::System.capture2('ls', '-al')
-        assert_equal ['a', 'b'], out.split("\n")
-      end
+
+      out, = CLI::Kit::System.capture2('ls', '-al')
+      assert_equal %w(a b), out.split("\n")
+
+      errors = assert_all_commands_run(should_raise: false)
+      assert_nil errors, "expected command to run successfully"
     end
   end
 end
