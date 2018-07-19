@@ -18,4 +18,5 @@ require 'bundler/setup'
 CLI::UI::StdoutRouter.enable
 
 require 'minitest/autorun'
-require 'mocha/mini_test'
+require "minitest/unit"
+require 'mocha/minitest'

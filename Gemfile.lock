@@ -20,7 +20,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (1.2.1)
+    mocha (1.5.0)
       metaclass (~> 0.0.1)
     parallel (1.11.2)
     parser (2.4.0.0)
@@ -49,7 +49,7 @@ DEPENDENCIES
   method_source
   minitest (>= 5.0.0)
   minitest-reporters
-  mocha
+  mocha (~> 1.5.0)
   rake (~> 10.0)
   rubocop
 
