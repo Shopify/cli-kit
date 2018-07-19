@@ -20,7 +20,8 @@ require 'byebug'
 CLI::UI::StdoutRouter.enable
 
 require 'minitest/autorun'
-require 'mocha/mini_test'
+require "minitest/unit"
+require 'mocha/minitest'
 
 def with_env(env)
   original_env_hash = ENV.to_h

@@ -10,7 +10,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'mocha', require: false
+  gem 'mocha', '~> 1.5.0', require: false
   gem 'minitest', '>= 5.0.0', require: false
   gem 'minitest-reporters', require: false
 end
