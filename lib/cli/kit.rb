@@ -1,20 +1,23 @@
 require 'cli/ui'
 require 'cli/kit/ruby_backports/enumerable'
+require 'cli/kit/submodule_loader'
 
 module CLI
   module Kit
-    autoload :Autocall,        'cli/kit/autocall'
-    autoload :BaseCommand,     'cli/kit/base_command'
-    autoload :CommandRegistry, 'cli/kit/command_registry'
-    autoload :Config,          'cli/kit/config'
-    autoload :ErrorHandler,    'cli/kit/error_handler'
-    autoload :Executor,        'cli/kit/executor'
-    autoload :Ini,             'cli/kit/ini'
-    autoload :Levenshtein,     'cli/kit/levenshtein'
-    autoload :Logger,          'cli/kit/logger'
-    autoload :Resolver,        'cli/kit/resolver'
-    autoload :Support,         'cli/kit/support'
-    autoload :System,          'cli/kit/system'
+    extend CLI::Kit::SubmoduleLoader
+
+    autoload_submodule :Autocall
+    autoload_submodule :BaseCommand
+    autoload_submodule :CommandRegistry
+    autoload_submodule :Config
+    autoload_submodule :ErrorHandler
+    autoload_submodule :Executor
+    autoload_submodule :Ini
+    autoload_submodule :Levenshtein
+    autoload_submodule :Logger
+    autoload_submodule :Resolver
+    autoload_submodule :Support
+    autoload_submodule :System
 
     EXIT_FAILURE_BUT_NOT_BUG = 30
     EXIT_BUG                 = 1
