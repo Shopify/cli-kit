@@ -24,18 +24,19 @@ module CLI
   module Kit
     module SubmoduleLoader
       def self.included(_mod)
-        raise "#{SubmoduleLoader} should be used with 'extend', not 'include'"
+        raise "#{self} should be used with 'extend', not 'include'"
       end
 
       def self.extended(mod)
         file = caller_locations(1, 1).first.absolute_path
         filename = File.basename(file, '.rb')
         autoload_dir = Pathname.new(file).parent.join(filename).expand_path
+        mod.class_eval { @autoload_dir = autoload_dir }
+      end
 
-        mod.define_singleton_method(:autoload_submodule) do |sym|
-          submodule_name = CLI::Kit::Util.snake_case(sym.to_s)
-          mod.autoload(sym, autoload_dir.join(submodule_name))
-        end
+      def autoload_submodule(sym)
+        submodule_name = CLI::Kit::Util.snake_case(sym.to_s)
+        autoload(sym, @autoload_dir.join(submodule_name))
       end
     end
   end
