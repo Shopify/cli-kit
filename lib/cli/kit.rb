@@ -15,6 +15,7 @@ module CLI
     autoload :Resolver,        'cli/kit/resolver'
     autoload :Support,         'cli/kit/support'
     autoload :System,          'cli/kit/system'
+    autoload :Util,            'cli/kit/util'
 
     EXIT_FAILURE_BUT_NOT_BUG = 30
     EXIT_BUG                 = 1
