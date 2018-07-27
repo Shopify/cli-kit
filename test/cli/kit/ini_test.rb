@@ -6,7 +6,7 @@ module CLI
       def test_with_section_directives
         helper = Ini.new(fixture_path('ini_with_heading.conf'))
         assert_equal(
-          { '[global]' => { 'key' => 'val', 'key2' => 'val' } },
+          { '[global]' => { 'key' => 'val', 'key2' => 'val2=' } },
           helper.parse
         )
       end
@@ -14,7 +14,7 @@ module CLI
       def test_without_section_directives
         helper = Ini.new(fixture_path('ini_without_heading.conf'))
         assert_equal(
-          { 'key' => 'val', 'key2' => 'val' },
+          { 'key' => 'val', 'key2' => 'val2=' },
           helper.parse
         )
       end
@@ -24,9 +24,9 @@ module CLI
         assert_equal(
           {
             'key' => 'val',
-            'key2' => 'val',
-            '[global]' => { 'key' => 'val', 'key2' => 'val' },
-            'key3' => 'val',
+            'key2' => 'val2=',
+            '[global]' => { 'key' => 'val', 'key2' => 'val2=' },
+            'key3' => 'val3',
           }, helper.parse
         )
       end

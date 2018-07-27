@@ -39,7 +39,7 @@ module CLI
 
           # Otherwise set the values
           else
-            k, v = l.split('=').map(&:strip)
+            k, v = l.split('=', 2).map(&:strip)
             set_val(k, v)
           end
         end
