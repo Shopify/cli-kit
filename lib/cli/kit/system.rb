@@ -191,9 +191,13 @@ module CLI
           # If only one argument was provided, make sure it's interpreted by a shell.
           return ["true ; " + a[0]] if a.size == 1
           return a if a.first.include?('/')
-          item = env.fetch('PATH', '').split(':').detect do |f|
-            File.exist?("#{f}/#{a.first}")
+
+          paths = env.fetch('PATH', '').split(':')
+          item = paths.detect do |f|
+            command_path = "#{f}/#{a.first}"
+            File.executable?(command_path) && File.file?(command_path)
           end
+
           a[0] = "#{item}/#{a.first}" if item
           a
         end
