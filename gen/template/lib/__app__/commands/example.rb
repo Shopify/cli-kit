@@ -1,5 +1,4 @@
 require '__app__'
-require 'json'
 
 module __App__
   module Commands
