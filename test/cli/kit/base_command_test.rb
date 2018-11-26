@@ -23,7 +23,7 @@ module CLI
       end
 
       def expected_tags
-        ["task:CLI::Kit::BaseCommandTest::ExampleCommand"]
+        %w(task:CLI::Kit::BaseCommandTest::ExampleCommand command:command)
       end
 
       def test_self_call_sends_statsd_on_success
