@@ -25,9 +25,18 @@ module CLI
         refute @config.get('section', 'invalid-key-no-existing')
       end
 
+      def test_config_get_returns_default_for_not_existant_key
+        assert_equal("custom", @config.get('section', 'invalid-key-no-existing', default: "custom"))
+      end
+
       def test_config_get_bool_non_existant
         refute @config.get('section', 'invalid-key-no-existing') # doesn't exist yet
         refute @config.get_bool('section', 'invalid-key-no-existing') # defaults to false
+      end
+
+      def test_config_get_bool_non_existant_with_default
+        assert(@config.get('section', 'invalid-key-no-existing', default: true))
+        assert(@config.get_bool('section', 'invalid-key-no-existing', default: true))
       end
 
       def test_config_get_bool_on_string
