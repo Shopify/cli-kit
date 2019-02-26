@@ -1,7 +1,7 @@
-require('cli/kit')
+require 'cli/kit'
 
-require('open3')
-require('English')
+require 'open3'
+require 'English'
 
 module CLI
   module Kit
@@ -19,7 +19,7 @@ module CLI
         #
         def sudo_reason(msg)
           # See if sudo has a cached password
-          %x(env SUDO_ASKPASS=/usr/bin/false sudo -A true)
+          `env SUDO_ASKPASS=/usr/bin/false sudo -A true`
           return if $CHILD_STATUS.success?
           CLI::UI.with_frame_color(:blue) do
             puts(CLI::UI.fmt("{{i}} #{msg}"))

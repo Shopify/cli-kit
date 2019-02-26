@@ -1,4 +1,4 @@
-require('gen')
+require 'gen'
 
 module Gen
   module EntryPoint

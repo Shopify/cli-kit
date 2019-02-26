@@ -10,6 +10,6 @@ unshift_path = ->(path) {
 unshift_path.call('gen/lib')
 unshift_path.call('lib')
 
-require('gen')
+require 'gen'
 
 exit(Gen::ErrorHandler.call { Gen::EntryPoint.call(ARGV) })

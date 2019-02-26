@@ -1,5 +1,5 @@
-require('test_helper')
-require('tempfile')
+require 'test_helper'
+require 'tempfile'
 
 module CLI
   module Kit

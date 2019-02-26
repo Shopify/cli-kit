@@ -1,5 +1,5 @@
-require('cli/kit')
-require('fileutils')
+require 'cli/kit'
+require 'fileutils'
 
 module CLI
   module Kit
@@ -35,7 +35,7 @@ module CLI
         when "false"
           false
         else
-          raise(CLI::Kit::Abort, "Invalid config: #{section}.#{name} is expected to be true or false")
+          raise CLI::Kit::Abort, "Invalid config: #{section}.#{name} is expected to be true or false"
         end
       end
 

@@ -1,4 +1,4 @@
-require('test_helper')
+require 'test_helper'
 
 module CLI
   module Kit
@@ -66,7 +66,7 @@ module CLI
         e = assert_raises RuntimeError do
           ExampleCommand.call([], "command")
         end
-        assert_equal('something went wrong.', e.message)
+        assert_equal 'something went wrong.', e.message
       end
 
       def test_self_call_adds_subcommand_tag_and_fails
@@ -78,7 +78,7 @@ module CLI
           tags: expected_tags + ["subcommand:test"]
         )
         ExampleCommand.any_instance.expects(:call)
-          .with(%w(test), "command")
+          .with(['test'], "command")
           .raises(RuntimeError, 'something went wrong.')
 
         ExampleCommand.expects(:stat).with(
@@ -88,9 +88,9 @@ module CLI
         )
 
         e = assert_raises RuntimeError do
-          ExampleCommand.call(%w(test), "command")
+          ExampleCommand.call(['test'], "command")
         end
-        assert_equal('something went wrong.', e.message)
+        assert_equal 'something went wrong.', e.message
       end
 
       def test_self_call_records_time

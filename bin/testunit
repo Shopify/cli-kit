@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require('rubygems')
-require('bundler/setup')
+require 'rubygems'
+require 'bundler/setup'
 
 root = File.expand_path('../..', __FILE__)
 CLI_TEST_ROOT = root + '/test'
@@ -14,10 +14,10 @@ end
 
 if ARGV.empty?
   test_files.each { |f| require(f) }
-  exit(0)
+  exit 0
 end
 
 # A list of files is presumed to be specified
 ARGV.each do |a|
-  require(a.sub(%r{^test/}, ''))
+  require a.sub(%r{^test/}, '')
 end

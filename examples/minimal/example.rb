@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-require('cli/ui')
-require('cli/kit')
+require 'cli/ui'
+require 'cli/kit'
 
 CLI::UI::StdoutRouter.enable
 
-include(CLI::Kit)
+include CLI::Kit
 
 registry = CommandRegistry.new(default: 'hello', contextual_resolver: nil)
 registry.add(Class.new(BaseCommand) do

@@ -10,7 +10,7 @@ module CLI
         def assert_all_commands_run(should_raise: true)
           errors = CLI::Kit::System.error_message
           CLI::Kit::System.reset!
-          assert(false, errors) if should_raise && !errors.nil?
+          assert false, errors if should_raise && !errors.nil?
           errors
         end
 
@@ -117,7 +117,7 @@ module CLI
                 # Note: Must set allow or success
                 #
                 def fake(*a, stdout: "", stderr: "", allow: nil, success: nil, sudo: false, env: {})
-                  raise(ArgumentError, "success or allow must be set") if success.nil? && allow.nil?
+                  raise ArgumentError, "success or allow must be set" if success.nil? && allow.nil?
 
                   @delegate_open3 ||= {}
                   @delegate_open3[a.join(' ')] = {

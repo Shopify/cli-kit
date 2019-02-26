@@ -1,4 +1,4 @@
-require('test_helper')
+require 'test_helper'
 
 module CLI
   module Kit
@@ -29,7 +29,7 @@ module CLI
       def test_resolver_no_match
         _, err = capture_io do
           assert_raises(CLI::Kit::AbortSilent) do
-            res.call(%w(foo))
+            res.call(['foo'])
           end
         end
         assert_match(/tool foo.* was not found/, err)
@@ -42,7 +42,7 @@ module CLI
 
         out, err = capture_io do
           assert_raises(CLI::Kit::AbortSilent) do
-            res.call(%w(foo))
+            res.call(['foo'])
           end
         end
 
@@ -65,7 +65,7 @@ module CLI
 
         out, err = capture_io do
           assert_raises(CLI::Kit::AbortSilent) do
-            res.call(%w(foo))
+            res.call(['foo'])
           end
         end
 

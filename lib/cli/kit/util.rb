@@ -77,7 +77,7 @@ module CLI
         # Converts a number to a human readable format on the SI scale
         #
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
-          raise(ArgumentError, "factor should only be 1000 or 1024") unless [1000, 1024].include?(factor)
+          raise ArgumentError, "factor should only be 1000 or 1024" unless [1000, 1024].include?(factor)
 
           small_scale = %w(m µ n p f a z y)
           big_scale = %w(k M G T P E Z Y)
@@ -124,7 +124,7 @@ module CLI
         end
 
         def with_tmp_dir
-          require('fileutils')
+          require 'fileutils'
           dir = Dir.mktmpdir
           with_dir(dir) do
             yield(dir)
@@ -176,7 +176,7 @@ module CLI
             if before_retry.arity == 0
               yield
             else
-              yield(e)
+              yield e
             end
           end
           retry

@@ -1,4 +1,4 @@
-require('test_helper')
+require 'test_helper'
 
 module CLI
   module Kit
@@ -15,7 +15,7 @@ module CLI
           Expected commands were not run:
           banana
           EOF
-          assert_equal(expected_err, CLI::UI::ANSI.strip_codes(errors))
+          assert_equal expected_err, CLI::UI::ANSI.strip_codes(errors)
         end
 
         def test_when_unexpected_command
@@ -27,7 +27,7 @@ module CLI
           Unexpected command invocations:
           banana
           EOF
-          assert_equal(expected_err, CLI::UI::ANSI.strip_codes(errors))
+          assert_equal expected_err, CLI::UI::ANSI.strip_codes(errors)
         end
 
         def test_when_commands_not_run_correctly
@@ -49,7 +49,7 @@ module CLI
           - sudo was supposed to be false but was true
           - env was supposed to be {} but was {:kiwi=>false}
           EOF
-          assert_equal(expected_err, CLI::UI::ANSI.strip_codes(errors))
+          assert_equal expected_err, CLI::UI::ANSI.strip_codes(errors)
         end
 
         def test_all_captures_and_system
@@ -64,7 +64,7 @@ module CLI
           CLI::Kit::System.capture3('orange').last.success?
 
           errors = assert_all_commands_run(should_raise: false)
-          assert_nil(errors, "errors should have been nil")
+          assert_nil errors, "errors should have been nil"
         end
 
         def test_assert_all_commands_run
@@ -79,12 +79,12 @@ module CLI
           CLI::Kit::System.capture3('orange').last.success?
 
           errors = assert_all_commands_run(should_raise: false)
-          assert_nil(errors)
+          assert_nil errors
         end
 
         def test_when_commands_run_properly
           CLI::Kit::System.fake('banana', success: true)
-          assert(CLI::Kit::System.system('banana').success?)
+          assert CLI::Kit::System.system('banana').success?
         end
       end
     end
