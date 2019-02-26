@@ -1,4 +1,4 @@
-require 'test_helper'
+require('test_helper')
 
 module CLI
   module Kit
@@ -13,7 +13,7 @@ module CLI
         out, _ = capture_io do
           @logger.info("hello")
         end
-        assert_equal "\e[0mhello", out.chomp
+        assert_equal("\e[0mhello", out.chomp)
         assert_debug_log_entry("hello", "INFO")
       end
 
@@ -21,15 +21,15 @@ module CLI
         out, _ = capture_io do
           @logger.info("hello", debug: false)
         end
-        assert_equal "\e[0mhello", out.chomp
-        assert_empty File.read(@tmp_file.path).chomp
+        assert_equal("\e[0mhello", out.chomp)
+        assert_empty(File.read(@tmp_file.path).chomp)
       end
 
       def test_warn
         out, _ = capture_io do
           @logger.warn("hello")
         end
-        assert_equal "\e[0;33mhello\e[0m", out.chomp
+        assert_equal("\e[0;33mhello\e[0m", out.chomp)
         assert_debug_log_entry("hello", "WARN")
       end
 
@@ -37,15 +37,15 @@ module CLI
         out, _ = capture_io do
           @logger.warn("hello", debug: false)
         end
-        assert_equal "\e[0;33mhello\e[0m", out.chomp
-        assert_empty File.read(@tmp_file.path).chomp
+        assert_equal("\e[0;33mhello\e[0m", out.chomp)
+        assert_empty(File.read(@tmp_file.path).chomp)
       end
 
       def test_error
         _, err = capture_io do
           @logger.error("hello")
         end
-        assert_equal "\e[0;31mhello\e[0m", err.chomp
+        assert_equal("\e[0;31mhello\e[0m", err.chomp)
         assert_debug_log_entry("hello", "ERROR")
       end
 
@@ -53,15 +53,15 @@ module CLI
         _, err = capture_io do
           @logger.error("hello", debug: false)
         end
-        assert_equal "\e[0;31mhello\e[0m", err.chomp
-        assert_empty File.read(@tmp_file.path).chomp
+        assert_equal("\e[0;31mhello\e[0m", err.chomp)
+        assert_empty(File.read(@tmp_file.path).chomp)
       end
 
       def test_fatal
         _, err = capture_io do
           @logger.fatal("hello")
         end
-        assert_equal "\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp
+        assert_equal("\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp)
         assert_debug_log_entry("hello", "FATAL")
       end
 
@@ -69,16 +69,16 @@ module CLI
         _, err = capture_io do
           @logger.fatal("hello", debug: false)
         end
-        assert_equal "\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp
-        assert_empty File.read(@tmp_file.path).chomp
+        assert_equal("\e[0;31;1mFatal:\e[0;31m hello\e[0m", err.chomp)
+        assert_empty(File.read(@tmp_file.path).chomp)
       end
 
       def test_debug_without_debug_env
         out, err = capture_io do
           @logger.debug("hello")
         end
-        assert_empty err.chomp
-        assert_empty out.chomp
+        assert_empty(err.chomp)
+        assert_empty(out.chomp)
         assert_debug_log_entry("hello", "DEBUG")
       end
 
@@ -107,7 +107,7 @@ module CLI
         reg = "#{level.chars.first}, #{timestamp_reg}\\s+#{level} -- :"
         reg += " \\[\\d+\\]" if id
         reg += " \\e\\[0m#{msg}"
-        assert_match Regexp.new(reg), File.read(@tmp_file.path).chomp
+        assert_match(Regexp.new(reg), File.read(@tmp_file.path).chomp)
       end
     end
   end

@@ -1,4 +1,4 @@
-require 'cli/kit'
+require('cli/kit')
 
 module CLI
   module Kit
@@ -16,7 +16,7 @@ module CLI
 
         if command.nil?
           command_not_found(command_name)
-          raise CLI::Kit::AbortSilent # Already output message
+          raise(CLI::Kit::AbortSilent) # Already output message
         end
 
         [command, resolved_name, args]
@@ -45,7 +45,7 @@ module CLI
           if possible_matches.any?
             CLI::UI::Frame.open("{{bold:Did you mean?}}", timing: false, color: :blue) do
               possible_matches.each do |possible_match|
-                $stderr.puts CLI::UI.fmt("{{command:#{@tool_name} #{possible_match}}}")
+                $stderr.puts(CLI::UI.fmt("{{command:#{@tool_name} #{possible_match}}}"))
               end
             end
           end

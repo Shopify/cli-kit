@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'cli/ui'
-require 'cli/kit'
+require('cli/ui')
+require('cli/kit')
 
 CLI::UI::StdoutRouter.enable
 

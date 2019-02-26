@@ -1,8 +1,8 @@
-require 'gen'
-require 'fileutils'
-require 'open3'
-require 'pathname'
-require 'tmpdir'
+require('gen')
+require('fileutils')
+require('open3')
+require('pathname')
+require('tmpdir')
 
 module Gen
   class Generator
@@ -18,20 +18,20 @@ module Gen
     # false  -> delete file
     # string -> rename file before applying template substitutions
     VENDOR_TRANSLATIONS = {
-      'Gemfile'            => false,
-      'exe/__app__-gems'   => false,
+      'Gemfile' => false,
+      'exe/__app__-gems' => false,
       'exe/__app__-vendor' => 'exe/__app__',
-      'dev-gems.yml'       => false,
-      'dev-vendor.yml'     => 'dev.yml',
+      'dev-gems.yml' => false,
+      'dev-vendor.yml' => 'dev.yml',
     }.freeze
     private_constant :VENDOR_TRANSLATIONS
 
     BUNDLER_TRANSLATIONS = {
-      'bin/update-deps'    => false,
-      'exe/__app__-gems'   => 'exe/__app__',
+      'bin/update-deps' => false,
+      'exe/__app__-gems' => 'exe/__app__',
       'exe/__app__-vendor' => false,
-      'dev-gems.yml'       => 'dev.yml',
-      'dev-vendor.yml'     => false,
+      'dev-gems.yml' => 'dev.yml',
+      'dev-vendor.yml' => false,
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 
@@ -139,12 +139,12 @@ module Gen
     end
 
     def cli_kit_version
-      require 'cli/kit/version'
+      require('cli/kit/version')
       CLI::Kit::VERSION.to_s
     end
 
     def cli_ui_version
-      require 'cli/ui/version'
+      require('cli/ui/version')
       CLI::UI::VERSION.to_s
     end
 

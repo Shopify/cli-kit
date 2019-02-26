@@ -1,5 +1,5 @@
-require 'cli/kit'
-require 'English'
+require('cli/kit')
+require('English')
 
 module CLI
   module Kit
@@ -21,11 +21,11 @@ module CLI
       end
 
       def handle_exception(error)
-        if notify_with = exception_for_submission(error)
+        if (notify_with = exception_for_submission(error))
           logs = begin
             File.read(@log_file)
-          rescue => e
-            "(#{e.class}: #{e.message})"
+                 rescue => e
+                   "(#{e.class}: #{e.message})"
           end
           exception_reporter.report(notify_with, logs)
         end
@@ -55,7 +55,7 @@ module CLI
             # if it was `exit 30`, translate the exit code to 1, and submit nothing.
             # 30 is used to signal normal failures that are not indicative of bugs.
             # However, users should see it presented as 1.
-            exit 1
+            exit(1)
           else
             # A weird termination status happened. `error.exception "message"` will maintain backtrace
             # but allow us to set a message

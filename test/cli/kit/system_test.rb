@@ -1,4 +1,4 @@
-require 'test_helper'
+require('test_helper')
 
 module CLI
   module Kit
@@ -8,7 +8,7 @@ module CLI
       def test_split_partial_characters_doesnt_split_single_byte_characters
         str = "ルビー is cool"
 
-        assert_equal [str, ''], System.split_partial_characters(str)
+        assert_equal([str, ''], System.split_partial_characters(str))
       end
 
       def test_split_partial_characters_splits_partial_characters_with_multiple_bytes
@@ -16,8 +16,8 @@ module CLI
 
         data, trailing = System.split_partial_characters(str)
 
-        assert_equal "ルビ", data
-        assert_equal str, data + trailing
+        assert_equal("ルビ", data)
+        assert_equal(str, data + trailing)
       end
 
       def test_split_partial_characters_splits_partial_characters_with_a_single_byte
@@ -25,14 +25,14 @@ module CLI
 
         data, trailing = System.split_partial_characters(str)
 
-        assert_equal "ルビ", data
-        assert_equal str, data + trailing
+        assert_equal("ルビ", data)
+        assert_equal(str, data + trailing)
       end
 
       def test_split_partial_characters_gives_up_without_error_for_bad_utf8
         str = "Hello\x83\x83\x83\x83\x83\x83\x83\x83"
 
-        assert_equal [str, ''], System.split_partial_characters(str)
+        assert_equal([str, ''], System.split_partial_characters(str))
       end
 
       def test_system_finds_system_ruby_instead_of_local_script

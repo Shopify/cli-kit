@@ -1,5 +1,5 @@
-require 'test_helper'
-require 'tempfile'
+require('test_helper')
+require('tempfile')
 
 module CLI
   module Kit
@@ -69,7 +69,7 @@ module CLI
           assert_equal("SIGINFO:\n", lines.shift)
           assert_is_stack_trace(lines)
         else
-          pass 'INFO isnt available on this system, but that is ok'
+          pass('INFO isnt available on this system, but that is ok')
         end
       end
 

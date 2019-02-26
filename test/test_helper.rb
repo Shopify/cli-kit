@@ -6,22 +6,22 @@ begin
   addpath.call("lib")
 end
 
-require 'cli/kit'
+require('cli/kit')
 
-require 'fileutils'
-require 'tmpdir'
-require 'tempfile'
+require('fileutils')
+require('tmpdir')
+require('tempfile')
 
-require 'rubygems'
-require 'bundler/setup'
+require('rubygems')
+require('bundler/setup')
 
-require 'byebug'
+require('byebug')
 
 CLI::UI::StdoutRouter.enable
 
-require 'minitest/autorun'
-require "minitest/unit"
-require 'mocha/minitest'
+require('minitest/autorun')
+require("minitest/unit")
+require('mocha/minitest')
 
 def with_env(env)
   original_env_hash = ENV.to_h

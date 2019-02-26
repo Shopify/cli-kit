@@ -1,4 +1,4 @@
-require 'cli/kit'
+require('cli/kit')
 
 module CLI
   module Kit

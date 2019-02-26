@@ -1,4 +1,4 @@
-require 'cli/kit'
+require('cli/kit')
 
 module CLI
   module Kit
@@ -26,7 +26,7 @@ module CLI
           statsd_increment("cli.command.success", tags: stats_tags)
         rescue => e
           statsd_increment("cli.command.exception", tags: stats_tags + ["exception:#{e.class}"])
-          raise e
+          raise(e)
         end
       end
 
@@ -38,7 +38,7 @@ module CLI
       end
 
       def call(_args, _command_name)
-        raise NotImplementedError
+        raise(NotImplementedError)
       end
 
       def has_subcommands?
