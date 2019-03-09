@@ -1,24 +1,14 @@
 require 'test_helper'
-require 'tmpdir'
-require 'fileutils'
 
 module CLI
   module Kit
     class ConfigTest < MiniTest::Test
+      include CLI::Kit::Support::TestHelper::FakeConfig
+
       def setup
         super
-
-        @tmpdir = Dir.mktmpdir
-        @prev_xdg = ENV['XDG_CONFIG_HOME']
-        ENV['XDG_CONFIG_HOME'] = @tmpdir
         @file = File.join(@tmpdir, 'tool', 'config')
         @config = Config.new(tool_name: 'tool')
-      end
-
-      def teardown
-        FileUtils.rm_rf(@tmpdir)
-        ENV['XDG_CONFIG_HOME'] = @prev_xdg
-        super
       end
 
       def test_config_get_returns_false_for_not_existant_key
