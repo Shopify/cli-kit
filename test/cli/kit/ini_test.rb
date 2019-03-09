@@ -11,6 +11,14 @@ module CLI
         )
       end
 
+      def test_with_config_string
+        helper = Ini.new(config: "key=val\nkey2=val2")
+        assert_equal(
+          { 'key' => 'val', 'key2' => 'val2' },
+          helper.parse
+        )
+      end
+
       def test_without_section_directives
         helper = Ini.new(fixture_path('ini_without_heading.conf'))
         assert_equal(
