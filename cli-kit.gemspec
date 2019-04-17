@@ -6,8 +6,8 @@ require 'cli/kit/version'
 Gem::Specification.new do |spec|
   spec.name          = 'cli-kit'
   spec.version       = CLI::Kit::VERSION
-  spec.authors       = ['Burke Libbey', 'Julian Nadeau', 'Lisa Ugray']
-  spec.email         = ['burke.libbey@shopify.com', 'julian.nadeau@shopify.com', 'lisa.ugray@shopify.com']
+  spec.authors       = ['Burke Libbey', 'Aaron Olson', 'Lisa Ugray']
+  spec.email         = ['burke.libbey@shopify.com', 'aaron.olson@shopify.com', 'lisa.ugray@shopify.com']
 
   spec.summary       = 'Terminal UI framework extensions'
   spec.description   = 'Terminal UI framework extensions'

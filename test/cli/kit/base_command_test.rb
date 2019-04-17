@@ -79,15 +79,15 @@ module CLI
         )
         ExampleCommand.any_instance.expects(:call)
           .with(['test'], "command")
-          .raises(RuntimeError, 'something went wrong.')
+          .raises(CLI::Kit::AbortSilent, 'something went wrong.')
 
         ExampleCommand.expects(:stat).with(
           :increment,
           "cli.command.exception",
-          tags: expected_tags + ["subcommand:test", "exception:RuntimeError"]
+          tags: expected_tags + ["subcommand:test", "exception:CLI::Kit::AbortSilent"]
         )
 
-        e = assert_raises RuntimeError do
+        e = assert_raises CLI::Kit::AbortSilent do
           ExampleCommand.call(['test'], "command")
         end
         assert_equal 'something went wrong.', e.message
