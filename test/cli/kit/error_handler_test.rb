@@ -7,14 +7,7 @@ module CLI
       def setup
         @rep = Object.new
         @tf  = Tempfile.create('executor-log').tap(&:close)
-        @eh = ErrorHandler.new(log_file: @tf.path, exception_reporter: @rep)
-        class << @eh
-          attr_reader :exit_handler
-          # Prevent `install!` from actually installing the hook.
-          def at_exit(&block)
-            @exit_handler = block
-          end
-        end
+        @eh = error_handler
       end
 
       def teardown
@@ -77,6 +70,29 @@ module CLI
         end
       end
 
+      def test_out_of_space
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    "\e[0;31mYour disk is full - free space is required to operate\e[0m\n",
+          expect_report: false,
+        ) do
+          raise(Errno::ENOSPC)
+        end
+      end
+
+      def test_out_of_space_with_name
+        @eh = error_handler(tool_name: "foo")
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    "",
+          expect_err:    "\e[0;31mYour disk is full - \e[0;31;36mfoo\e[0;31m requires free space to operate\e[0m\n",
+          expect_report: false,
+        ) do
+          raise(Errno::ENOSPC)
+        end
+      end
+
       def test_interrupt
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
@@ -125,6 +141,18 @@ module CLI
       end
 
       private
+
+      def error_handler(tool_name: nil)
+        ErrorHandler.new(log_file: @tf.path, exception_reporter: @rep, tool_name: tool_name).tap do |eh|
+          class << eh
+            attr_reader :exit_handler
+            # Prevent `install!` from actually installing the hook.
+            def at_exit(&block)
+              @exit_handler = block
+            end
+          end
+        end
+      end
 
       def with_handler
         code = nil

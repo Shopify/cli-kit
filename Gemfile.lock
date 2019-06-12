@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cli-kit (3.2.0)
+    cli-kit (3.3.0)
       cli-ui (>= 1.1.4)
 
 GEM
@@ -11,7 +11,7 @@ GEM
     ast (2.4.0)
     builder (3.2.3)
     byebug (9.0.6)
-    cli-ui (1.1.4)
+    cli-ui (1.2.3)
     metaclass (0.0.4)
     method_source (0.8.2)
     minitest (5.10.2)
@@ -53,4 +53,4 @@ DEPENDENCIES
   rubocop (~> 0.56.0)
 
 BUNDLED WITH
-   1.17.1
+   1.17.3
