@@ -83,7 +83,7 @@ module CLI
 
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       rescue Interrupt
-        $stderr.puts(format_error_message("Interrupt"))
+        stderr_puts_message('Interrupt')
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       rescue Errno::ENOSPC
         message = if @tool_name
@@ -91,8 +91,14 @@ module CLI
         else
           "Your disk is full - free space is required to operate"
         end
-        $stderr.puts(format_error_message(message))
+        stderr_puts_message(message)
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
+      end
+
+      def stderr_puts_message(message)
+        $stderr.puts(format_error_message(message))
+      rescue Errno::EPIPE
+        nil
       end
 
       def exception_reporter
