@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 group :development, :test do
-  gem 'rubocop', '~> 0.56.0'
+  gem 'rubocop', '~> 0.74.0'
   gem 'byebug'
   gem 'method_source'
 end
