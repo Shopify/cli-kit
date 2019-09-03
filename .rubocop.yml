@@ -12,9 +12,6 @@ Style/ClassAndModuleChildren:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-Shopify/RubocopComments:
-  Enabled: false
-
 # This doesn't understand that <<~ doesn't exist in 2.0
 Layout/IndentHeredoc:
   Enabled: false
@@ -37,8 +34,4 @@ Style/RegexpLiteral:
 
 # allow readable Dev::Util.begin formatting
 Style/MultilineBlockChain:
-  Enabled: false
-
-# allow using names to be more expressive
-Performance/RedundantBlockCall:
   Enabled: false
