@@ -22,7 +22,7 @@ module CLI
       end
 
       def handle_exception(error)
-        if notify_with = exception_for_submission(error)
+        if (notify_with = exception_for_submission(error))
           logs = begin
             File.read(@log_file)
                  rescue => e
