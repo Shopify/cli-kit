@@ -2,7 +2,9 @@ inherit_from:
   - http://shopify.github.io/ruby-style-guide/rubocop.yml
 
 AllCops:
-  Exclude: [ 'gen/template/**/*' ]
+  Exclude:
+    - gen/template/**/*
+    - vendor/**/*
   TargetRubyVersion: 2.3
 
 Style/ClassAndModuleChildren:
@@ -10,9 +12,6 @@ Style/ClassAndModuleChildren:
     - lib/cli/kit/support/test_helper.rb
 
 Style/FrozenStringLiteralComment:
-  Enabled: false
-
-Shopify/RubocopComments:
   Enabled: false
 
 # This doesn't understand that <<~ doesn't exist in 2.0
@@ -37,8 +36,4 @@ Style/RegexpLiteral:
 
 # allow readable Dev::Util.begin formatting
 Style/MultilineBlockChain:
-  Enabled: false
-
-# allow using names to be more expressive
-Performance/RedundantBlockCall:
   Enabled: false

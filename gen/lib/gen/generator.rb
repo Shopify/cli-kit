@@ -18,20 +18,20 @@ module Gen
     # false  -> delete file
     # string -> rename file before applying template substitutions
     VENDOR_TRANSLATIONS = {
-      'Gemfile'            => false,
-      'exe/__app__-gems'   => false,
+      'Gemfile' => false,
+      'exe/__app__-gems' => false,
       'exe/__app__-vendor' => 'exe/__app__',
-      'dev-gems.yml'       => false,
-      'dev-vendor.yml'     => 'dev.yml',
+      'dev-gems.yml' => false,
+      'dev-vendor.yml' => 'dev.yml',
     }.freeze
     private_constant :VENDOR_TRANSLATIONS
 
     BUNDLER_TRANSLATIONS = {
-      'bin/update-deps'    => false,
-      'exe/__app__-gems'   => 'exe/__app__',
+      'bin/update-deps' => false,
+      'exe/__app__-gems' => 'exe/__app__',
       'exe/__app__-vendor' => false,
-      'dev-gems.yml'       => 'dev.yml',
-      'dev-vendor.yml'     => false,
+      'dev-gems.yml' => 'dev.yml',
+      'dev-vendor.yml' => false,
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 

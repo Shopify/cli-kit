@@ -14,7 +14,7 @@ end
 
 if ARGV.empty?
   test_files.each { |f| require(f) }
-  exit 0
+  exit(0)
 end
 
 # A list of files is presumed to be specified
