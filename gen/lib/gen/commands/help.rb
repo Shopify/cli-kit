@@ -1,8 +1,12 @@
+# typed: false
 require 'gen'
 
 module Gen
   module Commands
     class Help < Gen::Command
+      extend(T::Sig)
+
+      sig { params(_args: T::Array[String], _name: String).void }
       def call(_args, _name)
         puts CLI::UI.fmt("{{bold:Available commands}}")
         puts ""

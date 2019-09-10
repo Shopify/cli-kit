@@ -1,3 +1,4 @@
+# typed: true
 module CLI
   module Kit
     # INI is a language similar to JSON or YAML, but simplied
@@ -13,8 +14,26 @@ module CLI
     # See the ini_test.rb file for more examples
     #
     class Ini
-      attr_accessor :ini
+      extend(T::Sig)
 
+      LeafValue = T.type_alias(T.any(String, Integer, Float))
+      Value = T.type_alias(T.any(T::Hash[String, LeafValue], LeafValue))
+      IniType = T.type_alias(T::Hash[String, Value])
+
+      sig { returns(IniType) }
+      attr_reader(:ini)
+
+      sig { params(ini: IniType).void }
+      attr_writer(:ini)
+
+      sig do
+        params(
+          path: T.nilable(String),
+          config: T.nilable(String),
+          default_section: T.nilable(String),
+          convert_types: T::Boolean,
+        ).void
+      end
       def initialize(path = nil, config: nil, default_section: nil, convert_types: true)
         @config = if path && File.exist?(path)
           File.readlines(path)
@@ -27,6 +46,7 @@ module CLI
         @convert_types = convert_types
       end
 
+      sig { returns(IniType) }
       def parse
         return @ini if @config.nil?
 
@@ -50,21 +70,24 @@ module CLI
         @ini
       end
 
+      sig { returns(String) }
       def git_format
         to_ini(@ini, git_format: true).flatten.join("\n")
       end
 
+      sig { returns(String) }
       def to_s
         to_ini(@ini).flatten.join("\n")
       end
 
       private
 
+      sig { params(h: IniType, git_format: T::Boolean).returns(T::Array[String]) }
       def to_ini(h, git_format: false)
         optional_tab = git_format ? "\t" : ""
         str = []
         h.each do |k, v|
-          if section_designator?(k)
+          if section_designator?(k) && v.is_a?(Hash)
             str << "" unless str.empty? || git_format
             str << k
             str << to_ini(v, git_format: git_format)
@@ -75,6 +98,7 @@ module CLI
         str
       end
 
+      sig { params(key: T.nilable(String), val: T.nilable(String)).void }
       def set_val(key, val)
         return if key.nil? && val.nil?
 
@@ -87,6 +111,7 @@ module CLI
         end
       end
 
+      sig { params(val: T.nilable(String)).returns(LeafValue) }
       def typed_val(val)
         return val.to_s unless @convert_types
         return val.to_i if val =~ /^-?[0-9]+$/
@@ -94,6 +119,7 @@ module CLI
         val.to_s
       end
 
+      sig { params(k: String).returns(T::Boolean) }
       def section_designator?(k)
         k.start_with?('[') && k.end_with?(']')
       end

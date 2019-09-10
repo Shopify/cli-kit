@@ -8,6 +8,8 @@ os:
   - osx
 script:
   - bin/testunit
+  - bundle exec srb typecheck
+  - bundle exec rubocop
   - git clone https://github.com/Shopify/cli-ui.git
   - DEPS=vendor bin/test_gen
   - DEPS=bundler bin/test_gen

@@ -7,6 +7,7 @@ group :development, :test do
   gem 'rubocop'
   gem 'byebug'
   gem 'method_source'
+  gem 'sorbet'
 end
 
 group :test do

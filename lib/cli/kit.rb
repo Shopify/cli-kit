@@ -1,3 +1,7 @@
+# typed: strong
+# Include Sorbet runtime stubs, because we don't have dependencies.
+require('cli/kit/sorbet')
+
 require 'cli/ui'
 require 'cli/kit/ruby_backports/enumerable'
 

@@ -1,9 +1,19 @@
+# typed: true
 require 'cli/kit'
 require 'English'
 
 module CLI
   module Kit
     class ErrorHandler
+      extend(T::Sig)
+
+      sig do
+        params(
+          log_file: String,
+          exception_reporter: T.untyped,
+          tool_name: T.nilable(String),
+        ).void
+      end
       def initialize(log_file:, exception_reporter:, tool_name: nil)
         @log_file = log_file
         @exception_reporter_or_proc = exception_reporter || NullExceptionReporter
@@ -11,32 +21,39 @@ module CLI
       end
 
       module NullExceptionReporter
+        extend(T::Sig)
+
+        sig { params(_exception: Exception, _logs: String).void }
         def self.report(_exception, _logs)
           nil
         end
       end
 
+      sig { params(block: T.proc.returns(T.untyped)).returns(Integer) }
       def call(&block)
         install!
         handle_abort(&block)
       end
 
+      sig { params(error: T.untyped).void }
       def handle_exception(error)
         if (notify_with = exception_for_submission(error))
           logs = begin
             File.read(@log_file)
-                 rescue => e
-                   "(#{e.class}: #{e.message})"
+          rescue => e
+            "(#{e.class}: #{e.message})"
           end
           exception_reporter.report(notify_with, logs)
         end
       end
 
       # maybe we can get rid of this.
+      sig { params(exception: Exception).void }
       attr_writer :exception
 
       private
 
+      sig { params(error: T.nilable(Exception)).returns(T.nilable(Exception)) }
       def exception_for_submission(error)
         case error
         when nil         # normal, non-error termination
@@ -67,10 +84,12 @@ module CLI
         end
       end
 
+      sig { void }
       def install!
         at_exit { handle_exception(@exception || $ERROR_INFO) }
       end
 
+      sig { returns(Integer) }
       def handle_abort
         yield
         CLI::Kit::EXIT_SUCCESS
@@ -95,12 +114,14 @@ module CLI
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
+      sig { params(message: String).void }
       def stderr_puts_message(message)
         $stderr.puts(format_error_message(message))
       rescue Errno::EPIPE
         nil
       end
 
+      sig { returns(T.untyped) }
       def exception_reporter
         if @exception_reporter_or_proc.respond_to?(:report)
           @exception_reporter_or_proc
@@ -109,10 +130,12 @@ module CLI
         end
       end
 
+      sig { params(msg: String).returns(String) }
       def format_error_message(msg)
         CLI::UI.fmt("{{red:#{msg}}}")
       end
 
+      sig { params(e: Exception).void }
       def print_error_message(e)
         $stderr.puts(format_error_message(e.message))
       end

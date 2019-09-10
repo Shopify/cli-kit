@@ -1,3 +1,4 @@
+# typed: strong
 # Copyright (c) 2014-2016 Yuki Nishijima
 
 # MIT License
@@ -24,10 +25,13 @@
 module CLI
   module Kit
     module Levenshtein
+      extend(T::Sig)
+
       # This code is based directly on the Text gem implementation
       # Copyright (c) 2006-2013 Paul Battley, Michael Neumann, Tim Fletcher.
       #
       # Returns a value representing the "cost" of transforming str1 into str2
+      sig { params(str1: String, str2: String).returns(Integer) }
       def distance(str1, str2)
         n = str1.length
         m = str2.length
@@ -35,7 +39,7 @@ module CLI
         return n if m.zero?
 
         d = (0..m).to_a
-        x = nil
+        x = 0
 
         # to avoid duplicating an enumerable object, create it outside of the loop
         str2_codepoints = str2.codepoints
@@ -45,9 +49,9 @@ module CLI
           while j < m
             cost = char1 == str2_codepoints[j] ? 0 : 1
             x = min3(
-              d[j + 1] + 1, # insertion
-              i + 1,      # deletion
-              d[j] + cost # substitution
+              d.fetch(j + 1) + 1, # insertion
+              i + 1,              # deletion
+              d.fetch(j) + cost   # substitution
             )
             d[j] = i
             i = x
@@ -67,6 +71,7 @@ module CLI
       # faster than `[a, b, c].min` and puts less GC pressure.
       # See https://github.com/yuki24/did_you_mean/pull/1 for a performance
       # benchmark.
+      sig { params(a: Integer, b: Integer, c: Integer).returns(Integer) }
       def min3(a, b, c)
         if a < b && a < c
           a

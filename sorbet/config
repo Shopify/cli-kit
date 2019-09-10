@@ -1,0 +1,6 @@
+--dir=.
+--ignore=gen/template/
+--ignore=examples/
+--ignore=test/
+--ignore=lib/cli/kit/support/test_helper.rb
+--ignore=vendor/bundle/

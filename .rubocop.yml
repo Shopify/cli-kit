@@ -14,6 +14,9 @@ Style/ClassAndModuleChildren:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Layout/RescueEnsureAlignment:
+  Enabled: false
+
 # This doesn't understand that <<~ doesn't exist in 2.0
 Layout/IndentHeredoc:
   Enabled: false
