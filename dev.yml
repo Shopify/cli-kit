@@ -5,3 +5,6 @@ up:
 commands:
   test: bin/testunit
   style: "bundle exec rubocop -D"
+  typecheck:
+    aliases: ['tc']
+    run: 'bundle exec srb tc'
