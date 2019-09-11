@@ -41,7 +41,7 @@ module CLI
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
             env: T::Hash[String, String], # process environment with which to execute
-            kwargs: T.untyped, # additional args to pass to Open3.capture2
+            kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture2
           ).returns([
             String, # output (STDOUT) of the command execution
             ::Process::Status, # ask it about #success?
@@ -64,7 +64,7 @@ module CLI
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
             env: T::Hash[String, String], # process environment with which to execute
-            kwargs: T.untyped, # additional args to pass to Open3.capture2e
+            kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture2e
           ).returns([
             String, # output (STDOUT merged with STDERR) of the command execution
             ::Process::Status, # ask it about #success?
@@ -93,7 +93,7 @@ module CLI
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
             env: T::Hash[String, String], # process environment with which to execute
-            kwargs: T.untyped, # additional args to pass to Open3.capture3
+            kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture3
           ).returns([
             String, # STDOUT of the command execution
             String, # STDERR of the command execution
@@ -116,7 +116,7 @@ module CLI
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
             env: T::Hash[String, String], # process environment with which to execute
-            kwargs: T.untyped, # additional args to pass to Process.spawn
+            kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Process.spawn
           ).returns([
             String, # STDOUT of the command execution
             String, # STDERR of the command execution

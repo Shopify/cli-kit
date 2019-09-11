@@ -50,7 +50,7 @@ module CLI
       sig do
         params(
           default: T.nilable(String),
-          contextual_resolver: T.untyped,
+          contextual_resolver: T.nilable(ContextualResolverInterface),
         ).void
       end
       def initialize(default:, contextual_resolver: nil)
