@@ -82,7 +82,7 @@ module CLI
 
       private
 
-      sig { params(h: IniType, git_format: T::Boolean).returns(T::Array[String]) }
+      sig { params(h: IniType, git_format: T::Boolean).returns(T::Array[T.any(String, T::Array[String])]) }
       def to_ini(h, git_format: false)
         optional_tab = git_format ? "\t" : ""
         str = []
