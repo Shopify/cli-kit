@@ -78,7 +78,7 @@ module CLI
       end
 
       sig do
-        params(name: String) # candidate command name
+        params(name: T.nilable(String)) # candidate command name
           .returns([
             T.nilable(Class), # resolved command implementation class (or nil if none)
             String, # resolved name (different from input if input was e.g. an alias)
