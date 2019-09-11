@@ -8,6 +8,7 @@ group :development, :test do
   gem 'byebug'
   gem 'method_source'
   gem 'sorbet'
+  gem 'sorbet-runtime'
 end
 
 group :test do

@@ -6,6 +6,7 @@ begin
   addpath.call("lib")
 end
 
+require 'sorbet-runtime'
 require 'cli/kit'
 
 require 'fileutils'
