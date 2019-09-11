@@ -16,7 +16,7 @@ module CLI
     class Ini
       extend(T::Sig)
 
-      LeafValue = T.type_alias(T.any(String, Integer, Float))
+      LeafValue = T.type_alias(T.any(String, Integer, Float, NilClass))
       Value = T.type_alias(T.any(T::Hash[String, LeafValue], LeafValue))
       IniType = T.type_alias(T::Hash[String, Value])
 
