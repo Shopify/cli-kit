@@ -85,7 +85,7 @@ module CLI
 
         # Converts an integer representing bytes into a human readable format
         #
-        sig { params(bytes: Integer, precision: Integer, space: T::Boolean).returns(String) }
+        sig { params(bytes: Numeric, precision: Integer, space: T::Boolean).returns(String) }
         def to_filesize(bytes, precision: 2, space: false)
           to_si_scale(bytes, 'B', precision: precision, space: space, factor: 1024)
         end
