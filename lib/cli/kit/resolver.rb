@@ -15,7 +15,7 @@ module CLI
       sig do
         params(args: T::Array[String])
           .returns([
-            String, String, T::Array[String]
+            Class, String, T::Array[String]
           ])
       end
       def call(args)
