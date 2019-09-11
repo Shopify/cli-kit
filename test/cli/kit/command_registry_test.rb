@@ -10,6 +10,7 @@ module CLI
       end
 
       module ContextualResolver
+        extend(CLI::Kit::CommandRegistry::ContextualResolverInterface)
         CommandClass = Class.new
 
         def self.command_names
