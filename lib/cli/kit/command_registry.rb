@@ -60,7 +60,7 @@ module CLI
         @contextual_resolver = contextual_resolver || NullContextualResolver
       end
 
-      sig { returns(T::Hash[String, String]) }
+      sig { returns(T::Hash[String, T.untyped]) }
       def resolved_commands
         @commands.each_with_object({}) do |(k, v), a|
           a[k] = resolve_class(v)
