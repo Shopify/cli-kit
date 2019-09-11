@@ -53,7 +53,7 @@ module CLI
         end
 
         # Joins an array with commas and "and", using the Oxford comma.
-        sig { params(array: T::Array[String]).returns(String) }
+        sig { params(array: T.nilable(T::Array[String])).returns(String) }
         def english_join(array)
           return "" if array.nil?
           return array.join(" and ") if array.length < 3
