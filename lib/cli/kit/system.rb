@@ -40,14 +40,15 @@ module CLI
           params(
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
-            env: T::Hash[String, String], # process environment with which to execute
+            env: T.untyped, # process environment with which to execute
             kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture2
           ).returns([
             String, # output (STDOUT) of the command execution
             ::Process::Status, # ask it about #success?
           ])
         end
-        def capture2(*args, sudo: false, env: T.unsafe(ENV), **kwargs)
+        def capture2(*args, sudo: false, env: ENV, **kwargs)
+          env = T.let(env.to_h, T::Hash[String, String])
           call_open3(args, sudo, env) do |argv|
             T.unsafe(Open3).capture2(env, *argv, **kwargs)
           end
@@ -63,14 +64,15 @@ module CLI
           params(
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
-            env: T::Hash[String, String], # process environment with which to execute
+            env: T.untyped, # process environment with which to execute
             kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture2e
           ).returns([
             String, # output (STDOUT merged with STDERR) of the command execution
             ::Process::Status, # ask it about #success?
           ])
         end
-        def capture2e(*args, sudo: false, env: T.unsafe(ENV), **kwargs)
+        def capture2e(*args, sudo: false, env: ENV, **kwargs)
+          env = T.let(env.to_h, T::Hash[String, String])
           call_open3(args, sudo, env) do |argv|
             T.unsafe(Open3).capture2e(env, *argv, **kwargs)
           end
@@ -92,7 +94,7 @@ module CLI
           params(
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
-            env: T::Hash[String, String], # process environment with which to execute
+            env: T.untyped, # process environment with which to execute
             kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Open3.capture3
           ).returns([
             String, # STDOUT of the command execution
@@ -100,7 +102,8 @@ module CLI
             ::Process::Status, # ask it about #success?
           ])
         end
-        def capture3(*args, sudo: false, env: T.unsafe(ENV), **kwargs)
+        def capture3(*args, sudo: false, env: ENV, **kwargs)
+          env = T.let(env.to_h, T::Hash[String, String])
           call_open3(args, sudo, env) do |argv|
             T.unsafe(Open3).capture3(env, *argv, **kwargs)
           end
@@ -115,7 +118,7 @@ module CLI
           params(
             args: String, # splat of arguments ('rm dir' or 'rm', 'dir')
             sudo: T.any(T::Boolean, String), # prompt for credentials and run as root?
-            env: T::Hash[String, String], # process environment with which to execute
+            env: T.untyped, # process environment with which to execute
             kwargs: T.nilable(T::Hash[Symbol, T.untyped]), # additional args to pass to Process.spawn
           ).returns([
             String, # STDOUT of the command execution
@@ -123,7 +126,8 @@ module CLI
             ::Process::Status, # ask it about #success?
           ])
         end
-        def system(*args, sudo: false, env: T.unsafe(ENV), **kwargs)
+        def system(*args, sudo: false, env: ENV, **kwargs)
+          env = T.let(env.to_h, T::Hash[String, T.untyped])
           args = apply_sudo(args, sudo)
           args = resolve_path(args, env)
 
