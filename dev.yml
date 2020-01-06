@@ -1,5 +1,5 @@
 up:
-  - ruby: 2.3.3
+  - ruby: 2.7.0
   - bundler
 
 commands:
