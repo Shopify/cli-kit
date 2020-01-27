@@ -90,6 +90,18 @@ module CLI
           delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
         end
 
+        def popen2(*a, sudo: false, env: ENV, **kwargs, &block)
+          delegate_open3(*a, sudo: sudo, env: env, method: :popen2, **kwargs, &block)
+        end
+
+        def popen2e(*a, sudo: false, env: ENV, **kwargs)
+          delegate_open3(*a, sudo: sudo, env: env, method: :popen2e, **kwargs, &block)
+        end
+
+        def popen3(*a, sudo: false, env: ENV, **kwargs)
+          delegate_open3(*a, sudo: sudo, env: env, method: :popen3, **kwargs, &block)
+        end
+
         # Execute a command in the user's environment
         # Outputs result of the command without capturing it
         #
@@ -171,9 +183,9 @@ module CLI
           a
         end
 
-        def delegate_open3(*a, sudo: raise, env: raise, method: raise, **kwargs)
+        def delegate_open3(*a, sudo: raise, env: raise, method: raise, **kwargs, &block)
           a = apply_sudo(*a, sudo)
-          Open3.send(method, env, *resolve_path(a, env), **kwargs)
+          Open3.send(method, env, *resolve_path(a, env), **kwargs, &block)
         rescue Errno::EINTR
           raise(Errno::EINTR, "command interrupted: #{a.join(' ')}")
         end
