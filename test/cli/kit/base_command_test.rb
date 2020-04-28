@@ -66,7 +66,7 @@ module CLI
         e = assert_raises RuntimeError do
           ExampleCommand.call([], "command")
         end
-        assert_equal 'something went wrong.', e.message
+        assert_equal('something went wrong.', e.message)
       end
 
       def test_self_call_adds_subcommand_tag_and_fails
@@ -90,7 +90,7 @@ module CLI
         e = assert_raises CLI::Kit::AbortSilent do
           ExampleCommand.call(['test'], "command")
         end
-        assert_equal 'something went wrong.', e.message
+        assert_equal('something went wrong.', e.message)
       end
 
       def test_self_call_records_time
