@@ -39,8 +39,8 @@ module CLI
         end
 
         assert_equal(<<~EOF, err)
-        This command ran with ID: 12345
-        Please include this information in any issues/report along with relevant logs
+          This command ran with ID: 12345
+          Please include this information in any issues/report along with relevant logs
         EOF
         assert_empty(out)
       end
@@ -69,7 +69,7 @@ module CLI
           assert_equal("SIGINFO:\n", lines.shift)
           assert_is_stack_trace(lines)
         else
-          pass 'INFO isnt available on this system, but that is ok'
+          pass('INFO isnt available on this system, but that is ok')
         end
       end
 

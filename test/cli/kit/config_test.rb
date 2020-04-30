@@ -12,7 +12,7 @@ module CLI
       end
 
       def test_config_get_returns_false_for_not_existant_key
-        refute @config.get('section', 'invalid-key-no-existing')
+        refute(@config.get('section', 'invalid-key-no-existing'))
       end
 
       def test_config_get_returns_default_for_not_existant_key
@@ -20,8 +20,8 @@ module CLI
       end
 
       def test_config_get_bool_non_existant
-        refute @config.get('section', 'invalid-key-no-existing') # doesn't exist yet
-        refute @config.get_bool('section', 'invalid-key-no-existing') # defaults to false
+        refute(@config.get('section', 'invalid-key-no-existing')) # doesn't exist yet
+        refute(@config.get_bool('section', 'invalid-key-no-existing')) # defaults to false
       end
 
       def test_config_get_bool_non_existant_with_default
@@ -56,7 +56,7 @@ module CLI
         e = assert_raises CLI::Kit::Abort do
           @config.get_bool('section', 'foo-key')
         end
-        assert_equal "Invalid config: section.foo-key is expected to be true or false", e.message
+        assert_equal("Invalid config: section.foo-key is expected to be true or false", e.message)
       end
 
       def test_config_key_never_padded_with_whitespace
@@ -74,7 +74,7 @@ module CLI
         assert_equal("[section]\nsome-key = ~/.test", File.read(@file))
 
         @config.set('section', 'some-key', nil)
-        assert_equal '', File.read(@file)
+        assert_equal('', File.read(@file))
 
         @config.set('section', 'some-key', '~/.test')
         @config.set('section', 'some-other-key', '~/.test')
@@ -93,7 +93,7 @@ module CLI
 
       def test_config_mutli_argument_get
         @config.set('some-parent', 'some-key', 'some-value')
-        assert_equal 'some-value', @config.get('some-parent', 'some-key')
+        assert_equal('some-value', @config.get('some-parent', 'some-key'))
       end
 
       def test_get_section

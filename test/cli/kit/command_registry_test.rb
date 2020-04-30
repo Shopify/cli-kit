@@ -60,10 +60,10 @@ module CLI
         cmd = CLI::Kit::BaseCommand
         reg.add(cmd, 'abc')
 
-        assert reg.exist?('abc')
-        assert reg.exist?('a')
-        refute reg.exist?('xyz')
-        refute reg.exist?('x')
+        assert(reg.exist?('abc'))
+        assert(reg.exist?('a'))
+        refute(reg.exist?('xyz'))
+        refute(reg.exist?('x'))
       end
 
       def test_command_names

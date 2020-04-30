@@ -5,7 +5,7 @@ AllCops:
   Exclude:
     - gen/template/**/*
     - vendor/**/*
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.5
 
 Style/ClassAndModuleChildren:
   Exclude:
@@ -14,12 +14,8 @@ Style/ClassAndModuleChildren:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# This doesn't understand that <<~ doesn't exist in 2.0
-Layout/IndentHeredoc:
-  Enabled: false
-
 # This doesn't take into account retrying from an exception
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 # allow String.new to create mutable strings

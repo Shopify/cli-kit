@@ -157,17 +157,15 @@ module CLI
       def with_handler
         code = nil
         out, err = capture_io do
-          begin
-            code = @eh.call { yield }
-          rescue => e
-            # This is cheating, but it's the easiest way I could think of to
-            # work around not wanting to actually have to call an at_exit
-            # handler with $ERROR_INFO here.
-            @eh.instance_variable_set(:@exception, e)
-            code = :unhandled
-          ensure
-            @eh.exit_handler.call
-          end
+          code = @eh.call { yield }
+        rescue => e
+          # This is cheating, but it's the easiest way I could think of to
+          # work around not wanting to actually have to call an at_exit
+          # handler with $ERROR_INFO here.
+          @eh.instance_variable_set(:@exception, e)
+          code = :unhandled
+        ensure
+          @eh.exit_handler.call
         end
         [out, err, code]
       end

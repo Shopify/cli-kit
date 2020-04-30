@@ -142,13 +142,11 @@ module CLI
 
             readers, = IO.select(ios)
             readers.each do |io|
-              begin
-                data, trailing = split_partial_characters(io.readpartial(4096))
-                handlers[io].call(previous_trailing[io] + data)
-                previous_trailing[io] = trailing
-              rescue IOError
-                io.close
-              end
+              data, trailing = split_partial_characters(io.readpartial(4096))
+              handlers[io].call(previous_trailing[io] + data)
+              previous_trailing[io] = trailing
+            rescue IOError
+              io.close
             end
           end
 
