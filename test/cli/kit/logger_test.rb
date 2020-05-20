@@ -82,10 +82,56 @@ module CLI
         assert_debug_log_entry("hello", "DEBUG")
       end
 
+      def test_debug_with_debug_env_zero
+        with_env('DEBUG' => '0') do
+          out, err = capture_io do
+            @logger.debug("hello")
+          end
+          assert_empty(err.chomp)
+          assert_empty(out.chomp)
+          assert_debug_log_entry("hello", "DEBUG")
+        end
+      end
+
+      def test_debug_with_debug_env_empty
+        with_env('DEBUG' => '') do
+          out, err = capture_io do
+            @logger.debug("hello")
+          end
+          assert_empty(err.chomp)
+          assert_empty(out.chomp)
+          assert_debug_log_entry("hello", "DEBUG")
+        end
+      end
+
       def test_debug_with_debug_env
         with_env('DEBUG' => '1') do
           out, err = capture_io do
             @logger.debug("hello")
+          end
+          assert_equal "\e[0mhello", out.chomp
+          assert_empty err.chomp
+          assert_debug_log_entry("hello", "DEBUG")
+        end
+      end
+
+      def test_debug_without_custom_env_debug_name
+        logger = CLI::Kit::Logger.new(debug_log_file: @tmp_file.path, env_debug_name: 'FOO_DEBUG')
+        with_env('DEBUG' => '1') do
+          out, err = capture_io do
+            logger.debug("hello")
+          end
+          assert_empty(err.chomp)
+          assert_empty(out.chomp)
+          assert_debug_log_entry("hello", "DEBUG")
+        end
+      end
+
+      def test_debug_with_custom_env_debug_name
+        logger = CLI::Kit::Logger.new(debug_log_file: @tmp_file.path, env_debug_name: 'FOO_DEBUG')
+        with_env('FOO_DEBUG' => '1') do
+          out, err = capture_io do
+            logger.debug("hello")
           end
           assert_equal "\e[0mhello", out.chomp
           assert_empty err.chomp
