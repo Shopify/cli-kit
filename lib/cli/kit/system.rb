@@ -174,14 +174,11 @@ module CLI
         end
 
         def os
-          require 'rbconfig'
+          return :mac if /darwin/.match(RUBY_PLATFORM)
+          return :linux if /linux/.match(RUBY_PLATFORM)
+          return :windows if /mingw32/.match(RUBY_PLATFORM)
 
-          host = RbConfig::CONFIG["host"]
-          return :mac if /darwin/.match(host)
-          return :linux if /linux/.match(host)
-          return :windows if /mingw32/.match(host)
-
-          raise "Could not determine OS from host #{host}"
+          raise "Could not determine OS from platform #{RUBY_PLATFORM}"
         end
 
         private
@@ -228,7 +225,7 @@ module CLI
           exts = os == :windows ? env.fetch('PATHEXT').split(';') : ['']
           env.fetch('PATH', '').split(File::PATH_SEPARATOR).each do |path|
             exts.each do |ext|
-              exe = File.join(File.expand_path(path), "#{cmd}#{ext}")
+              exe = File.join(path, "#{cmd}#{ext}")
               return exe if File.executable?(exe) && !File.directory?(exe)
             end
           end

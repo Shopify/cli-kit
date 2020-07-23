@@ -53,12 +53,11 @@ module CLI
 
         with_script_in_tmpdir("ruby") do |tmpdir|
           path = tmpdir
-          path = path.gsub(/\//, '\\') if CLI::Kit::System.os == :windows
           with_env("PATH" => "#{path}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
             out, stat = System.capture2("ruby", "-e", "puts 'system ruby'", env: ENV)
 
             assert stat, message: "expected command to successfully run"
-            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output
+            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output so we skip it
           end
         end
       end
@@ -68,12 +67,11 @@ module CLI
 
         with_script_in_tmpdir("ruby") do |tmpdir|
           path = tmpdir
-          path = path.gsub(/\//, '\\') if CLI::Kit::System.os == :windows
           with_env("PATH" => "#{path}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
             out, stat = System.capture2("ruby -e 'puts \"system ruby\"'", env: ENV)
 
             assert stat, message: "expected command to successfully run"
-            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output
+            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output so we skip it
           end
         end
       end
