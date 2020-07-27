@@ -52,12 +52,11 @@ module CLI
         CLI::Kit::System.fake("ruby", "-e", "puts 'system ruby'", allow: true)
 
         with_script_in_tmpdir("ruby") do |tmpdir|
-          path = tmpdir
-          with_env("PATH" => "#{path}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
+          with_env("PATH" => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
             out, stat = System.capture2("ruby", "-e", "puts 'system ruby'", env: ENV)
 
             assert stat, message: "expected command to successfully run"
-            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output so we skip it
+            assert_equal "from script", out.chomp
           end
         end
       end
@@ -66,12 +65,11 @@ module CLI
         CLI::Kit::System.fake("ruby -e 'puts \"system ruby\"'", allow: true)
 
         with_script_in_tmpdir("ruby") do |tmpdir|
-          path = tmpdir
-          with_env("PATH" => "#{path}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
+          with_env("PATH" => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
             out, stat = System.capture2("ruby -e 'puts \"system ruby\"'", env: ENV)
 
             assert stat, message: "expected command to successfully run"
-            assert_equal "from script", out.split("\n")[-1] # Windows prints the command before the output so we skip it
+            assert_equal "from script", out.chomp
           end
         end
       end
@@ -84,7 +82,11 @@ module CLI
           script_name += '.BAT' if is_windows
 
           File.open(File.join(tmpdir, script_name), "w", 0755) do |f|
-            f.write("#!/bin/sh\n") unless is_windows
+            if is_windows
+              f.write("@echo off\n")
+            else
+              f.write("#!/bin/sh\n")
+            end
             f.write("echo from script\n")
           end
           yield tmpdir
