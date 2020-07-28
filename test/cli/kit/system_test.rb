@@ -52,8 +52,21 @@ module CLI
         CLI::Kit::System.fake("ruby", "-e", "puts 'system ruby'", allow: true)
 
         with_script_in_tmpdir("ruby") do |tmpdir|
-          with_env("PATH" => "#{tmpdir}:#{ENV['PATH']}") do
+          with_env("PATH" => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
             out, stat = System.capture2("ruby", "-e", "puts 'system ruby'", env: ENV)
+
+            assert stat, message: "expected command to successfully run"
+            assert_equal "from script", out.chomp
+          end
+        end
+      end
+
+      def test_system_finds_ruby_script_with_path_modifications_and_single_command
+        CLI::Kit::System.fake("ruby -e 'puts \"system ruby\"'", allow: true)
+
+        with_script_in_tmpdir("ruby") do |tmpdir|
+          with_env("PATH" => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV['PATH']}") do
+            out, stat = System.capture2("ruby -e 'puts \"system ruby\"'", env: ENV)
 
             assert stat, message: "expected command to successfully run"
             assert_equal "from script", out.chomp
@@ -65,8 +78,15 @@ module CLI
 
       def with_script_in_tmpdir(script_name)
         Dir.mktmpdir do |tmpdir|
+          is_windows = CLI::Kit::System.os == :windows
+          script_name += '.BAT' if is_windows
+
           File.open(File.join(tmpdir, script_name), "w", 0755) do |f|
-            f.write("#!/bin/sh\n")
+            if is_windows
+              f.write("@echo off\n")
+            else
+              f.write("#!/bin/sh\n")
+            end
             f.write("echo from script\n")
           end
           yield tmpdir

@@ -173,6 +173,14 @@ module CLI
           [data.byteslice(0...partial_character_index), data.byteslice(partial_character_index..-1)]
         end
 
+        def os
+          return :mac if /darwin/.match(RUBY_PLATFORM)
+          return :linux if /linux/.match(RUBY_PLATFORM)
+          return :windows if /mingw32/.match(RUBY_PLATFORM)
+
+          raise "Could not determine OS from platform #{RUBY_PLATFORM}"
+        end
+
         private
 
         def apply_sudo(*a, sudo)
@@ -199,17 +207,30 @@ module CLI
         # See https://github.com/Shopify/dev/pull/625 for more details.
         def resolve_path(a, env)
           # If only one argument was provided, make sure it's interpreted by a shell.
-          return ["true ; " + a[0]] if a.size == 1
+          if a.size == 1
+            if os == :windows
+              return ["break && " + a[0]]
+            else
+              return ["true ; " + a[0]]
+            end
+          end
           return a if a.first.include?('/')
 
-          paths = env.fetch('PATH', '').split(':')
-          item = paths.detect do |f|
-            command_path = "#{f}/#{a.first}"
-            File.executable?(command_path) && File.file?(command_path)
+          item = which(a.first, env)
+          a[0] = item if item
+          a
+        end
+
+        def which(cmd, env)
+          exts = os == :windows ? env.fetch('PATHEXT').split(';') : ['']
+          env.fetch('PATH', '').split(File::PATH_SEPARATOR).each do |path|
+            exts.each do |ext|
+              exe = File.join(path, "#{cmd}#{ext}")
+              return exe if File.executable?(exe) && !File.directory?(exe)
+            end
           end
 
-          a[0] = "#{item}/#{a.first}" if item
-          a
+          nil
         end
       end
     end
