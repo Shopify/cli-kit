@@ -109,8 +109,8 @@ module CLI
           out, err = capture_io do
             @logger.debug("hello")
           end
-          assert_equal "\e[0mhello", out.chomp
-          assert_empty err.chomp
+          assert_equal("\e[0mhello", out.chomp)
+          assert_empty(err.chomp)
           assert_debug_log_entry("hello", "DEBUG")
         end
       end
@@ -133,8 +133,8 @@ module CLI
           out, err = capture_io do
             logger.debug("hello")
           end
-          assert_equal "\e[0mhello", out.chomp
-          assert_empty err.chomp
+          assert_equal("\e[0mhello", out.chomp)
+          assert_empty(err.chomp)
           assert_debug_log_entry("hello", "DEBUG")
         end
       end

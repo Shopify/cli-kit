@@ -53,7 +53,7 @@ module CLI
         @config.set('section', 'foo-key', "yes")
         assert_equal("yes", @config.get('section', 'foo-key'))
 
-        e = assert_raises CLI::Kit::Abort do
+        e = assert_raises(CLI::Kit::Abort) do
           @config.get_bool('section', 'foo-key')
         end
         assert_equal("Invalid config: section.foo-key is expected to be true or false", e.message)

@@ -63,7 +63,7 @@ module CLI
           tags: expected_tags + ["exception:RuntimeError"]
         )
 
-        e = assert_raises RuntimeError do
+        e = assert_raises(RuntimeError) do
           ExampleCommand.call([], "command")
         end
         assert_equal('something went wrong.', e.message)
@@ -87,7 +87,7 @@ module CLI
           tags: expected_tags + ["subcommand:test", "exception:CLI::Kit::AbortSilent"]
         )
 
-        e = assert_raises CLI::Kit::AbortSilent do
+        e = assert_raises(CLI::Kit::AbortSilent) do
           ExampleCommand.call(['test'], "command")
         end
         assert_equal('something went wrong.', e.message)
