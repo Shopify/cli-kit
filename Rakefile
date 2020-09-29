@@ -16,4 +16,12 @@ RuboCop::RakeTask.new(:style) do |t|
   t.options = ['--display-cop-names']
 end
 
-task(default: [:test, :style])
+task :test_gen_bundler do
+  sh "DEPS=bundler bin/test_gen"
+end
+
+task :test_gen_vendor do
+  sh "DEPS=vendor bin/test_gen"
+end
+
+task(default: [:test, :style, :test_gen_bundler, :test_gen_vendor])

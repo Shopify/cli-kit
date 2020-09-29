@@ -57,7 +57,7 @@ module CLI
       def test_with_environment
         orig_path = ENV['PATH']
         CLI::Kit::Util.with_environment('PATH', '/foo') do
-          assert_equal '/foo', ENV['PATH'], "Environment should be overridden"
+          assert_equal('/foo', ENV['PATH'], "Environment should be overridden")
         end
         assert_equal(orig_path, ENV['PATH'], "Original environment should have been restored")
       end
