@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # Make sure we're in the cli kit directory
 CURR_DIR=$(dirname "$0")
@@ -19,7 +20,9 @@ mv myapp ../
 cd ../myapp
 
 # Test
-bundle install
+if [[ $DEPS == 'bundler' ]]; then
+  bundle install
+fi
 bin/testunit
 
 if [[ $DEPS == 'vendor' ]]; then

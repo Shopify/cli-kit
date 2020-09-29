@@ -58,8 +58,8 @@ module Gen
     private
 
     def ask_vendor?
-      return 'vendor' if ENV['DEPS'] == 'vendor'
-      return 'bundler' if ENV['DEPS'] == 'bundler'
+      return true if ENV['DEPS'] == 'vendor'
+      return false if ENV['DEPS'] == 'bundler'
 
       vendor = nil
       CLI::UI::Frame.open('Configuration') do
