@@ -112,7 +112,7 @@ module CLI
         # - `**kwargs`: additional keyword arguments to pass to Process.spawn
         #
         # #### Returns
-        # - `status`: boolean success status of the command execution
+        # - `status`: The `Process:Status` result for the command execution
         #
         # #### Usage
         # `stat = CLI::Kit::System.system('ls', 'a_folder')`
