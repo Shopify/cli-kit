@@ -17,7 +17,7 @@ module CLI
           rescue => e
             begin
               $stderr.puts "This command ran with ID: #{id}"
-              $stderr.puts "Please include this information in any issues/report along with relevant logs"
+              $stderr.puts 'Please include this information in any issues/report along with relevant logs'
             rescue SystemCallError
               # Outputting to stderr is best-effort.  Avoid raising another error when outputting debug info so that
               # we can detect and log the original error, which may even be the source of this error.

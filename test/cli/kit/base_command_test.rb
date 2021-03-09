@@ -29,42 +29,42 @@ module CLI
       def test_self_call_sends_statsd_on_success
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.invoked",
+          'cli.command.invoked',
           tags: expected_tags
         )
-        ExampleCommand.any_instance.expects(:call).with([], "command")
+        ExampleCommand.any_instance.expects(:call).with([], 'command')
         ExampleCommand.expects(:stat).with(
           :time,
-          "cli.command.time",
+          'cli.command.time',
           tags: expected_tags
         )
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.success",
+          'cli.command.success',
           tags: expected_tags
         )
 
-        ExampleCommand.call([], "command")
+        ExampleCommand.call([], 'command')
       end
 
       def test_self_call_sends_statsd_on_failure
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.invoked",
+          'cli.command.invoked',
           tags: expected_tags
         )
         ExampleCommand.any_instance.expects(:call)
-          .with([], "command")
+          .with([], 'command')
           .raises(RuntimeError, 'something went wrong.')
 
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.exception",
-          tags: expected_tags + ["exception:RuntimeError"]
+          'cli.command.exception',
+          tags: expected_tags + ['exception:RuntimeError']
         )
 
         e = assert_raises(RuntimeError) do
-          ExampleCommand.call([], "command")
+          ExampleCommand.call([], 'command')
         end
         assert_equal('something went wrong.', e.message)
       end
@@ -74,21 +74,21 @@ module CLI
 
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.invoked",
-          tags: expected_tags + ["subcommand:test"]
+          'cli.command.invoked',
+          tags: expected_tags + ['subcommand:test']
         )
         ExampleCommand.any_instance.expects(:call)
-          .with(['test'], "command")
+          .with(['test'], 'command')
           .raises(CLI::Kit::AbortSilent, 'something went wrong.')
 
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.exception",
-          tags: expected_tags + ["subcommand:test", "exception:CLI::Kit::AbortSilent"]
+          'cli.command.exception',
+          tags: expected_tags + ['subcommand:test', 'exception:CLI::Kit::AbortSilent']
         )
 
         e = assert_raises(CLI::Kit::AbortSilent) do
-          ExampleCommand.call(['test'], "command")
+          ExampleCommand.call(['test'], 'command')
         end
         assert_equal('something went wrong.', e.message)
       end
@@ -96,21 +96,21 @@ module CLI
       def test_self_call_records_time
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.invoked",
+          'cli.command.invoked',
           tags: expected_tags
         )
         ExampleCommand.expects(:stat).with(
           :time,
-          "cli.command.time",
+          'cli.command.time',
           tags: expected_tags
         )
         ExampleCommand.expects(:stat).with(
           :increment,
-          "cli.command.success",
+          'cli.command.success',
           tags: expected_tags
         )
 
-        ExampleCommand.call([], "command")
+        ExampleCommand.call([], 'command')
       end
     end
   end

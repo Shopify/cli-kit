@@ -89,7 +89,7 @@ module CLI
         message = if @tool_name
           "Your disk is full - {{command:#{@tool_name}}} requires free space to operate"
         else
-          "Your disk is full - free space is required to operate"
+          'Your disk is full - free space is required to operate'
         end
         stderr_puts_message(message)
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG

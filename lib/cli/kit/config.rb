@@ -30,9 +30,9 @@ module CLI
       # Coalesce and enforce the value of a config to a boolean
       def get_bool(section, name, default: false)
         case get(section, name, default: default).to_s
-        when "true"
+        when 'true'
           true
-        when "false"
+        when 'false'
           false
         else
           raise CLI::Kit::Abort, "Invalid config: #{section}.#{name} is expected to be true or false"
@@ -116,7 +116,7 @@ module CLI
 
       def ini
         @ini ||= CLI::Kit::Ini
-          .new(file, default_section: "[global]", convert_types: false)
+          .new(file, default_section: '[global]', convert_types: false)
           .tap(&:parse)
       end
 

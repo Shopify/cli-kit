@@ -134,8 +134,8 @@ module CLI
                 #
                 # Note: Must set allow or success
                 #
-                def fake(*a, stdout: "", stderr: "", allow: nil, success: nil, sudo: false, env: {})
-                  raise ArgumentError, "success or allow must be set" if success.nil? && allow.nil?
+                def fake(*a, stdout: '', stderr: '', allow: nil, success: nil, sudo: false, env: {})
+                  raise ArgumentError, 'success or allow must be set' if success.nil? && allow.nil?
 
                   @delegate_open3 ||= {}
                   @delegate_open3[a.join(' ')] = {

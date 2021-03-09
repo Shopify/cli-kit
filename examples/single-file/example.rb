@@ -30,7 +30,7 @@ module Example
     register(:Hello, 'hello') do
       Class.new(Example::Command) do
         def call(_args, _name)
-          puts "hello, world!"
+          puts 'hello, world!'
         end
       end
     end

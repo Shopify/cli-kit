@@ -18,7 +18,7 @@ module CLI
         run_test(
           expect_code:   CLI::Kit::EXIT_SUCCESS,
           expect_out:    "neato\n",
-          expect_err:    "",
+          expect_err:    '',
           expect_report: false,
         ) do
           puts 'neato'
@@ -28,8 +28,8 @@ module CLI
       def test_abort_silent
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
-          expect_err:    "",
+          expect_out:    '',
+          expect_err:    '',
           expect_report: false,
         ) do
           raise(CLI::Kit::AbortSilent)
@@ -39,7 +39,7 @@ module CLI
       def test_abort
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
+          expect_out:    '',
           expect_err:    /foo/,
           expect_report: false,
         ) do
@@ -51,8 +51,8 @@ module CLI
         File.write(@tf.path, 'words')
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
-          expect_err:    "",
+          expect_out:    '',
+          expect_err:    '',
           expect_report: [is_a(CLI::Kit::BugSilent), 'words'],
         ) do
           raise(CLI::Kit::BugSilent)
@@ -62,7 +62,7 @@ module CLI
       def test_bug
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
+          expect_out:    '',
           expect_err:    /foo/,
           expect_report: [is_a(CLI::Kit::Bug), ''],
         ) do
@@ -73,7 +73,7 @@ module CLI
       def test_out_of_space
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
+          expect_out:    '',
           expect_err:    "\e[0;31mYour disk is full - free space is required to operate\e[0m\n",
           expect_report: false,
         ) do
@@ -82,10 +82,10 @@ module CLI
       end
 
       def test_out_of_space_with_name
-        @eh = error_handler(tool_name: "foo")
+        @eh = error_handler(tool_name: 'foo')
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
+          expect_out:    '',
           expect_err:    "\e[0;31mYour disk is full - \e[0;31;36mfoo\e[0;31m requires free space to operate\e[0m\n",
           expect_report: false,
         ) do
@@ -96,7 +96,7 @@ module CLI
       def test_interrupt
         run_test(
           expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
-          expect_out:    "",
+          expect_out:    '',
           expect_err:    /Interrupt/,
           expect_report: false,
         ) do
@@ -107,8 +107,8 @@ module CLI
       def test_unhandled
         run_test(
           expect_code:   :unhandled,
-          expect_out:    "",
-          expect_err:    "",
+          expect_out:    '',
+          expect_err:    '',
           expect_report: [is_a(RuntimeError), ''],
         ) do
           raise('wups')
