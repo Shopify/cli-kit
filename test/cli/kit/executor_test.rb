@@ -27,7 +27,7 @@ module CLI
 
       def test_call_with_exception
         SimpleCommand.any_instance.expects(:call).raises(StandardError)
-        CLI::UI::StdoutRouter.expects(:with_id).yields("12345")
+        CLI::UI::StdoutRouter.expects(:with_id).yields('12345')
 
         exe = Executor.new(log_file: @tf.path)
         out, err = capture_io do

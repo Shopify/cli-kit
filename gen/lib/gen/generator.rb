@@ -116,7 +116,7 @@ module Gen
       out, stat = Open3.capture2e('git', '-C', dir, 'clone', "https://github.com/shopify/#{repo}")
       unless stat.success?
         STDERR.puts(out)
-        error("git clone failed")
+        error('git clone failed')
       end
     end
 

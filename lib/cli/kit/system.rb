@@ -6,7 +6,7 @@ require 'English'
 module CLI
   module Kit
     module System
-      SUDO_PROMPT = CLI::UI.fmt("{{info:(sudo)}} Password: ")
+      SUDO_PROMPT = CLI::UI.fmt('{{info:(sudo)}} Password: ')
       class << self
         # Ask for sudo access with a message explaning the need for it
         # Will make subsequent commands capable of running with sudo for a period of time
@@ -193,7 +193,7 @@ module CLI
           a = apply_sudo(*a, sudo)
           Open3.send(method, env, *resolve_path(a, env), **kwargs, &block)
         rescue Errno::EINTR
-          raise(Errno::EINTR, "command interrupted: #{a.join(' ')}")
+          raise(Errno::EINTR, "command interrupted: #{a.join(" ")}")
         end
 
         # Ruby resolves the program to execute using its own PATH, but we want it to
@@ -209,9 +209,9 @@ module CLI
           # If only one argument was provided, make sure it's interpreted by a shell.
           if a.size == 1
             if os == :windows
-              return ["break && " + a[0]]
+              return ['break && ' + a[0]]
             else
-              return ["true ; " + a[0]]
+              return ['true ; ' + a[0]]
             end
           end
           return a if a.first.include?('/')

@@ -10,7 +10,7 @@ include(CLI::Kit)
 registry = CommandRegistry.new(default: 'hello', contextual_resolver: nil)
 registry.add(Class.new(BaseCommand) do
   def call(_args, _name)
-    puts "hello, world!"
+    puts 'hello, world!'
   end
 end, 'hello')
 

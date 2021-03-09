@@ -16,7 +16,7 @@ module CLI
       end
 
       def test_config_get_returns_default_for_not_existant_key
-        assert_equal("custom", @config.get('section', 'invalid-key-no-existing', default: "custom"))
+        assert_equal('custom', @config.get('section', 'invalid-key-no-existing', default: 'custom'))
       end
 
       def test_config_get_bool_non_existant
@@ -50,13 +50,13 @@ module CLI
       end
 
       def test_config_get_bool_on_invalid
-        @config.set('section', 'foo-key', "yes")
-        assert_equal("yes", @config.get('section', 'foo-key'))
+        @config.set('section', 'foo-key', 'yes')
+        assert_equal('yes', @config.get('section', 'foo-key'))
 
         e = assert_raises(CLI::Kit::Abort) do
           @config.get_bool('section', 'foo-key')
         end
-        assert_equal("Invalid config: section.foo-key is expected to be true or false", e.message)
+        assert_equal('Invalid config: section.foo-key is expected to be true or false', e.message)
       end
 
       def test_config_key_never_padded_with_whitespace
@@ -64,9 +64,9 @@ module CLI
         # We split on `=` and 'key ' became the new key (with a space)
         # This is a regression test to make sure that doesnt happen
         @config.set('section', 'key', 'value')
-        assert_equal({ "[section]" => { "key" => "value" } }, @config.send(:all_configs))
+        assert_equal({ '[section]' => { 'key' => 'value' } }, @config.send(:all_configs))
         3.times { @config.set('section', 'key', 'value') }
-        assert_equal({ "[section]" => { "key" => "value" } }, @config.send(:all_configs))
+        assert_equal({ '[section]' => { 'key' => 'value' } }, @config.send(:all_configs))
       end
 
       def test_config_set
@@ -81,14 +81,14 @@ module CLI
         assert_equal("[section]\nsome-key = ~/.test\nsome-other-key = ~/.test", File.read(@file))
 
         assert_equal('~/.test', @config.get('section', 'some-key'))
-        assert_equal("#{ENV['HOME']}/.test", @config.get_path('section', 'some-key'))
+        assert_equal("#{ENV["HOME"]}/.test", @config.get_path('section', 'some-key'))
       end
 
       def test_config_unset
         @config.set('section', 'some-key', '~/.test')
         assert_equal("[section]\nsome-key = ~/.test", File.read(@file))
         @config.unset('section', 'some-key')
-        assert_equal("", File.read(@file))
+        assert_equal('', File.read(@file))
       end
 
       def test_config_mutli_argument_get

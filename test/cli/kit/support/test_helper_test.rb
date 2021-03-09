@@ -64,7 +64,7 @@ module CLI
           CLI::Kit::System.capture3('orange').last.success?
 
           errors = assert_all_commands_run(should_raise: false)
-          assert_nil(errors, "errors should have been nil")
+          assert_nil(errors, 'errors should have been nil')
         end
 
         def test_assert_all_commands_run

@@ -33,3 +33,6 @@ Style/RegexpLiteral:
 # allow readable Dev::Util.begin formatting
 Style/MultilineBlockChain:
   Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes

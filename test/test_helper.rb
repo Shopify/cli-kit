@@ -3,7 +3,7 @@ addpath = lambda do |p|
   path = File.expand_path("../../#{p}", __FILE__)
   $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
 end
-addpath.call("lib")
+addpath.call('lib')
 
 require 'cli/kit'
 
@@ -19,7 +19,7 @@ require 'byebug'
 CLI::UI::StdoutRouter.enable
 
 require 'minitest/autorun'
-require "minitest/unit"
+require 'minitest/unit'
 require 'mocha/minitest'
 
 def with_env(env)
