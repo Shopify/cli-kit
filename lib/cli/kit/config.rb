@@ -18,12 +18,12 @@ module CLI
       # `name` : the name of the config value you are looking for
       #
       # #### Returns
-      # `value` : the value of the config variable (false if none)
+      # `value` : the value of the config variable (nil if none)
       #
       # #### Example Usage
       # `config.get('name.of.config')`
       #
-      def get(section, name, default: false)
+      def get(section, name, default: nil)
         all_configs.dig("[#{section}]", name) || default
       end
 
