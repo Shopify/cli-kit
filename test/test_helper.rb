@@ -17,6 +17,7 @@ require 'bundler/setup'
 require 'byebug'
 
 CLI::UI::StdoutRouter.enable
+CLI::UI.enable_color = true
 
 require 'minitest/autorun'
 require 'minitest/unit'
