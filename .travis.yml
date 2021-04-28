@@ -1,8 +1,0 @@
-sudo: false
-language: ruby
-cache: bundler
-rvm:
-  - 2.7.0
-os:
-  - linux
-  - osx
