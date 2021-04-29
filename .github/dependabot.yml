@@ -8,7 +8,3 @@ updates:
     time: "10:00"
     timezone: America/Toronto
   open-pull-requests-limit: 99
-  ignore:
-  - dependency-name: rubocop
-    versions:
-    - 1.12.0
