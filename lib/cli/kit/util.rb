@@ -79,8 +79,8 @@ module CLI
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
           raise ArgumentError, 'factor should only be 1000 or 1024' unless [1000, 1024].include?(factor)
 
-          small_scale = %w(m µ n p f a z y)
-          big_scale = %w(k M G T P E Z Y)
+          small_scale = ['m', 'µ', 'n', 'p', 'f', 'a', 'z', 'y']
+          big_scale = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
           negative = number < 0
           number = number.abs.to_f
 

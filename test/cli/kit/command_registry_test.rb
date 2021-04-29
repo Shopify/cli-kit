@@ -13,7 +13,7 @@ module CLI
         CommandClass = Class.new
 
         def self.command_names
-          %w(ctx-a ctx-b)
+          ['ctx-a', 'ctx-b']
         end
 
         def self.aliases
@@ -69,7 +69,7 @@ module CLI
       def test_command_names
         reg.add(42, 'abc')
         reg.add(42, 'xyz')
-        assert_equal(%w(abc xyz), reg.command_names.sort)
+        assert_equal(['abc', 'xyz'], reg.command_names.sort)
       end
 
       def test_commands_and_resolved_commands
