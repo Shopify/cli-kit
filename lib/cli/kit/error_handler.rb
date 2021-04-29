@@ -25,8 +25,8 @@ module CLI
         if (notify_with = exception_for_submission(error))
           logs = begin
             File.read(@log_file)
-                 rescue => e
-                   "(#{e.class}: #{e.message})"
+          rescue => e
+            "(#{e.class}: #{e.message})"
           end
           exception_reporter.report(notify_with, logs)
         end
@@ -46,7 +46,7 @@ module CLI
         when CLI::Kit::Abort, CLI::Kit::AbortSilent # Not a bug
           nil
         when SignalException
-          skip = %w(SIGTERM SIGHUP SIGINT)
+          skip = ['SIGTERM', 'SIGHUP', 'SIGINT']
           skip.include?(error.message) ? nil : error
         when SystemExit # "exit N" called
           case error.status

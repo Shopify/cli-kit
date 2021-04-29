@@ -18,7 +18,7 @@ module CLI
         exe = Executor.new(log_file: @tf.path)
         out, err = capture_io do
           CLI::UI::StdoutRouter.with_enabled do
-            exe.call(SimpleCommand, 'foo', %w(a b))
+            exe.call(SimpleCommand, 'foo', ['a', 'b'])
           end
         end
         assert_equal(%(foo: ["a", "b"]\n), out)
@@ -33,7 +33,7 @@ module CLI
         out, err = capture_io do
           assert_raises(StandardError) do
             CLI::UI::StdoutRouter.with_enabled do
-              exe.call(SimpleCommand, 'foo', %w(a b))
+              exe.call(SimpleCommand, 'foo', ['a', 'b'])
             end
           end
         end
@@ -48,7 +48,7 @@ module CLI
       def test_command_runs
         out, err = capture_io do
           CLI::UI::StdoutRouter.with_enabled do
-            exe.call(SimpleCommand, 'foo', %w(a b))
+            exe.call(SimpleCommand, 'foo', ['a', 'b'])
           end
         end
         assert_equal(%(foo: ["a", "b"]\n), out)

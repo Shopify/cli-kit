@@ -49,9 +49,9 @@ module CLI
       def test_english_join
         assert_equal('',  CLI::Kit::Util.english_join(nil))
         assert_equal('',  CLI::Kit::Util.english_join([]))
-        assert_equal('foo', CLI::Kit::Util.english_join(%w(foo)))
-        assert_equal('foo and bar',  CLI::Kit::Util.english_join(%w(foo bar)))
-        assert_equal('foo, bar, baz, and qux', CLI::Kit::Util.english_join(%w(foo bar baz qux)))
+        assert_equal('foo', CLI::Kit::Util.english_join(['foo']))
+        assert_equal('foo and bar',  CLI::Kit::Util.english_join(['foo', 'bar']))
+        assert_equal('foo, bar, baz, and qux', CLI::Kit::Util.english_join(['foo', 'bar', 'baz', 'qux']))
       end
 
       def test_with_environment
