@@ -38,7 +38,7 @@ module CLI
       end
 
       def call(_args, _command_name)
-        raise NotImplementedError
+        raise NotImplementedError, "#{self.class.name} must implement #{__method__}"
       end
 
       def has_subcommands?
