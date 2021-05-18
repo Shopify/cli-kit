@@ -29,13 +29,15 @@ module CLI
 
       def test_with_and_without_section_directives
         helper = Ini.new(fixture_path('ini_with_and_without_heading.conf'))
+        # rubocop:disable Layout/ArgumentAlignment
         assert_equal(
           {
             'key' => 'val',
             'key2' => 'val2=',
             '[global]' => { 'key' => 'val', 'key2' => 'val2=' },
             'key3' => 'val3',
-          }, helper.parse
+          },
+          helper.parse
         )
       end
 
