@@ -29,7 +29,7 @@ module CLI
 
       # Coalesce and enforce the value of a config to a boolean
       def get_bool(section, name, default: false)
-        case get(section, name, default: default).to_s
+        case get(section, name, default: default)
         when 'true'
           true
         when 'false'
