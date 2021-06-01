@@ -59,6 +59,15 @@ module CLI
         assert_equal('Invalid config: section.foo-key is expected to be true or false', e.message)
       end
 
+      def test_get_bool_on_default_nil_unset
+        assert_nil(@config.get_bool('section', 'foo-key', default: nil))
+      end
+
+      def test_get_bool_on_default_nil_set_false
+        @config.set('section', 'foo-key', false)
+        assert_equal(false, @config.get_bool('section', 'foo-key', default: nil))
+      end
+
       def test_config_key_never_padded_with_whitespace
         # There was a bug that occured when a key was reset
         # We split on `=` and 'key ' became the new key (with a space)

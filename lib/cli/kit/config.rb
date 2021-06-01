@@ -34,6 +34,8 @@ module CLI
           true
         when 'false'
           false
+        when default
+          default
         else
           raise CLI::Kit::Abort, "Invalid config: #{section}.#{name} is expected to be true or false"
         end
