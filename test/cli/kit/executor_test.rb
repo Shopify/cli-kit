@@ -74,14 +74,18 @@ module CLI
       end
 
       def test_sigquit_handling
-        @exe.expects(:exit).with(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
-        out, err = capture_io do
-          exe.call(->(*) { Process.kill('QUIT', Process.pid) }, 'foo', [])
+        if Signal.list.key?('QUIT')
+          @exe.expects(:exit).with(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
+          out, err = capture_io do
+            exe.call(->(*) { Process.kill('QUIT', Process.pid) }, 'foo', [])
+          end
+          assert_empty(out)
+          lines = err.lines
+          assert_equal("SIGQUIT: quit\n", lines.shift)
+          assert_is_stack_trace(lines)
+        else
+          pass('QUIT isnt available on this system, but that is ok')
         end
-        assert_empty(out)
-        lines = err.lines
-        assert_equal("SIGQUIT: quit\n", lines.shift)
-        assert_is_stack_trace(lines)
       end
 
       private

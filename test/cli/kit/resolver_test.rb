@@ -36,8 +36,8 @@ module CLI
       end
 
       def test_resolver_suggest
-        reg.add(32, 'floo')
-        reg.add(32, 'fool')
+        reg.add(32, 'boo')
+        reg.add(32, 'bao')
         reg.add(32, 'bar')
 
         out, err = capture_io do
@@ -53,8 +53,8 @@ module CLI
         tool_not_found, sugg1, sugg2 = err.lines
 
         assert_match(/tool foo.* was not found/, tool_not_found)
-        assert_match(/tool fool/, sugg1)
-        assert_match(/tool floo/, sugg2)
+        assert_match(/tool boo/, sugg1)
+        assert_match(/tool bao/, sugg2)
 
         assert_match(/Command not found/, command_not_found)
         assert_match(/Did you mean/, did_you_mean)
