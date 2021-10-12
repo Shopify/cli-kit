@@ -146,6 +146,7 @@ module CLI
         ErrorHandler.new(log_file: @tf.path, exception_reporter: @rep, tool_name: tool_name).tap do |eh|
           class << eh
             attr_reader :exit_handler
+
             # Prevent `install!` from actually installing the hook.
             def at_exit(&block)
               @exit_handler = block
@@ -154,10 +155,10 @@ module CLI
         end
       end
 
-      def with_handler
+      def with_handler(&block)
         code = nil
         out, err = capture_io do
-          code = @eh.call { yield }
+          code = @eh.call(&block)
         rescue => e
           # This is cheating, but it's the easiest way I could think of to
           # work around not wanting to actually have to call an at_exit
@@ -170,15 +171,13 @@ module CLI
         [out, err, code]
       end
 
-      def run_test(expect_code:, expect_out:, expect_err:, expect_report:)
+      def run_test(expect_code:, expect_out:, expect_err:, expect_report:, &block)
         if expect_report
           @rep.expects(:report).once.with(*expect_report)
         else
           @rep.expects(:report).never
         end
-        out, err, code = with_handler do
-          yield
-        end
+        out, err, code = with_handler(&block)
         assert_equal(expect_out, out)
         if expect_err.is_a?(Regexp)
           assert_match(expect_err, err)

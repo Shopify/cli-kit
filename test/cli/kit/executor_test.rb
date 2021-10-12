@@ -5,6 +5,7 @@ module CLI
   module Kit
     class ExecutorTest < MiniTest::Test
       attr_reader :exe
+
       def setup
         @tf  = Tempfile.create('executor-log').tap(&:close)
         @exe = Executor.new(log_file: @tf.path)

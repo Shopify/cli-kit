@@ -39,11 +39,9 @@ module CLI
         end
       end
 
-      def with_traps
+      def with_traps(&block)
         twrap('QUIT', method(:quit_handler)) do
-          twrap('INFO', method(:info_handler)) do
-            yield
-          end
+          twrap('INFO', method(:info_handler), &block)
         end
       end
 

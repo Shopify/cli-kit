@@ -4,6 +4,7 @@ module CLI
   module Kit
     class CommandRegistryTest < MiniTest::Test
       attr_reader :reg, :ctx_reg
+
       def setup
         @reg = CommandRegistry.new(default: 'dflt', contextual_resolver: nil)
         @ctx_reg = CommandRegistry.new(default: 'dflt', contextual_resolver: ContextualResolver)
