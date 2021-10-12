@@ -4,6 +4,7 @@ module CLI
   module Kit
     class ResolverTest < MiniTest::Test
       attr_reader :reg, :res
+
       def setup
         @reg = CommandRegistry.new(default: 'help', contextual_resolver: nil)
         @res = Resolver.new(tool_name: 'tool', command_registry: reg)
