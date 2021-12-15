@@ -28,7 +28,8 @@ module CLI
     # a bare `rescue => e`.
     #
     # * Abort prints its message in red and exits 1;
-    # * Bug additionally submits the exception to Bugsnag;
+    # * Bug additionally submits the exception to the exception_reporter passed to
+    #     `CLI::Kit::ErrorHandler.new`
     # * AbortSilent and BugSilent do the same as above, but do not print
     #     messages before exiting.
     #
