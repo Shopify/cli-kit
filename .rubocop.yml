@@ -1,11 +1,18 @@
 inherit_gem:
   rubocop-shopify: rubocop-cli.yml
 
+inherit_from:
+  - .rubocop.sorbet.yml
+
+require:
+  - rubocop-sorbet
+
 AllCops:
   Exclude:
     - gen/template/**/*
     - vendor/**/*
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.7
+  NewCops: disable
 
 Style/ClassAndModuleChildren:
   Exclude:

@@ -4,8 +4,6 @@ require 'cli/kit'
 CLI::UI::StdoutRouter.enable
 
 module __App__
-  extend CLI::Kit::Autocall
-
   TOOL_NAME = '__app__'
   ROOT      = File.expand_path('../..', __FILE__)
   LOG_FILE  = '/tmp/__app__.log'
@@ -13,21 +11,17 @@ module __App__
   autoload(:EntryPoint, '__app__/entry_point')
   autoload(:Commands,   '__app__/commands')
 
-  autocall(:Config)  { CLI::Kit::Config.new(tool_name: TOOL_NAME) }
-  autocall(:Command) { CLI::Kit::BaseCommand }
+  Config = CLI::Kit::Config.new(tool_name: TOOL_NAME)
+  Command = CLI::Kit::BaseCommand
 
-  autocall(:Executor) { CLI::Kit::Executor.new(log_file: LOG_FILE) }
-  autocall(:Resolver) do
-    CLI::Kit::Resolver.new(
-      tool_name: TOOL_NAME,
-      command_registry: __App__::Commands::Registry
-    )
-  end
+  Executor = CLI::Kit::Executor.new(log_file: LOG_FILE)
+  Resolver = CLI::Kit::Resolver.new(
+    tool_name: TOOL_NAME,
+    command_registry: __App__::Commands::Registry
+  )
 
-  autocall(:ErrorHandler) do
-    CLI::Kit::ErrorHandler.new(
-      log_file: LOG_FILE,
-      exception_reporter: nil
-    )
-  end
+  ErrorHandler = CLI::Kit::ErrorHandler.new(
+    log_file: LOG_FILE,
+    exception_reporter: nil
+  )
 end

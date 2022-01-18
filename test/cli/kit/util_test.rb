@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class UtilTest < MiniTest::Test
+    class UtilTest < Minitest::Test
       def test_snake_case
         assert_equal('', CLI::Kit::Util.snake_case(''))
         assert_equal('a', CLI::Kit::Util.snake_case('A'))

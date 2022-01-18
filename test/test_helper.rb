@@ -15,6 +15,13 @@ require 'bundler/setup'
 
 require 'byebug'
 
+require 'simplecov'
+SimpleCov.start do
+  # SimpleCov uses a "creative" DSL here with block rebinding.
+  # Sorbet doesn't like it.
+  T.unsafe(self).add_filter('/test/')
+end
+
 CLI::UI::StdoutRouter.enable
 CLI::UI.enable_color = true
 

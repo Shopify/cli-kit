@@ -3,6 +3,7 @@ name: Ruby
 on: [push, pull_request]
 
 jobs:
+
   style:
     runs-on: ubuntu-latest
     steps:
@@ -14,13 +15,28 @@ jobs:
         bundler-cache: true
     - name: Check style
       run: bundle exec rake style
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+    - name: Typecheck
+      run: bundle exec srb tc
+
   test:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        ruby-version: ['2.6', '2.7']
+        ruby-version: ['2.7', '3.0']
 
     runs-on: ${{ matrix.os }}
+    env:
+      BUNDLE_WITHOUT: typecheck
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby

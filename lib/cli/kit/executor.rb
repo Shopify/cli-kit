@@ -1,3 +1,4 @@
+# typed: true
 require 'cli/kit'
 require 'English'
 require 'fileutils'
@@ -5,11 +6,15 @@ require 'fileutils'
 module CLI
   module Kit
     class Executor
+      extend T::Sig
+
+      sig { params(log_file: T.untyped).void }
       def initialize(log_file:)
         FileUtils.mkpath(File.dirname(log_file))
         @log_file = log_file
       end
 
+      sig { params(command: T.untyped, command_name: T.untyped, args: T.untyped).returns(T.untyped) }
       def call(command, command_name, args)
         with_traps do
           with_logging do |id|
@@ -30,6 +35,7 @@ module CLI
 
       private
 
+      sig { params(block: T.untyped).returns(T.untyped) }
       def with_logging(&block)
         return yield unless @log_file
         CLI::UI.log_output_to(@log_file) do
@@ -39,12 +45,14 @@ module CLI
         end
       end
 
+      sig { params(block: T.untyped).returns(T.untyped) }
       def with_traps(&block)
         twrap('QUIT', method(:quit_handler)) do
           twrap('INFO', method(:info_handler), &block)
         end
       end
 
+      sig { params(signal: T.untyped, handler: T.untyped).returns(T.untyped) }
       def twrap(signal, handler)
         return yield unless Signal.list.key?(signal)
 
@@ -63,6 +71,7 @@ module CLI
         end
       end
 
+      sig { params(_sig: T.untyped).returns(T.untyped) }
       def quit_handler(_sig)
         z = caller
         CLI::UI.raw do
@@ -72,6 +81,7 @@ module CLI
         exit(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
       end
 
+      sig { params(_sig: T.untyped).returns(T.untyped) }
       def info_handler(_sig)
         z = caller
         CLI::UI.raw do

@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class ResolverTest < MiniTest::Test
+    class ResolverTest < Minitest::Test
       attr_reader :reg, :res
 
       def setup

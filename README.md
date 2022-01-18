@@ -38,7 +38,7 @@ run:
 * `/exe/` - Location of the executables for your application.
 * `/lib/` - Location of the resources for your app (modules, classes, helpers, etc).
     * `myproject.rb` - This file is the starting point for where to look for all other files. It
-    configures autoload and autocall for the app.
+    configures autoload for the app.
     * `myproject/` - Stores the various commands/entry points.
         * `entry_point.rb` - This is the file that is first called from the executable. It handles 
         loading and commands.

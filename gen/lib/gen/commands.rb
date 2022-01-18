@@ -1,18 +1,22 @@
+# typed: true
 require 'gen'
 
 module Gen
   module Commands
+    extend T::Sig
+
     Registry = CLI::Kit::CommandRegistry.new(
       default: 'help',
       contextual_resolver: nil
     )
 
-    def self.register(const, cmd, path)
+    sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(T.untyped)).void }
+    def self.register(const, cmd, path, lamda_const)
       autoload(const, path)
-      Registry.add(->() { const_get(const) }, cmd)
+      Registry.add(lamda_const, cmd)
     end
 
-    register :Help, 'help', 'gen/commands/help'
-    register :New,  'new',  'gen/commands/new'
+    register :Help, 'help', 'gen/commands/help', -> { Commands::Help }
+    register :New,  'new',  'gen/commands/new', -> { Commands::New }
   end
 end

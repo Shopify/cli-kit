@@ -1,9 +1,14 @@
+# typed: true
 require 'cli/ui'
-require 'cli/kit/ruby_backports/enumerable'
+
+unless defined?(T)
+  require('cli/kit/sorbet_runtime_stub')
+end
 
 module CLI
   module Kit
-    autoload :Autocall,        'cli/kit/autocall'
+    extend T::Sig
+
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
     autoload :Config,          'cli/kit/config'

@@ -3,7 +3,7 @@ require 'test_helper'
 module CLI
   module Kit
     module Support
-      class TestHelperTest < MiniTest::Test
+      class TestHelperTest < Minitest::Test
         include CLI::Kit::Support::TestHelper
 
         def test_when_all_commands_not_run

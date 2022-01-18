@@ -4,7 +4,7 @@ module CLI
   module Kit
     include CLI::Kit::Support::TestHelper
 
-    class SystemTest < MiniTest::Test
+    class SystemTest < Minitest::Test
       def test_split_partial_characters_doesnt_split_single_byte_characters
         str = 'ルビー is cool'
 

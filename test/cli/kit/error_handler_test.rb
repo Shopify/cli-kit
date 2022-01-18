@@ -3,7 +3,7 @@ require 'tempfile'
 
 module CLI
   module Kit
-    class ErrorHandlerTest < MiniTest::Test
+    class ErrorHandlerTest < Minitest::Test
       def setup
         @rep = Object.new
         @tf  = Tempfile.create('executor-log').tap(&:close)

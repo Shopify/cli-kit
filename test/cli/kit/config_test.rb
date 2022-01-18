@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class ConfigTest < MiniTest::Test
+    class ConfigTest < Minitest::Test
       include CLI::Kit::Support::TestHelper::FakeConfig
 
       def setup

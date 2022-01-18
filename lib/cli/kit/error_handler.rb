@@ -1,9 +1,13 @@
+# typed: true
 require 'cli/kit'
 require 'English'
 
 module CLI
   module Kit
     class ErrorHandler
+      extend T::Sig
+
+      sig { params(log_file: T.untyped, exception_reporter: T.untyped, tool_name: T.untyped).void }
       def initialize(log_file:, exception_reporter:, tool_name: nil)
         @log_file = log_file
         @exception_reporter_or_proc = exception_reporter || NullExceptionReporter
@@ -11,16 +15,21 @@ module CLI
       end
 
       module NullExceptionReporter
+        extend T::Sig
+
+        sig { params(_exception: T.untyped, _logs: T.untyped).returns(T.untyped) }
         def self.report(_exception, _logs)
           nil
         end
       end
 
+      sig { params(block: T.untyped).returns(T.untyped) }
       def call(&block)
         install!
         handle_abort(&block)
       end
 
+      sig { params(error: T.untyped).returns(T.untyped) }
       def handle_exception(error)
         if (notify_with = exception_for_submission(error))
           logs = begin
@@ -33,10 +42,12 @@ module CLI
       end
 
       # maybe we can get rid of this.
+      sig { params(exception: T.untyped).void }
       attr_writer :exception
 
       private
 
+      sig { params(error: T.untyped).returns(T.untyped) }
       def exception_for_submission(error)
         case error
         when nil         # normal, non-error termination
@@ -67,10 +78,12 @@ module CLI
         end
       end
 
+      sig { returns(T.untyped) }
       def install!
         at_exit { handle_exception(@exception || $ERROR_INFO) }
       end
 
+      sig { returns(T.untyped) }
       def handle_abort
         yield
         CLI::Kit::EXIT_SUCCESS
@@ -95,12 +108,14 @@ module CLI
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
+      sig { params(message: T.untyped).returns(T.untyped) }
       def stderr_puts_message(message)
         $stderr.puts(format_error_message(message))
       rescue Errno::EPIPE
         nil
       end
 
+      sig { returns(T.untyped) }
       def exception_reporter
         if @exception_reporter_or_proc.respond_to?(:report)
           @exception_reporter_or_proc
@@ -109,10 +124,12 @@ module CLI
         end
       end
 
+      sig { params(msg: T.untyped).returns(T.untyped) }
       def format_error_message(msg)
         CLI::UI.fmt("{{red:#{msg}}}")
       end
 
+      sig { params(e: T.untyped).returns(T.untyped) }
       def print_error_message(e)
         $stderr.puts(format_error_message(e.message))
       end

@@ -4,6 +4,8 @@ build
 .DS_Store
 .bundle
 
+/coverage
+
 .starscope.db
 cscope.out
 tags
