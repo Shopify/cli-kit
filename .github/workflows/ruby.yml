@@ -3,6 +3,7 @@ name: Ruby
 on: [push, pull_request]
 
 jobs:
+
   style:
     runs-on: ubuntu-latest
     steps:
@@ -14,6 +15,19 @@ jobs:
         bundler-cache: true
     - name: Check style
       run: bundle exec rake style
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+    - name: Typecheck
+      run: bundle exec srb tc
+
   test:
     strategy:
       matrix:
