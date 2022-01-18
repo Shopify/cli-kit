@@ -1,6 +1,10 @@
 # typed: true
 require 'cli/ui'
 
+unless defined?(T)
+  require('cli/kit/sorbet_runtime_stub')
+end
+
 module CLI
   module Kit
     autoload :BaseCommand,     'cli/kit/base_command'
