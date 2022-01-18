@@ -10,12 +10,10 @@ module Gen
       contextual_resolver: nil
     )
 
-    sig { params(const: T.untyped, cmd: T.untyped, path: T.untyped).returns(T.untyped) }
-    def self.register(const, cmd, path)
+    sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(Runtime::Command)).void }
+    def self.register(const, cmd, path, lamda_const)
       autoload(const, path)
-      # rubocop:disable Sorbet/ConstantsFromStrings
-      Registry.add(->() { const_get(const) }, cmd)
-      # rubocop:enable Sorbet/ConstantsFromStrings
+      Registry.add(lamda_const, cmd)
     end
 
     register :Help, 'help', 'gen/commands/help'
