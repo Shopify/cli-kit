@@ -13,13 +13,23 @@ require 'tempfile'
 require 'rubygems'
 require 'bundler/setup'
 
+if ENV['CLI_UI_DEV']
+  addpath.call('../cli-ui/lib')
+end
+
 require 'byebug'
+
+require 'sorbet-runtime'
 
 require 'simplecov'
 SimpleCov.start do
   # SimpleCov uses a "creative" DSL here with block rebinding.
   # Sorbet doesn't like it.
+  T.unsafe(self).add_filter('/lib/cli/kit/sorbet_runtime_stub.rb')
   T.unsafe(self).add_filter('/test/')
+  T.unsafe(self).add_filter('/gen/')
+  T.unsafe(self).add_filter('/examples/')
+  T.unsafe(self).track_files('lib/**/*.rb')
 end
 
 CLI::UI::StdoutRouter.enable

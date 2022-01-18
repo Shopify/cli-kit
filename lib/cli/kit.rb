@@ -9,14 +9,17 @@ module CLI
   module Kit
     extend T::Sig
 
+    autoload :Args,            'cli/kit/args'
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
+    autoload :CommandHelp,     'cli/kit/command_help'
     autoload :Config,          'cli/kit/config'
     autoload :ErrorHandler,    'cli/kit/error_handler'
     autoload :Executor,        'cli/kit/executor'
     autoload :Ini,             'cli/kit/ini'
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :Logger,          'cli/kit/logger'
+    autoload :Opts,            'cli/kit/opts'
     autoload :Resolver,        'cli/kit/resolver'
     autoload :Support,         'cli/kit/support'
     autoload :System,          'cli/kit/system'

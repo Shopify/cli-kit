@@ -6,18 +6,11 @@ module Gen
     class Help < Gen::Command
       extend T::Sig
 
-      sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
-      def call(_args, _name)
-        puts CLI::UI.fmt('{{bold:Available commands}}')
-        puts ''
+      desc('Show help for a command, or this page')
 
-        Gen::Commands::Registry.resolved_commands.each do |name, klass|
-          puts CLI::UI.fmt("{{command:#{Gen::TOOL_NAME} #{name}}}")
-          if klass.respond_to?(:help) && (help = klass.help)
-            puts CLI::UI.fmt(help)
-          end
-          puts ''
-        end
+      sig { params(args: T::Array[String], _name: String).void }
+      def call(args, _name)
+        Gen::Help.generate(args)
       end
     end
   end

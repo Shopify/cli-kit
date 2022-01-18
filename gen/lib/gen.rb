@@ -6,15 +6,17 @@ CLI::UI::StdoutRouter.enable
 
 module Gen
   TOOL_NAME = 'cli-kit'
-  ROOT      = File.expand_path('../../..', __FILE__)
+  CLI::Kit::CommandHelp.tool_name = TOOL_NAME
+
+  ROOT = File.expand_path('../../..', __FILE__)
 
   TOOL_CONFIG_PATH = File.expand_path(File.join('~', '.config', TOOL_NAME))
   LOG_FILE = File.join(TOOL_CONFIG_PATH, 'logs', 'log.log')
   DEBUG_LOG_FILE = File.join(TOOL_CONFIG_PATH, 'logs', 'debug.log')
 
-  autoload(:Generator, 'gen/generator')
-
+  autoload(:Generator,  'gen/generator')
   autoload(:EntryPoint, 'gen/entry_point')
+  autoload(:Help,       'gen/help')
   autoload(:Commands,   'gen/commands')
 
   Config = CLI::Kit::Config.new(tool_name: TOOL_NAME)

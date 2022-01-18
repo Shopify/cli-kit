@@ -5,6 +5,8 @@ module CLI
   module Kit
     class BaseCommand
       extend T::Sig
+      include CLI::Kit::CommandHelp
+      extend CLI::Kit::CommandHelp::ClassMethods
 
       sig { returns(T.untyped) }
       def self.defined?
@@ -45,10 +47,10 @@ module CLI
         tags
       end
 
-      sig { params(_args: T.untyped, _command_name: T.untyped).returns(T.untyped) }
-      def call(_args, _command_name)
-        raise NotImplementedError, "#{self.class.name} must implement #{__method__}"
-      end
+      # sig { params(_args: T.untyped, _command_name: T.untyped).returns(T.untyped) }
+      # def call(_args, _command_name)
+      #   raise NotImplementedError, "#{self.class.name} must implement #{__method__}"
+      # end
 
       sig { returns(T.untyped) }
       def has_subcommands?
