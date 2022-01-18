@@ -16,7 +16,7 @@ module Gen
       Registry.add(lamda_const, cmd)
     end
 
-    register :Help, 'help', 'gen/commands/help'
+    register :Help, 'help', 'gen/commands/help', -> { Help }
     register :New,  'new',  'gen/commands/new'
   end
 end
