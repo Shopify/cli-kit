@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# typed: true
 
 require 'cli/ui'
 require 'cli/kit'
@@ -16,6 +17,7 @@ module Example
       contextual_resolver: nil
     )
 
+    sig { params(const: T.untyped, cmd: T.untyped, path: T.untyped).returns(T.untyped) }
     def self.register(const, cmd, path)
       autoload(const, path)
       Registry.add(->() { const_get(const) }, cmd)
@@ -24,6 +26,7 @@ module Example
     # register(:Hello, 'hello', 'a/b/hello')
 
     class Hello < Example::Command
+      sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
       def call(_args, _name)
         puts 'hello, world!'
       end
@@ -31,6 +34,7 @@ module Example
   end
 
   module EntryPoint
+    sig { params(args: T.untyped).returns(T.untyped) }
     def self.call(args)
       cmd, command_name, args = Example::Resolver.call(args)
       Example::Executor.call(cmd, command_name, args)

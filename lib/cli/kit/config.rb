@@ -1,3 +1,4 @@
+# typed: true
 require 'cli/kit'
 require 'fileutils'
 
@@ -6,6 +7,7 @@ module CLI
     class Config
       XDG_CONFIG_HOME = 'XDG_CONFIG_HOME'
 
+      sig { params(tool_name: T.untyped).returns(T.untyped) }
       def initialize(tool_name:)
         @tool_name = tool_name
       end
@@ -23,11 +25,13 @@ module CLI
       # #### Example Usage
       # `config.get('name.of.config')`
       #
+      sig { params(section: T.untyped, name: T.untyped, default: T.untyped).returns(T.untyped) }
       def get(section, name, default: nil)
         all_configs.dig("[#{section}]", name) || default
       end
 
       # Coalesce and enforce the value of a config to a boolean
+      sig { params(section: T.untyped, name: T.untyped, default: T.untyped).returns(T.untyped) }
       def get_bool(section, name, default: false)
         case get(section, name, default: default)
         when 'true'
@@ -51,6 +55,7 @@ module CLI
       # #### Example Usage
       # `config.set('section', 'name.of.config', 'value')`
       #
+      sig { params(section: T.untyped, name: T.untyped, value: T.untyped).returns(T.untyped) }
       def set(section, name, value)
         all_configs["[#{section}]"] ||= {}
         all_configs["[#{section}]"][name] = value.nil? ? nil : value.to_s
@@ -66,6 +71,7 @@ module CLI
       # #### Example Usage
       # `config.unset('section', 'name.of.config')`
       #
+      sig { params(section: T.untyped, name: T.untyped).returns(T.untyped) }
       def unset(section, name)
         set(section, name, nil)
       end
@@ -78,6 +84,7 @@ module CLI
       # #### Example Usage
       # `config.get_section('section')`
       #
+      sig { params(section: T.untyped).returns(T.untyped) }
       def get_section(section)
         (all_configs["[#{section}]"] || {}).dup
       end
@@ -91,11 +98,13 @@ module CLI
       # #### Returns
       # `path` : the expanded path to the corrsponding value
       #
+      sig { params(section: T.untyped, name: T.untyped).returns(T.untyped) }
       def get_path(section, name = nil)
         v = get(section, name)
         false == v ? v : File.expand_path(v)
       end
 
+      sig { returns(T.untyped) }
       def to_s
         ini.to_s
       end
@@ -105,6 +114,7 @@ module CLI
       # if ENV['XDG_CONFIG_HOME'] is not set, we default to ~/.config, e.g.:
       #   ~/.config/tool/config
       #
+      sig { returns(T.untyped) }
       def file
         config_home = ENV.fetch(XDG_CONFIG_HOME, '~/.config')
         File.expand_path(File.join(@tool_name, 'config'), config_home)
@@ -112,16 +122,19 @@ module CLI
 
       private
 
+      sig { returns(T.untyped) }
       def all_configs
         ini.ini
       end
 
+      sig { returns(T.untyped) }
       def ini
         @ini ||= CLI::Kit::Ini
           .new(file, default_section: '[global]', convert_types: false)
           .tap(&:parse)
       end
 
+      sig { returns(T.untyped) }
       def write_config
         all_configs.each do |section, sub_config|
           all_configs[section] = sub_config.reject { |_, value| value.nil? }

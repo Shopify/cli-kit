@@ -1,3 +1,4 @@
+# typed: true
 module CLI
   module Kit
     # INI is a language similar to JSON or YAML, but simplied
@@ -13,8 +14,13 @@ module CLI
     # See the ini_test.rb file for more examples
     #
     class Ini
+      sig { params(ini: T.untyped).returns(T.untyped) }
       attr_accessor :ini
 
+      sig do
+        params(path: T.untyped, config: T.untyped, default_section: T.untyped,
+          convert_types: T.untyped).returns(T.untyped)
+      end
       def initialize(path = nil, config: nil, default_section: nil, convert_types: true)
         @config = if path && File.exist?(path)
           File.readlines(path)
@@ -27,6 +33,7 @@ module CLI
         @convert_types = convert_types
       end
 
+      sig { returns(T.untyped) }
       def parse
         return @ini if @config.nil?
 
@@ -50,16 +57,19 @@ module CLI
         @ini
       end
 
+      sig { returns(T.untyped) }
       def git_format
         to_ini(@ini, git_format: true).flatten.join("\n")
       end
 
+      sig { returns(T.untyped) }
       def to_s
         to_ini(@ini).flatten.join("\n")
       end
 
       private
 
+      sig { params(h: T.untyped, git_format: T.untyped).returns(T.untyped) }
       def to_ini(h, git_format: false)
         optional_tab = git_format ? "\t" : ''
         str = []
@@ -75,6 +85,7 @@ module CLI
         str
       end
 
+      sig { params(key: T.untyped, val: T.untyped).returns(T.untyped) }
       def set_val(key, val)
         return if key.nil? && val.nil?
 
@@ -87,6 +98,7 @@ module CLI
         end
       end
 
+      sig { params(val: T.untyped).returns(T.untyped) }
       def typed_val(val)
         return val.to_s unless @convert_types
         return val.to_i if val =~ /^-?[0-9]+$/
@@ -94,6 +106,7 @@ module CLI
         val.to_s
       end
 
+      sig { params(k: T.untyped).returns(T.untyped) }
       def section_designator?(k)
         k.start_with?('[') && k.end_with?(']')
       end

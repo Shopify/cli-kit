@@ -1,8 +1,10 @@
+# typed: true
 require 'gen'
 
 module Gen
   module Commands
     class Help < Gen::Command
+      sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
       def call(_args, _name)
         puts CLI::UI.fmt('{{bold:Available commands}}')
         puts ''

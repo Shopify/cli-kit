@@ -1,20 +1,25 @@
+# typed: true
 require 'cli/kit'
 
 module CLI
   module Kit
     class BaseCommand
+      sig { returns(T.untyped) }
       def self.defined?
         true
       end
 
+      sig { params(_metric: T.untyped, _kwargs: T.untyped).returns(T.untyped) }
       def self.statsd_increment(_metric, **_kwargs)
         nil
       end
 
+      sig { params(_metric: T.untyped, _kwargs: T.untyped).returns(T.untyped) }
       def self.statsd_time(_metric, **_kwargs)
         yield
       end
 
+      sig { params(args: T.untyped, command_name: T.untyped).returns(T.untyped) }
       def self.call(args, command_name)
         cmd = new
         stats_tags = cmd.stats_tags(args, command_name)
@@ -30,6 +35,7 @@ module CLI
         end
       end
 
+      sig { params(args: T.untyped, command_name: T.untyped).returns(T.untyped) }
       def stats_tags(args, command_name)
         tags = ["task:#{self.class}"]
         tags << "command:#{command_name}" if command_name
@@ -37,10 +43,12 @@ module CLI
         tags
       end
 
+      sig { params(_args: T.untyped, _command_name: T.untyped).returns(T.untyped) }
       def call(_args, _command_name)
         raise NotImplementedError, "#{self.class.name} must implement #{__method__}"
       end
 
+      sig { returns(T.untyped) }
       def has_subcommands?
         false
       end

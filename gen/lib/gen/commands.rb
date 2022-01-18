@@ -1,3 +1,4 @@
+# typed: true
 require 'gen'
 
 module Gen
@@ -7,6 +8,7 @@ module Gen
       contextual_resolver: nil
     )
 
+    sig { params(const: T.untyped, cmd: T.untyped, path: T.untyped).returns(T.untyped) }
     def self.register(const, cmd, path)
       autoload(const, path)
       Registry.add(->() { const_get(const) }, cmd)

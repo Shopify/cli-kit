@@ -8,6 +8,7 @@ CLI_TEST_ROOT = root + '/test'
 
 $LOAD_PATH.unshift(CLI_TEST_ROOT)
 
+sig { returns(T.untyped) }
 def test_files
   Dir.glob(CLI_TEST_ROOT + '/**/*_test.rb')
 end

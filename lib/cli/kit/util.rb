@@ -1,7 +1,9 @@
+# typed: true
 module CLI
   module Kit
     module Util
       class << self
+        sig { params(camel_case: T.untyped, seperator: T.untyped).returns(T.untyped) }
         def snake_case(camel_case, seperator = '_')
           camel_case.to_s # MyCoolThing::MyAPIModule
             .gsub(/::/, '/') # MyCoolThing/MyAPIModule
@@ -10,6 +12,7 @@ module CLI
             .downcase # my_cool_thing/my_api_module
         end
 
+        sig { params(camel_case: T.untyped).returns(T.untyped) }
         def dash_case(camel_case)
           snake_case(camel_case, '-')
         end
@@ -42,11 +45,13 @@ module CLI
         # Strips indentation by removing the amount of leading whitespace in the least indented
         # non-empty line in the whole string
         #
+        sig { params(str: T.untyped).returns(T.untyped) }
         def strip_heredoc(str)
           str.gsub(/^#{str.scan(/^[ \t]*(?=\S)/).min}/, ''.freeze)
         end
 
         # Joins an array with commas and "and", using the Oxford comma.
+        sig { params(array: T.untyped).returns(T.untyped) }
         def english_join(array)
           return '' if array.nil?
           return array.join(' and ') if array.length < 3
@@ -56,6 +61,7 @@ module CLI
 
         # Execute a block within the context of a variable enviroment
         #
+        sig { params(environment: T.untyped, value: T.untyped).returns(T.untyped) }
         def with_environment(environment, value)
           return yield unless environment
 
@@ -70,12 +76,17 @@ module CLI
 
         # Converts an integer representing bytes into a human readable format
         #
+        sig { params(bytes: T.untyped, precision: T.untyped, space: T.untyped).returns(T.untyped) }
         def to_filesize(bytes, precision: 2, space: false)
           to_si_scale(bytes, 'B', precision: precision, space: space, factor: 1024)
         end
 
         # Converts a number to a human readable format on the SI scale
         #
+        sig do
+          params(number: T.untyped, unit: T.untyped, factor: T.untyped, precision: T.untyped,
+            space: T.untyped).returns(T.untyped)
+        end
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
           raise ArgumentError, 'factor should only be 1000 or 1024' unless [1000, 1024].include?(factor)
 
@@ -115,6 +126,7 @@ module CLI
         # Dir.chdir, when invoked in block form, complains when we call chdir
         # again recursively. There's no apparent good reason for this, so we
         # simply implement our own block form of Dir.chdir here.
+        sig { params(dir: T.untyped).returns(T.untyped) }
         def with_dir(dir)
           prev = Dir.pwd
           Dir.chdir(dir)
@@ -123,6 +135,7 @@ module CLI
           Dir.chdir(prev)
         end
 
+        sig { returns(T.untyped) }
         def with_tmp_dir
           require 'fileutils'
           dir = Dir.mktmpdir
@@ -134,17 +147,20 @@ module CLI
         end
 
         # Standard way of checking for CI / Tests
+        sig { returns(T.untyped) }
         def testing?
           ci? || ENV['TEST']
         end
 
         # Set only in IntegrationTest#session; indicates that the process was
         # called by `session.execute` from an IntegrationTest subclass.
+        sig { returns(T.untyped) }
         def integration_test_session?
           ENV['INTEGRATION_TEST_SESSION']
         end
 
         # Standard way of checking for CI
+        sig { returns(T.untyped) }
         def ci?
           ENV['CI']
         end
@@ -158,16 +174,19 @@ module CLI
         # end.retry_after(ExpectedError) do
         #   costly_prep()
         # end
+        sig { params(block_that_might_raise: T.untyped).returns(T.untyped) }
         def begin(&block_that_might_raise)
           Retrier.new(block_that_might_raise)
         end
       end
 
       class Retrier
+        sig { params(block_that_might_raise: T.untyped).returns(T.untyped) }
         def initialize(block_that_might_raise)
           @block_that_might_raise = block_that_might_raise
         end
 
+        sig { params(exception: T.untyped, retries: T.untyped, before_retry: T.untyped).returns(T.untyped) }
         def retry_after(exception = StandardError, retries: 1, &before_retry)
           @block_that_might_raise.call
         rescue exception => e
