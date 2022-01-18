@@ -4,3 +4,5 @@
 examples/
 --ignore
 gen/template/
+--ignore
+vendor/
