@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module __App__
-  class ExampleTest < MiniTest::Test
+  class ExampleTest < Minitest::Test
     include CLI::Kit::Support::TestHelper
 
     def test_example

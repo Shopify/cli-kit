@@ -1,0 +1,6 @@
+--dir
+.
+--ignore
+examples/
+--ignore
+gen/template/

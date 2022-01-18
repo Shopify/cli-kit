@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class CommandRegistryTest < MiniTest::Test
+    class CommandRegistryTest < Minitest::Test
       attr_reader :reg, :ctx_reg
 
       def setup

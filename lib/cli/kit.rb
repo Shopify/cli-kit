@@ -3,7 +3,6 @@ require 'cli/kit/ruby_backports/enumerable'
 
 module CLI
   module Kit
-    autoload :Autocall,        'cli/kit/autocall'
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
     autoload :Config,          'cli/kit/config'

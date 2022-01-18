@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class BaseCommandTest < MiniTest::Test
+    class BaseCommandTest < Minitest::Test
       class ExampleCommand < BaseCommand
         def self.stat(*)
           nil

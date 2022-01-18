@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class LevenshteinTest < MiniTest::Test
+    class LevenshteinTest < Minitest::Test
       # These tests were originally written by Jian Weihang (簡煒航) as part of his work
       # on the jaro_winkler gem. The original code could be found here:
       #   https://github.com/tonytonyjan/jaro_winkler/blob/9bd12421/spec/jaro_winkler_spec.rb

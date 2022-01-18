@@ -1,0 +1,20 @@
+# typed: true
+# frozen_string_literal: true
+
+require "English"
+require "bundler/setup"
+require "byebug"
+require "cli/kit"
+require "cli/kit/ruby_backports/enumerable"
+require "cli/kit/version"
+require "cli/ui"
+require "cli/ui/version"
+require "fileutils"
+require "minitest/autorun"
+require "minitest/unit"
+require "mocha/minitest"
+require "open3"
+require "pathname"
+require "rubygems"
+require "tempfile"
+require "tmpdir"

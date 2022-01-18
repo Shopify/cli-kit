@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class IniTest < MiniTest::Test
+    class IniTest < Minitest::Test
       def test_with_section_directives
         helper = Ini.new(fixture_path('ini_with_heading.conf'))
         assert_equal(

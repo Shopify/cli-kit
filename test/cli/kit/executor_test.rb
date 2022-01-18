@@ -3,7 +3,7 @@ require 'tempfile'
 
 module CLI
   module Kit
-    class ExecutorTest < MiniTest::Test
+    class ExecutorTest < Minitest::Test
       attr_reader :exe
 
       def setup

@@ -2,7 +2,7 @@ require 'test_helper'
 
 module CLI
   module Kit
-    class LoggerTest < MiniTest::Test
+    class LoggerTest < Minitest::Test
       def setup
         super
         @tmp_file = Tempfile.new('log').tap(&:close)
