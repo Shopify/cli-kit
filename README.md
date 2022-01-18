@@ -26,9 +26,52 @@ select how the project consumes `cli-kit` and `cli-ui`.  The available options a
 
 You're now ready to write your very first `cli-kit` application!
 
+## Upgrading to version 5
+
+Version 5 includes breaking changes and significant new features. Notably:
+
+* `autocall` is completely removed;
+* A help system and command-line option parsing system is added.
+
+Migrating away from `autocall` is as simple as replacing `autocall(:X) { y }` with `X = y`.
+
+Using the new help system is not yet well-documented, but some hints can be found in the
+`gen/ilb/gen/commands` directory of this repo. Existing commands in existing apps should continue to
+work.
+
+To use the new help system, commands should all define `invoke` instead of `call`. `invoke` takes
+`name` as before, but the first argument is now an instance of `Opts`, defined in the command class,
+which must be a subclass of `CLI::Kit::Opts`. For example:
+
+```ruby
+class MyCommand < CLI::Kit::BaseCommand
+  class Opts < CLI::Kit::Opts
+    def force
+      flag(short: '-f', long: '--force', description: 'Force the operation')
+    end
+  end
+  def invoke(op, _name)
+    if op.force
+      puts 'Forcing the operation'
+    else
+      puts 'Not forcing the operation'
+    end
+  end
+end
+```
+
+This particular structure was chosen to allow the code to by fully typed using sorbet, as `invoke`
+can be tagged with `sig { params(op: Opts, _name: String).void }`, and the `#force` method visibly
+exists.
+
+`-h/--help` is installed as a default flag, and running this command with `--help` is handled before
+reaching `#invoke`, to print a help message (for which several other class methods on `BaseCommand`
+provide text: `command_name`, `desc`, `long_desc`, `usage`, `example`, and `help_sections`). See
+`gen/lib/gen/commands/new.rb` for an example.
+
 ## How do `cli-kit` Applications Work?
 
-The executable for your `cli-kit` app is stored in the "exe" directory.  To execute the app, simply
+The executable for your `cli-kit` app is stored in the "exe" directory. To execute the app, simply
 run:
 ```bash
 ./exe/myproject
