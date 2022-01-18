@@ -1,4 +1,6 @@
 # typed: true
+require 'cli/kit'
+
 module CLI
   module Kit
     # INI is a language similar to JSON or YAML, but simplied
@@ -14,12 +16,17 @@ module CLI
     # See the ini_test.rb file for more examples
     #
     class Ini
+      extend T::Sig
+
       sig { params(ini: T.untyped).returns(T.untyped) }
-      attr_accessor :ini
+      attr_writer :ini
+
+      sig { returns(T.untyped) }
+      attr_reader :ini
 
       sig do
         params(path: T.untyped, config: T.untyped, default_section: T.untyped,
-          convert_types: T.untyped).returns(T.untyped)
+          convert_types: T.untyped).void
       end
       def initialize(path = nil, config: nil, default_section: nil, convert_types: true)
         @config = if path && File.exist?(path)

@@ -7,6 +7,8 @@ end
 
 module CLI
   module Kit
+    extend T::Sig
+
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
     autoload :Config,          'cli/kit/config'

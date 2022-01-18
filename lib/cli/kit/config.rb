@@ -5,9 +5,11 @@ require 'fileutils'
 module CLI
   module Kit
     class Config
+      extend T::Sig
+
       XDG_CONFIG_HOME = 'XDG_CONFIG_HOME'
 
-      sig { params(tool_name: T.untyped).returns(T.untyped) }
+      sig { params(tool_name: T.untyped).void }
       def initialize(tool_name:)
         @tool_name = tool_name
       end

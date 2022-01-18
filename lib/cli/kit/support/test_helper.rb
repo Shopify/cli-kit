@@ -1,8 +1,12 @@
 # typed: true
+require 'cli/kit'
+
 module CLI
   module Kit
     module Support
       module TestHelper
+        extend T::Sig
+
         sig { returns(T.untyped) }
         def setup
           super
@@ -13,21 +17,25 @@ module CLI
         def assert_all_commands_run(should_raise: true)
           errors = CLI::Kit::System.error_message
           CLI::Kit::System.reset!
-          assert(false, errors) if should_raise && !errors.nil?
+          # this is in minitest, but sorbet doesn't know that. probably we
+          # could structure this better.
+          T.unsafe(self).assert(false, errors) if should_raise && !errors.nil?
           errors
         end
 
-        sig { returns(T.untyped) }
+        sig { void }
         def teardown
           super
           assert_all_commands_run
         end
 
         module FakeConfig
+          extend T::Sig
+
           require 'tmpdir'
           require 'fileutils'
 
-          sig { returns(T.untyped) }
+          sig { void }
           def setup
             super
             @tmpdir = Dir.mktmpdir
@@ -35,7 +43,7 @@ module CLI
             ENV['XDG_CONFIG_HOME'] = @tmpdir
           end
 
-          sig { returns(T.untyped) }
+          sig { void }
           def teardown
             FileUtils.rm_rf(@tmpdir)
             ENV['XDG_CONFIG_HOME'] = @prev_xdg
@@ -44,7 +52,9 @@ module CLI
         end
 
         class FakeSuccess
-          sig { params(success: T.untyped).returns(T.untyped) }
+          extend T::Sig
+
+          sig { params(success: T.untyped).void }
           def initialize(success)
             @success = success
           end
@@ -59,17 +69,19 @@ module CLI
           module Kit
             module System
               class << self
+                extend T::Sig
+
                 alias_method :original_system, :system
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def system(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = expected_command(*a, sudo: sudo, env: env)
+                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return FakeSuccess.new(false) if expected_command.nil?
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    original_system(*a, sudo: sudo, env: env, **kwargs)
+                    T.unsafe(self).original_system(*a, sudo: sudo, env: env, **kwargs)
                   else
                     FakeSuccess.new(expected_command[:success])
                   end
@@ -78,14 +90,14 @@ module CLI
                 alias_method :original_capture2, :capture2
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = expected_command(*a, sudo: sudo, env: env)
+                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, FakeSuccess.new(false)] if expected_command.nil?
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    original_capture2(*a, sudo: sudo, env: env, **kwargs)
+                    T.unsafe(self).original_capture2(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],
@@ -97,14 +109,14 @@ module CLI
                 alias_method :original_capture2e, :capture2e
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2e(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = expected_command(*a, sudo: sudo, env: env)
+                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, FakeSuccess.new(false)] if expected_command.nil?
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    original_capture2ecapture2e(*a, sudo: sudo, env: env, **kwargs)
+                    T.unsafe(self).original_capture2e(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],
@@ -116,14 +128,14 @@ module CLI
                 alias_method :original_capture3, :capture3
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture3(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = expected_command(*a, sudo: sudo, env: env)
+                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, nil, FakeSuccess.new(false)] if expected_command.nil?
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    original_capture3(*a, sudo: sudo, env: env, **kwargs)
+                    T.unsafe(self).original_capture3(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],
@@ -147,8 +159,11 @@ module CLI
                 # Note: Must set allow or success
                 #
                 sig do
-                  params(a: T.untyped, stdout: T.untyped, stderr: T.untyped, allow: T.untyped, success: T.untyped, sudo: T.untyped,
-                    env: T.untyped).returns(T.untyped)
+                  params(
+                    a: T.untyped, stdout: T.untyped, stderr: T.untyped, allow:
+                    T.untyped, success: T.untyped, sudo: T.untyped, env:
+                    T.untyped
+                  ).returns(T.untyped)
                 end
                 def fake(*a, stdout: '', stderr: '', allow: nil, success: nil, sudo: false, env: {})
                   raise ArgumentError, 'success or allow must be set' if success.nil? && allow.nil?

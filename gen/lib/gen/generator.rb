@@ -7,6 +7,8 @@ require 'tmpdir'
 
 module Gen
   class Generator
+    extend T::Sig
+
     sig { params(project_name: T.untyped).returns(T.untyped) }
     def self.run(project_name)
       new(project_name).run
@@ -37,7 +39,7 @@ module Gen
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 
-    sig { params(project_name: T.untyped).returns(T.untyped) }
+    sig { params(project_name: T.untyped).void }
     def initialize(project_name)
       raise(
         CLI::Kit::Abort,
@@ -66,7 +68,7 @@ module Gen
       return true if ENV['DEPS'] == 'vendor'
       return false if ENV['DEPS'] == 'bundler'
 
-      vendor = nil
+      vendor = T.let(nil, T.nilable(String))
       CLI::UI::Frame.open('Configuration') do
         q = 'How would you like the application to consume {{command:cli-kit}} and {{command:cli-ui}}?'
         vendor = CLI::UI::Prompt.ask(q) do |c|

@@ -6,7 +6,9 @@ require 'fileutils'
 module CLI
   module Kit
     class Executor
-      sig { params(log_file: T.untyped).returns(T.untyped) }
+      extend T::Sig
+
+      sig { params(log_file: T.untyped).void }
       def initialize(log_file:)
         FileUtils.mkpath(File.dirname(log_file))
         @log_file = log_file

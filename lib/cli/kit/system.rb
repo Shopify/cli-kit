@@ -1,6 +1,5 @@
 # typed: true
 require 'cli/kit'
-
 require 'open3'
 require 'English'
 
@@ -9,6 +8,8 @@ module CLI
     module System
       SUDO_PROMPT = CLI::UI.fmt('{{info:(sudo)}} Password: ')
       class << self
+        extend T::Sig
+
         # Ask for sudo access with a message explaning the need for it
         # Will make subsequent commands capable of running with sudo for a period of time
         #
@@ -47,7 +48,7 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture2(*a, sudo: false, env: ENV, **kwargs)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
         end
 
         # Execute a command in the user's environment
@@ -69,7 +70,7 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture2e(*a, sudo: false, env: ENV, **kwargs)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture2e, **kwargs)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture2e, **kwargs)
         end
 
         # Execute a command in the user's environment
@@ -92,28 +93,28 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture3(*a, sudo: false, env: ENV, **kwargs)
-          delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen2(*a, sudo: false, env: ENV, **kwargs, &block)
-          delegate_open3(*a, sudo: sudo, env: env, method: :popen2, **kwargs, &block)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen2, **kwargs, &block)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen2e(*a, sudo: false, env: ENV, **kwargs, &block)
-          delegate_open3(*a, sudo: sudo, env: env, method: :popen2e, **kwargs, &block)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen2e, **kwargs, &block)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen3(*a, sudo: false, env: ENV, **kwargs, &block)
-          delegate_open3(*a, sudo: sudo, env: env, method: :popen3, **kwargs, &block)
+          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen3, **kwargs, &block)
         end
 
         # Execute a command in the user's environment
@@ -133,12 +134,13 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def system(*a, sudo: false, env: ENV, **kwargs)
-          a = apply_sudo(*a, sudo)
+          a = T.unsafe(self).apply_sudo(*a, sudo)
 
           out_r, out_w = IO.pipe
           err_r, err_w = IO.pipe
           in_stream = STDIN.closed? ? :close : STDIN
-          pid = Process.spawn(env, *resolve_path(a, env), 0 => in_stream, :out => out_w, :err => err_w, **kwargs)
+          pid = T.unsafe(Process).spawn(env, *resolve_path(a, env), 0 => in_stream, :out => out_w, :err => err_w,
+**kwargs)
           out_w.close
           err_w.close
 
@@ -160,7 +162,7 @@ module CLI
             break if ios.empty?
 
             readers, = IO.select(ios)
-            readers.each do |io|
+            (readers || []).each do |io|
               data, trailing = split_partial_characters(io.readpartial(4096))
               handlers[io].call(previous_trailing[io] + data)
               previous_trailing[io] = trailing
@@ -216,8 +218,8 @@ module CLI
             block: T.untyped).returns(T.untyped)
         end
         def delegate_open3(*a, sudo: raise, env: raise, method: raise, **kwargs, &block)
-          a = apply_sudo(*a, sudo)
-          Open3.send(method, env, *resolve_path(a, env), **kwargs, &block)
+          a = T.unsafe(self).apply_sudo(*a, sudo)
+          T.unsafe(Open3).send(method, env, *resolve_path(a, env), **kwargs, &block)
         rescue Errno::EINTR
           raise(Errno::EINTR, "command interrupted: #{a.join(" ")}")
         end

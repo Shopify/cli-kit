@@ -4,6 +4,8 @@ require 'cli/kit'
 module CLI
   module Kit
     class BaseCommand
+      extend T::Sig
+
       sig { returns(T.untyped) }
       def self.defined?
         true

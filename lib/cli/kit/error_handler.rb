@@ -5,7 +5,9 @@ require 'English'
 module CLI
   module Kit
     class ErrorHandler
-      sig { params(log_file: T.untyped, exception_reporter: T.untyped, tool_name: T.untyped).returns(T.untyped) }
+      extend T::Sig
+
+      sig { params(log_file: T.untyped, exception_reporter: T.untyped, tool_name: T.untyped).void }
       def initialize(log_file:, exception_reporter:, tool_name: nil)
         @log_file = log_file
         @exception_reporter_or_proc = exception_reporter || NullExceptionReporter
@@ -13,6 +15,8 @@ module CLI
       end
 
       module NullExceptionReporter
+        extend T::Sig
+
         sig { params(_exception: T.untyped, _logs: T.untyped).returns(T.untyped) }
         def self.report(_exception, _logs)
           nil

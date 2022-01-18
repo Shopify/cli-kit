@@ -4,7 +4,7 @@ Sorbet:
 Sorbet/ValidSigil:
   Enabled: true
   Exclude:
-    - lib/spin/sorbet_runtime_stub.rb
+    - lib/cli/kit/sorbet_runtime_stub.rb
 
 Sorbet/FalseSigil:
   Enabled: false
@@ -17,7 +17,7 @@ Sorbet/TrueSigil:
     - "**/*.rake"
     - "**/*.ru"
   Exclude:
-    - lib/spin/sorbet_runtime_stub.rb
+    - lib/cli/kit/sorbet_runtime_stub.rb
     - "test/**/*"
 
 Sorbet/EnforceSigilOrder:
@@ -26,7 +26,7 @@ Sorbet/EnforceSigilOrder:
 Sorbet/EnforceSignatures:
   Enabled: true
   Exclude:
-    - lib/spin/sorbet_runtime_stub.rb
+    - lib/cli/kit/sorbet_runtime_stub.rb
     - "test/**/*"
 
 Sorbet/SignatureBuildOrder:
@@ -37,6 +37,8 @@ Sorbet/KeywordArgumentOrdering:
 
 Sorbet/ConstantsFromStrings:
   Enabled: true
+  Exclude:
+    - "examples/**/*"
 
 Sorbet/ForbidIncludeConstLiteral:
   Enabled: false

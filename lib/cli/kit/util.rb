@@ -1,8 +1,12 @@
 # typed: true
+require 'cli/kit'
+
 module CLI
   module Kit
     module Util
       class << self
+        extend T::Sig
+
         sig { params(camel_case: T.untyped, seperator: T.untyped).returns(T.untyped) }
         def snake_case(camel_case, seperator = '_')
           camel_case.to_s # MyCoolThing::MyAPIModule
@@ -103,11 +107,11 @@ module CLI
             if number < 1
               index = [-scale - 1, small_scale.length].min
               scale = -(index + 1)
-              prefix = small_scale[index]
+              prefix = T.must(small_scale[index])
             else
               index = [scale - 1, big_scale.length].min
               scale = index + 1
-              prefix = big_scale[index]
+              prefix = T.must(big_scale[index])
             end
           end
 
@@ -118,7 +122,9 @@ module CLI
           fnum = fnum.to_i if (fnum.to_i.to_f * divider) == number
 
           fnum = -fnum if negative
-          prefix = ' ' + prefix if space
+          if space
+            prefix = ' ' + prefix
+          end
 
           "#{fnum}#{prefix}#{unit}"
         end
@@ -129,21 +135,25 @@ module CLI
         sig { params(dir: T.untyped).returns(T.untyped) }
         def with_dir(dir)
           prev = Dir.pwd
-          Dir.chdir(dir)
-          yield
-        ensure
-          Dir.chdir(prev)
+          begin
+            Dir.chdir(dir)
+            yield
+          ensure
+            Dir.chdir(prev)
+          end
         end
 
         sig { returns(T.untyped) }
         def with_tmp_dir
           require 'fileutils'
           dir = Dir.mktmpdir
-          with_dir(dir) do
-            yield(dir)
+          begin
+            with_dir(dir) do
+              yield(dir)
+            end
+          ensure
+            FileUtils.remove_entry(dir)
           end
-        ensure
-          FileUtils.remove_entry(dir)
         end
 
         # Standard way of checking for CI / Tests
@@ -181,7 +191,9 @@ module CLI
       end
 
       class Retrier
-        sig { params(block_that_might_raise: T.untyped).returns(T.untyped) }
+        extend T::Sig
+
+        sig { params(block_that_might_raise: T.untyped).void }
         def initialize(block_that_might_raise)
           @block_that_might_raise = block_that_might_raise
         end

@@ -4,7 +4,9 @@ require 'cli/kit'
 module CLI
   module Kit
     class Resolver
-      sig { params(tool_name: T.untyped, command_registry: T.untyped).returns(T.untyped) }
+      extend T::Sig
+
+      sig { params(tool_name: T.untyped, command_registry: T.untyped).void }
       def initialize(tool_name:, command_registry:)
         @tool_name = tool_name
         @command_registry = command_registry

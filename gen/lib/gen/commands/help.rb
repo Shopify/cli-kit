@@ -4,6 +4,8 @@ require 'gen'
 module Gen
   module Commands
     class Help < Gen::Command
+      extend T::Sig
+
       sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
       def call(_args, _name)
         puts CLI::UI.fmt('{{bold:Available commands}}')

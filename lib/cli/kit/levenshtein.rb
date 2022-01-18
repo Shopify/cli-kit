@@ -22,9 +22,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+require 'cli/kit'
+
 module CLI
   module Kit
     module Levenshtein
+      extend T::Sig
+
       # This code is based directly on the Text gem implementation
       # Copyright (c) 2006-2013 Paul Battley, Michael Neumann, Tim Fletcher.
       #
@@ -37,7 +41,7 @@ module CLI
         return n if m.zero?
 
         d = (0..m).to_a
-        x = nil
+        x = T.let(nil, T.nilable(Integer))
 
         # to avoid duplicating an enumerable object, create it outside of the loop
         str2_codepoints = str2.codepoints

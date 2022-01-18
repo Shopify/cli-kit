@@ -4,10 +4,14 @@ require 'cli/kit'
 module CLI
   module Kit
     class CommandRegistry
+      extend T::Sig
+
       sig { returns(T.untyped) }
       attr_reader :commands, :aliases
 
       module NullContextualResolver
+        extend T::Sig
+
         sig { returns(T.untyped) }
         def self.command_names
           []
@@ -24,7 +28,7 @@ module CLI
         end
       end
 
-      sig { params(default: T.untyped, contextual_resolver: T.untyped).returns(T.untyped) }
+      sig { params(default: T.untyped, contextual_resolver: T.untyped).void }
       def initialize(default:, contextual_resolver: nil)
         @commands = {}
         @aliases  = {}

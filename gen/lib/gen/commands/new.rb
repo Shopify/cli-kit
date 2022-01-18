@@ -4,6 +4,8 @@ require 'gen'
 module Gen
   module Commands
     class New < Gen::Command
+      extend T::Sig
+
       sig { params(args: T.untyped, _name: T.untyped).returns(T.untyped) }
       def call(args, _name)
         unless args.size == 1

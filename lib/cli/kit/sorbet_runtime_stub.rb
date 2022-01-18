@@ -50,7 +50,7 @@ module T
   end
 
   module Helpers
-    def abstract!;  end
+    def abstract!; end
     def interface!; end
     def final!; end
     def sealed!; end
@@ -95,7 +95,6 @@ module T
     def self.sealed_violation_whitelist; end
     def self.sealed_violation_whitelist=(sealed_violation_whitelist); end
     # rubocop:enable Naming/InclusiveLanguage
-    def self.sig_builder_error_handler(error, location); end
     def self.sig_builder_error_handler=(value); end
     def self.sig_validation_error_handler(error, opts); end
     def self.sig_validation_error_handler=(value); end
