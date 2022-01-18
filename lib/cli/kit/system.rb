@@ -48,7 +48,7 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture2(*a, sudo: false, env: ENV, **kwargs)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture2, **kwargs)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :capture2)
         end
 
         # Execute a command in the user's environment
@@ -70,7 +70,7 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture2e(*a, sudo: false, env: ENV, **kwargs)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture2e, **kwargs)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :capture2e)
         end
 
         # Execute a command in the user's environment
@@ -93,28 +93,28 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def capture3(*a, sudo: false, env: ENV, **kwargs)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :capture3, **kwargs)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :capture3)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen2(*a, sudo: false, env: ENV, **kwargs, &block)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen2, **kwargs, &block)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :popen2, &block)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen2e(*a, sudo: false, env: ENV, **kwargs, &block)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen2e, **kwargs, &block)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :popen2e, &block)
         end
 
         sig do
           params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped, block: T.untyped).returns(T.untyped)
         end
         def popen3(*a, sudo: false, env: ENV, **kwargs, &block)
-          T.unsafe(self).delegate_open3(*a, sudo: sudo, env: env, method: :popen3, **kwargs, &block)
+          delegate_open3(a, kwargs, sudo: sudo, env: env, method: :popen3, &block)
         end
 
         # Execute a command in the user's environment
@@ -134,7 +134,7 @@ module CLI
         #
         sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
         def system(*a, sudo: false, env: ENV, **kwargs)
-          a = T.unsafe(self).apply_sudo(*a, sudo)
+          a = apply_sudo(a, sudo)
 
           out_r, out_w = IO.pipe
           err_r, err_w = IO.pipe
@@ -207,18 +207,18 @@ module CLI
         private
 
         sig { params(a: T.untyped, sudo: T.untyped).returns(T.untyped) }
-        def apply_sudo(*a, sudo)
+        def apply_sudo(a, sudo)
           a.unshift('sudo', '-S', '-p', SUDO_PROMPT, '--') if sudo
           sudo_reason(sudo) if sudo.is_a?(String)
           a
         end
 
         sig do
-          params(a: T.untyped, sudo: T.untyped, env: T.untyped, method: T.untyped, kwargs: T.untyped,
+          params(a: T.untyped, kwargs: T.untyped, sudo: T.untyped, env: T.untyped, method: T.untyped,
             block: T.untyped).returns(T.untyped)
         end
-        def delegate_open3(*a, sudo: raise, env: raise, method: raise, **kwargs, &block)
-          a = T.unsafe(self).apply_sudo(*a, sudo)
+        def delegate_open3(a, kwargs, sudo: raise, env: raise, method: raise, &block)
+          a = apply_sudo(a, sudo)
           T.unsafe(Open3).send(method, env, *resolve_path(a, env), **kwargs, &block)
         rescue Errno::EINTR
           raise(Errno::EINTR, "command interrupted: #{a.join(" ")}")

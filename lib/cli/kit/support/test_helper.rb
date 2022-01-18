@@ -74,7 +74,7 @@ module CLI
                 alias_method :original_system, :system
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def system(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
+                  expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return FakeSuccess.new(false) if expected_command.nil?
@@ -90,7 +90,7 @@ module CLI
                 alias_method :original_capture2, :capture2
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
+                  expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, FakeSuccess.new(false)] if expected_command.nil?
@@ -109,7 +109,7 @@ module CLI
                 alias_method :original_capture2e, :capture2e
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2e(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
+                  expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, FakeSuccess.new(false)] if expected_command.nil?
@@ -128,7 +128,7 @@ module CLI
                 alias_method :original_capture3, :capture3
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture3(*a, sudo: false, env: {}, **kwargs)
-                  expected_command = T.unsafe(self).expected_command(*a, sudo: sudo, env: env)
+                  expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
                   return [nil, nil, FakeSuccess.new(false)] if expected_command.nil?
@@ -255,7 +255,7 @@ module CLI
                 private
 
                 sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped).returns(T.untyped) }
-                def expected_command(*a, sudo: raise, env: raise)
+                def expected_command(a, sudo: raise, env: raise)
                   expected_cmd = @delegate_open3[a.join(' ')]
 
                   if expected_cmd.nil?
