@@ -11,8 +11,11 @@ group :development, :test do
   gem 'byebug'
   gem 'method_source'
   gem 'simplecov'
-  gem 'tapioca', require: false
+end
+
+group :typecheck do
   gem 'sorbet'
+  gem 'tapioca', require: false
 end
 
 group :test do
