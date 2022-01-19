@@ -28,6 +28,7 @@ Sorbet/EnforceSignatures:
   Exclude:
     - lib/cli/kit/sorbet_runtime_stub.rb
     - "test/**/*"
+    - bin/testunit
 
 Sorbet/SignatureBuildOrder:
   Enabled: true
