@@ -6,7 +6,7 @@ module CLI
       attr_reader :reg, :res
 
       def setup
-        @reg = CommandRegistry.new(default: 'help', contextual_resolver: nil)
+        @reg = CommandRegistry.new(default: 'help')
         @res = Resolver.new(tool_name: 'tool', command_registry: reg)
       end
 

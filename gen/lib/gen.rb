@@ -27,8 +27,5 @@ module Gen
     command_registry: Gen::Commands::Registry
   )
 
-  ErrorHandler = CLI::Kit::ErrorHandler.new(
-    log_file: LOG_FILE,
-    exception_reporter: nil
-  )
+  ErrorHandler = CLI::Kit::ErrorHandler.new(log_file: LOG_FILE)
 end

@@ -9,7 +9,7 @@ module Gen
   class Generator
     extend T::Sig
 
-    sig { params(project_name: T.untyped).returns(T.untyped) }
+    sig { params(project_name: String).void }
     def self.run(project_name)
       new(project_name).run
     end
@@ -39,7 +39,7 @@ module Gen
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 
-    sig { params(project_name: T.untyped).void }
+    sig { params(project_name: String).void }
     def initialize(project_name)
       raise(
         CLI::Kit::Abort,
@@ -49,7 +49,7 @@ module Gen
       @title_case_project_name = @project_name.sub(/^./, &:upcase)
     end
 
-    sig { returns(T.untyped) }
+    sig { void }
     def run
       vendor = ask_vendor?
       create_project_dir
@@ -63,7 +63,7 @@ module Gen
 
     private
 
-    sig { returns(T.untyped) }
+    sig { returns(T::Boolean) }
     def ask_vendor?
       return true if ENV['DEPS'] == 'vendor'
       return false if ENV['DEPS'] == 'bundler'
@@ -79,7 +79,7 @@ module Gen
       vendor == 'vendor'
     end
 
-    sig { returns(T.untyped) }
+    sig { void }
     def create_project_dir
       info(create: '')
       FileUtils.mkdir(@project_name)
@@ -87,7 +87,7 @@ module Gen
       error("directory already exists: #{@project_name}")
     end
 
-    sig { params(translations: T.untyped).returns(T.untyped) }
+    sig { params(translations: T::Hash[String, T.any(FalseClass, String)]).void }
     def copy_files(translations:)
       each_template_file do |source_name|
         target_name = translations.fetch(source_name, source_name)
@@ -109,7 +109,7 @@ module Gen
       end
     end
 
-    sig { returns(T.untyped) }
+    sig { void }
     def update_deps
       Dir.mktmpdir do |tmp|
         clone(tmp, 'cli-ui')
@@ -121,7 +121,7 @@ module Gen
       end
     end
 
-    sig { params(dir: T.untyped, repo: T.untyped).returns(T.untyped) }
+    sig { params(dir: String, repo: String).void }
     def clone(dir, repo)
       info(clone: repo)
       out, stat = Open3.capture2e('git', '-C', dir, 'clone', "https://github.com/shopify/#{repo}")
@@ -131,10 +131,8 @@ module Gen
       end
     end
 
-    sig { returns(T.untyped) }
-    def each_template_file
-      return enum_for(:each_template_file) unless block_given?
-
+    sig { params(block: T.proc.params(rel_path: String).void).void }
+    def each_template_file(&block)
       root = Pathname.new(TEMPLATE_ROOT)
       Dir.glob("#{TEMPLATE_ROOT}/**/*").each do |f|
         el = Pathname.new(f)
@@ -142,7 +140,7 @@ module Gen
       end
     end
 
-    sig { params(s: T.untyped).returns(T.untyped) }
+    sig { params(s: String).returns(String) }
     def apply_template_variables(s)
       s
         .gsub(/__app__/, @project_name)
@@ -151,19 +149,19 @@ module Gen
         .gsub(/__cli-ui-version__/, cli_ui_version)
     end
 
-    sig { returns(T.untyped) }
+    sig { returns(String) }
     def cli_kit_version
       require 'cli/kit/version'
       CLI::Kit::VERSION.to_s
     end
 
-    sig { returns(T.untyped) }
+    sig { returns(String) }
     def cli_ui_version
       require 'cli/ui/version'
       CLI::UI::VERSION.to_s
     end
 
-    sig { params(create: T.untyped, clone: T.untyped, run: T.untyped).returns(T.untyped) }
+    sig { params(create: T.nilable(String), clone: T.nilable(String), run: T.nilable(String)).void }
     def info(create: nil, clone: nil, run: nil)
       if clone
         puts(CLI::UI.fmt("\t{{bold:{{yellow:clone}}\t#{clone}}}"))
@@ -174,7 +172,7 @@ module Gen
       end
     end
 
-    sig { params(msg: T.untyped).returns(T.untyped) }
+    sig { params(msg: String).void }
     def error(msg)
       raise(CLI::Kit::Abort, msg)
     end

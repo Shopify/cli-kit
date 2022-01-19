@@ -8,13 +8,13 @@ module CLI
     class Executor
       extend T::Sig
 
-      sig { params(log_file: T.untyped).void }
+      sig { params(log_file: String).void }
       def initialize(log_file:)
         FileUtils.mkpath(File.dirname(log_file))
         @log_file = log_file
       end
 
-      sig { params(command: T.untyped, command_name: T.untyped, args: T.untyped).returns(T.untyped) }
+      sig { params(command: CLI::Kit::BaseCommand, command_name: String, args: T::Array[String]).void }
       def call(command, command_name, args)
         with_traps do
           with_logging do |id|
@@ -35,9 +35,11 @@ module CLI
 
       private
 
-      sig { params(block: T.untyped).returns(T.untyped) }
+      sig do
+        type_parameters(:T).params(block: T.proc.params(id: String).returns(T.type_parameter(:T)))
+          .returns(T.type_parameter(:T))
+      end
       def with_logging(&block)
-        return yield unless @log_file
         CLI::UI.log_output_to(@log_file) do
           CLI::UI::StdoutRouter.with_id(on_streams: [CLI::UI::StdoutRouter.duplicate_output_to]) do |id|
             block.call(id)
@@ -45,15 +47,18 @@ module CLI
         end
       end
 
-      sig { params(block: T.untyped).returns(T.untyped) }
+      sig { type_parameters(:T).params(block: T.proc.returns(T.type_parameter(:T))).returns(T.type_parameter(:T)) }
       def with_traps(&block)
         twrap('QUIT', method(:quit_handler)) do
           twrap('INFO', method(:info_handler), &block)
         end
       end
 
-      sig { params(signal: T.untyped, handler: T.untyped).returns(T.untyped) }
-      def twrap(signal, handler)
+      sig do
+        type_parameters(:T).params(signal: String, handler: Method,
+          block: T.proc.returns(T.type_parameter(:T))).returns(T.type_parameter(:T))
+      end
+      def twrap(signal, handler, &block)
         return yield unless Signal.list.key?(signal)
 
         begin
@@ -71,7 +76,7 @@ module CLI
         end
       end
 
-      sig { params(_sig: T.untyped).returns(T.untyped) }
+      sig { params(_sig: String).void }
       def quit_handler(_sig)
         z = caller
         CLI::UI.raw do
@@ -81,7 +86,7 @@ module CLI
         exit(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
       end
 
-      sig { params(_sig: T.untyped).returns(T.untyped) }
+      sig { params(_sig: String).void }
       def info_handler(_sig)
         z = caller
         CLI::UI.raw do
