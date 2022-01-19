@@ -2,6 +2,7 @@ $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'rake/testtask'
 require 'rubocop/rake_task'
 require 'bundler/gem_tasks'
+require 'sorbet-runtime' unless ENV['BUNDLE_WITHOUT'] == 'typecheck'
 
 TEST_ROOT = File.expand_path('../test', __FILE__)
 
