@@ -6,78 +6,7 @@ module CLI
     module Util
       class << self
         extend T::Sig
-
-        sig { params(camel_case: T.untyped, seperator: T.untyped).returns(T.untyped) }
-        def snake_case(camel_case, seperator = '_')
-          camel_case.to_s # MyCoolThing::MyAPIModule
-            .gsub(/::/, '/') # MyCoolThing/MyAPIModule
-            .gsub(/([A-Z]+)([A-Z][a-z])/, "\\1#{seperator}\\2") # MyCoolThing::MyAPI_Module
-            .gsub(/([a-z\d])([A-Z])/, "\\1#{seperator}\\2") # My_Cool_Thing::My_API_Module
-            .downcase # my_cool_thing/my_api_module
-        end
-
-        sig { params(camel_case: T.untyped).returns(T.untyped) }
-        def dash_case(camel_case)
-          snake_case(camel_case, '-')
-        end
-
-        # The following methods is taken from activesupport
-        # All credit for this method goes to the original authors.
-        # https://github.com/rails/rails/blob/d66e7835bea9505f7003e5038aa19b6ea95ceea1/activesupport/lib/active_support/core_ext/string/strip.rb
         #
-        # Copyright (c) 2005-2018 David Heinemeier Hansson
-        #
-        # Permission is hereby granted, free of charge, to any person obtaining
-        # a copy of this software and associated documentation files (the
-        # "Software"), to deal in the Software without restriction, including
-        # without limitation the rights to use, copy, modify, merge, publish,
-        # distribute, sublicense, and/or sell copies of the Software, and to
-        # permit persons to whom the Software is furnished to do so, subject to
-        # the following conditions:
-        #
-        # The above copyright notice and this permission notice shall be
-        # included in all copies or substantial portions of the Software.
-        #
-        # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-        # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-        # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-        # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-        # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-        # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-        # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        #
-        # Strips indentation by removing the amount of leading whitespace in the least indented
-        # non-empty line in the whole string
-        #
-        sig { params(str: T.untyped).returns(T.untyped) }
-        def strip_heredoc(str)
-          str.gsub(/^#{str.scan(/^[ \t]*(?=\S)/).min}/, ''.freeze)
-        end
-
-        # Joins an array with commas and "and", using the Oxford comma.
-        sig { params(array: T.untyped).returns(T.untyped) }
-        def english_join(array)
-          return '' if array.nil?
-          return array.join(' and ') if array.length < 3
-
-          "#{array[0..-2].join(", ")}, and #{array[-1]}"
-        end
-
-        # Execute a block within the context of a variable enviroment
-        #
-        sig { params(environment: T.untyped, value: T.untyped).returns(T.untyped) }
-        def with_environment(environment, value)
-          return yield unless environment
-
-          old_env = ENV[environment]
-          begin
-            ENV[environment] = value
-            yield
-          ensure
-            old_env ? ENV[environment] = old_env : ENV.delete(environment)
-          end
-        end
-
         # Converts an integer representing bytes into a human readable format
         #
         sig { params(bytes: Integer, precision: Integer, space: T::Boolean).returns(String) }
@@ -144,38 +73,6 @@ module CLI
           ensure
             Dir.chdir(prev)
           end
-        end
-
-        sig { returns(T.untyped) }
-        def with_tmp_dir
-          require 'fileutils'
-          dir = Dir.mktmpdir
-          begin
-            with_dir(dir) do
-              yield(dir)
-            end
-          ensure
-            FileUtils.remove_entry(dir)
-          end
-        end
-
-        # Standard way of checking for CI / Tests
-        sig { returns(T.untyped) }
-        def testing?
-          ci? || ENV['TEST']
-        end
-
-        # Set only in IntegrationTest#session; indicates that the process was
-        # called by `session.execute` from an IntegrationTest subclass.
-        sig { returns(T.untyped) }
-        def integration_test_session?
-          ENV['INTEGRATION_TEST_SESSION']
-        end
-
-        # Standard way of checking for CI
-        sig { returns(T.untyped) }
-        def ci?
-          ENV['CI']
         end
 
         # Must call retry_after on the result in order to execute the block
