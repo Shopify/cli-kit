@@ -1,19 +1,14 @@
-# typed: true
 require 'cli/kit'
 
 module CLI
   module Kit
     module Support
       module TestHelper
-        extend T::Sig
-
-        sig { returns(T.untyped) }
         def setup
           super
           CLI::Kit::System.reset!
         end
 
-        sig { params(should_raise: T.untyped).returns(T.untyped) }
         def assert_all_commands_run(should_raise: true)
           errors = CLI::Kit::System.error_message
           CLI::Kit::System.reset!
@@ -23,19 +18,15 @@ module CLI
           errors
         end
 
-        sig { void }
         def teardown
           super
           assert_all_commands_run
         end
 
         module FakeConfig
-          extend T::Sig
-
           require 'tmpdir'
           require 'fileutils'
 
-          sig { void }
           def setup
             super
             @tmpdir = Dir.mktmpdir
@@ -43,7 +34,6 @@ module CLI
             ENV['XDG_CONFIG_HOME'] = @tmpdir
           end
 
-          sig { void }
           def teardown
             FileUtils.rm_rf(@tmpdir)
             ENV['XDG_CONFIG_HOME'] = @prev_xdg
@@ -52,14 +42,10 @@ module CLI
         end
 
         class FakeSuccess
-          extend T::Sig
-
-          sig { params(success: T.untyped).void }
           def initialize(success)
             @success = success
           end
 
-          sig { returns(T.untyped) }
           def success?
             @success
           end
@@ -69,10 +55,7 @@ module CLI
           module Kit
             module System
               class << self
-                extend T::Sig
-
                 alias_method :original_system, :system
-                sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def system(*a, sudo: false, env: {}, **kwargs)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
@@ -88,7 +71,6 @@ module CLI
                 end
 
                 alias_method :original_capture2, :capture2
-                sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2(*a, sudo: false, env: {}, **kwargs)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
@@ -107,7 +89,6 @@ module CLI
                 end
 
                 alias_method :original_capture2e, :capture2e
-                sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture2e(*a, sudo: false, env: {}, **kwargs)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
@@ -126,7 +107,6 @@ module CLI
                 end
 
                 alias_method :original_capture3, :capture3
-                sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped, kwargs: T.untyped).returns(T.untyped) }
                 def capture3(*a, sudo: false, env: {}, **kwargs)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
@@ -158,13 +138,6 @@ module CLI
                 #
                 # Note: Must set allow or success
                 #
-                sig do
-                  params(
-                    a: T.untyped, stdout: T.untyped, stderr: T.untyped, allow:
-                    T.untyped, success: T.untyped, sudo: T.untyped, env:
-                    T.untyped
-                  ).returns(T.untyped)
-                end
                 def fake(*a, stdout: '', stderr: '', allow: nil, success: nil, sudo: false, env: {})
                   raise ArgumentError, 'success or allow must be set' if success.nil? && allow.nil?
 
@@ -188,7 +161,6 @@ module CLI
 
                 # Resets the faked commands
                 #
-                sig { returns(T.untyped) }
                 def reset!
                   @delegate_open3 = {}
                 end
@@ -197,7 +169,6 @@ module CLI
                 #
                 # #### Returns
                 # `errors` (String) a string representing errors found on this run, nil if none
-                sig { returns(T.untyped) }
                 def error_message
                   errors = {
                     unexpected: [],
@@ -254,7 +225,6 @@ module CLI
 
                 private
 
-                sig { params(a: T.untyped, sudo: T.untyped, env: T.untyped).returns(T.untyped) }
                 def expected_command(a, sudo: raise, env: raise)
                   expected_cmd = @delegate_open3[a.join(' ')]
 
