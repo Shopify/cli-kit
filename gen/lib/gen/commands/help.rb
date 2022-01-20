@@ -6,7 +6,7 @@ module Gen
     class Help < Gen::Command
       extend T::Sig
 
-      sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
+      sig { override.params(_args: T::Array[String], _name: String).void }
       def call(_args, _name)
         puts CLI::UI.fmt('{{bold:Available commands}}')
         puts ''

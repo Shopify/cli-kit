@@ -5,8 +5,10 @@ module CLI
   module Kit
     class BaseCommand
       extend T::Sig
+      extend T::Helpers
+      abstract!
 
-      sig { returns(T.untyped) }
+      sig { returns(T::Boolean) }
       def self.defined?
         true
       end
@@ -21,7 +23,7 @@ module CLI
         yield
       end
 
-      sig { params(args: T.untyped, command_name: T.untyped).returns(T.untyped) }
+      sig { params(args: T::Array[String], command_name: String).void }
       def self.call(args, command_name)
         cmd = new
         stats_tags = cmd.stats_tags(args, command_name)
@@ -45,12 +47,10 @@ module CLI
         tags
       end
 
-      sig { params(_args: T.untyped, _command_name: T.untyped).returns(T.untyped) }
-      def call(_args, _command_name)
-        raise NotImplementedError, "#{self.class.name} must implement #{__method__}"
-      end
+      sig { abstract.params(_args: T::Array[String], _command_name: String).void }
+      def call(_args, _command_name); end
 
-      sig { returns(T.untyped) }
+      sig { returns(T::Boolean) }
       def has_subcommands?
         false
       end

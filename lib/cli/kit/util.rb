@@ -80,7 +80,7 @@ module CLI
 
         # Converts an integer representing bytes into a human readable format
         #
-        sig { params(bytes: T.untyped, precision: T.untyped, space: T.untyped).returns(T.untyped) }
+        sig { params(bytes: Integer, precision: Integer, space: T::Boolean).returns(String) }
         def to_filesize(bytes, precision: 2, space: false)
           to_si_scale(bytes, 'B', precision: precision, space: space, factor: 1024)
         end
@@ -88,8 +88,8 @@ module CLI
         # Converts a number to a human readable format on the SI scale
         #
         sig do
-          params(number: T.untyped, unit: T.untyped, factor: T.untyped, precision: T.untyped,
-            space: T.untyped).returns(T.untyped)
+          params(number: Numeric, unit: String, factor: Integer, precision: Integer,
+            space: T::Boolean).returns(String)
         end
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
           raise ArgumentError, 'factor should only be 1000 or 1024' unless [1000, 1024].include?(factor)
@@ -99,7 +99,7 @@ module CLI
           negative = number < 0
           number = number.abs.to_f
 
-          if number == 0 || number.between?(1, factor)
+          if number == 0.0 || number.between?(1, factor)
             prefix = ''
             scale = 0
           else
@@ -116,10 +116,10 @@ module CLI
           end
 
           divider = (factor**scale)
-          fnum = (number / divider).round(precision)
+          fnum = (number / divider.to_f).round(precision)
 
           # Trim useless decimal
-          fnum = fnum.to_i if (fnum.to_i.to_f * divider) == number
+          fnum = fnum.to_i if (fnum.to_i.to_f * divider.to_f) == number
 
           fnum = -fnum if negative
           if space
@@ -132,8 +132,11 @@ module CLI
         # Dir.chdir, when invoked in block form, complains when we call chdir
         # again recursively. There's no apparent good reason for this, so we
         # simply implement our own block form of Dir.chdir here.
-        sig { params(dir: T.untyped).returns(T.untyped) }
-        def with_dir(dir)
+        sig do
+          type_parameters(:T).params(dir: String, block: T.proc.returns(T.type_parameter(:T)))
+            .returns(T.type_parameter(:T))
+        end
+        def with_dir(dir, &block)
           prev = Dir.pwd
           begin
             Dir.chdir(dir)
@@ -184,7 +187,10 @@ module CLI
         # end.retry_after(ExpectedError) do
         #   costly_prep()
         # end
-        sig { params(block_that_might_raise: T.untyped).returns(T.untyped) }
+        sig do
+          type_parameters(:T).params(block_that_might_raise: T.proc.returns(T.type_parameter(:T)))
+            .returns(Retrier[T.type_parameter(:T)])
+        end
         def begin(&block_that_might_raise)
           Retrier.new(block_that_might_raise)
         end
@@ -192,22 +198,31 @@ module CLI
 
       class Retrier
         extend T::Sig
+        extend T::Generic
 
-        sig { params(block_that_might_raise: T.untyped).void }
+        BlockReturnType = type_member
+
+        sig { params(block_that_might_raise: T.proc.returns(BlockReturnType)).void }
         def initialize(block_that_might_raise)
           @block_that_might_raise = block_that_might_raise
         end
 
-        sig { params(exception: T.untyped, retries: T.untyped, before_retry: T.untyped).returns(T.untyped) }
+        sig do
+          params(
+            exception: T.class_of(Exception),
+            retries: Integer,
+            before_retry: T.nilable(T.proc.params(e: Exception).void)
+          ).returns(BlockReturnType)
+        end
         def retry_after(exception = StandardError, retries: 1, &before_retry)
           @block_that_might_raise.call
         rescue exception => e
           raise if (retries -= 1) < 0
           if before_retry
             if before_retry.arity == 0
-              yield
+              T.cast(before_retry, T.proc.void).call
             else
-              yield e
+              T.cast(before_retry, T.proc.params(e: Exception).void).call(e)
             end
           end
           retry

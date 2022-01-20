@@ -7,7 +7,9 @@ module CLI
     class ErrorHandler
       extend T::Sig
 
-      ExceptionReporterOrProc = T.type_alias { T.any(ExceptionReporter, T.proc.returns(ExceptionReporter)) }
+      ExceptionReporterOrProc = T.type_alias do
+        T.any(T.class_of(ExceptionReporter), T.proc.returns(T.class_of(ExceptionReporter)))
+      end
 
       sig { params(log_file: String, exception_reporter: ExceptionReporterOrProc, tool_name: T.nilable(String)).void }
       def initialize(log_file:, exception_reporter: NullExceptionReporter, tool_name: nil)
@@ -16,18 +18,17 @@ module CLI
         @tool_name = tool_name
       end
 
-      module ExceptionReporter
+      class ExceptionReporter
         extend T::Sig
         extend T::Helpers
-        interface!
+        abstract!
 
         sig { abstract.params(exception: T.nilable(Exception), logs: String).void }
-        def report(exception, logs); end
+        def self.report(exception, logs); end
       end
 
-      module NullExceptionReporter
+      class NullExceptionReporter < ExceptionReporter
         extend T::Sig
-        extend ExceptionReporter
 
         sig { override.params(_exception: T.nilable(Exception), _logs: String).void }
         def self.report(_exception, _logs)
@@ -35,13 +36,13 @@ module CLI
         end
       end
 
-      sig { params(block: T.untyped).returns(T.untyped) }
+      sig { params(block: T.proc.void).returns(Integer) }
       def call(&block)
         install!
         handle_abort(&block)
       end
 
-      sig { params(error: T.untyped).returns(T.untyped) }
+      sig { params(error: T.nilable(Exception)).void }
       def handle_exception(error)
         if (notify_with = exception_for_submission(error))
           logs = begin
@@ -54,12 +55,12 @@ module CLI
       end
 
       # maybe we can get rid of this.
-      sig { params(exception: T.untyped).void }
+      sig { params(exception: T.nilable(Exception)).void }
       attr_writer :exception
 
       private
 
-      sig { params(error: T.untyped).returns(T.untyped) }
+      sig { params(error: T.nilable(Exception)).returns(T.nilable(Exception)) }
       def exception_for_submission(error)
         case error
         when nil         # normal, non-error termination
@@ -90,12 +91,12 @@ module CLI
         end
       end
 
-      sig { returns(T.untyped) }
+      sig { void }
       def install!
         at_exit { handle_exception(@exception || $ERROR_INFO) }
       end
 
-      sig { returns(T.untyped) }
+      sig { returns(Integer) }
       def handle_abort
         yield
         CLI::Kit::EXIT_SUCCESS
@@ -120,29 +121,29 @@ module CLI
         CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
-      sig { params(message: T.untyped).returns(T.untyped) }
+      sig { params(message: String).void }
       def stderr_puts_message(message)
         $stderr.puts(format_error_message(message))
       rescue Errno::EPIPE
         nil
       end
 
-      sig { returns(ExceptionReporter) }
+      sig { returns(T.class_of(ExceptionReporter)) }
       def exception_reporter
         case @exception_reporter_or_proc
-        when ExceptionReporter
-          @exception_reporter_or_proc
-        else
+        when Proc
           @exception_reporter_or_proc.call
+        else
+          @exception_reporter_or_proc
         end
       end
 
-      sig { params(msg: T.untyped).returns(T.untyped) }
+      sig { params(msg: String).returns(String) }
       def format_error_message(msg)
         CLI::UI.fmt("{{red:#{msg}}}")
       end
 
-      sig { params(e: T.untyped).returns(T.untyped) }
+      sig { params(e: Exception).void }
       def print_error_message(e)
         $stderr.puts(format_error_message(e.message))
       end

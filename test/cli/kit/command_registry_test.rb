@@ -11,7 +11,10 @@ module CLI
       end
 
       module ContextualResolver
-        CommandClass = Class.new
+        class CommandClass < CLI::Kit::BaseCommand
+          def call(args, name)
+          end
+        end
 
         def self.command_names
           ['ctx-a', 'ctx-b']
