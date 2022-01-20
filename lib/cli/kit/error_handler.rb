@@ -7,17 +7,29 @@ module CLI
     class ErrorHandler
       extend T::Sig
 
-      sig { params(log_file: T.untyped, exception_reporter: T.untyped, tool_name: T.untyped).void }
-      def initialize(log_file:, exception_reporter:, tool_name: nil)
+      ExceptionReporterOrProc = T.type_alias { T.any(ExceptionReporter, T.proc.returns(ExceptionReporter)) }
+
+      sig { params(log_file: String, exception_reporter: ExceptionReporterOrProc, tool_name: T.nilable(String)).void }
+      def initialize(log_file:, exception_reporter: NullExceptionReporter, tool_name: nil)
         @log_file = log_file
-        @exception_reporter_or_proc = exception_reporter || NullExceptionReporter
+        @exception_reporter_or_proc = exception_reporter
         @tool_name = tool_name
+      end
+
+      module ExceptionReporter
+        extend T::Sig
+        extend T::Helpers
+        interface!
+
+        sig { abstract.params(exception: T.nilable(Exception), logs: String).void }
+        def report(exception, logs); end
       end
 
       module NullExceptionReporter
         extend T::Sig
+        extend ExceptionReporter
 
-        sig { params(_exception: T.untyped, _logs: T.untyped).returns(T.untyped) }
+        sig { override.params(_exception: T.nilable(Exception), _logs: String).void }
         def self.report(_exception, _logs)
           nil
         end
@@ -115,9 +127,10 @@ module CLI
         nil
       end
 
-      sig { returns(T.untyped) }
+      sig { returns(ExceptionReporter) }
       def exception_reporter
-        if @exception_reporter_or_proc.respond_to?(:report)
+        case @exception_reporter_or_proc
+        when ExceptionReporter
           @exception_reporter_or_proc
         else
           @exception_reporter_or_proc.call

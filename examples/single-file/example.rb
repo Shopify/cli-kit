@@ -47,10 +47,7 @@ module Example
     command_registry: Example::Commands::Registry
   )
 
-  ErrorHandler = CLI::Kit::ErrorHandler.new(
-    log_file: LOG_FILE,
-    exception_reporter: nil
-  )
+  ErrorHandler = CLI::Kit::ErrorHandler.new(log_file: LOG_FILE)
 end
 
 if __FILE__ == $PROGRAM_NAME
