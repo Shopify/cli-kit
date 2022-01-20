@@ -20,8 +20,5 @@ module __App__
     command_registry: __App__::Commands::Registry
   )
 
-  ErrorHandler = CLI::Kit::ErrorHandler.new(
-    log_file: LOG_FILE,
-    exception_reporter: nil
-  )
+  ErrorHandler = CLI::Kit::ErrorHandler.new(log_file: LOG_FILE)
 end

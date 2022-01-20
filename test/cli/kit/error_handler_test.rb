@@ -4,8 +4,14 @@ require 'tempfile'
 module CLI
   module Kit
     class ErrorHandlerTest < Minitest::Test
+      module MockExceptionReporter
+        extend ErrorHandler::ExceptionReporter
+
+        def self.report(_exception, _logs); end
+      end
+
       def setup
-        @rep = Object.new
+        @rep = MockExceptionReporter
         @tf  = Tempfile.create('executor-log').tap(&:close)
         @eh = error_handler
       end
