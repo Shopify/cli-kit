@@ -5,10 +5,7 @@ module Gen
   module Commands
     extend T::Sig
 
-    Registry = CLI::Kit::CommandRegistry.new(
-      default: 'help',
-      contextual_resolver: nil
-    )
+    Registry = CLI::Kit::CommandRegistry.new(default: 'help')
 
     sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(T.untyped)).void }
     def self.register(const, cmd, path, lamda_const)

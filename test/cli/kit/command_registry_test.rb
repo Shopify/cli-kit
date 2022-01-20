@@ -6,7 +6,7 @@ module CLI
       attr_reader :reg, :ctx_reg
 
       def setup
-        @reg = CommandRegistry.new(default: 'dflt', contextual_resolver: nil)
+        @reg = CommandRegistry.new(default: 'dflt')
         @ctx_reg = CommandRegistry.new(default: 'dflt', contextual_resolver: ContextualResolver)
       end
 

@@ -12,10 +12,7 @@ module Example
   LOG_FILE  = '/tmp/example.log'
 
   module Commands
-    Registry = CLI::Kit::CommandRegistry.new(
-      default: 'hello',
-      contextual_resolver: nil
-    )
+    Registry = CLI::Kit::CommandRegistry.new(default: 'hello')
 
     sig { params(const: T.untyped, cmd: T.untyped, path: T.untyped).returns(T.untyped) }
     def self.register(const, cmd, path)

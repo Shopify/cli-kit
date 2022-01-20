@@ -9,31 +9,47 @@ module CLI
       sig { returns(T.untyped) }
       attr_reader :commands, :aliases
 
+      module ContextualResolver
+        extend T::Sig
+        extend T::Helpers
+        interface!
+
+        sig { abstract.returns(T::Array[String]) }
+        def command_names; end
+
+        sig { abstract.returns(T::Hash[String, String]) }
+        def aliases; end
+
+        sig { abstract.params(_name: String).returns(CLI::Kit::BaseCommand) }
+        def command_class(_name); end
+      end
+
       module NullContextualResolver
         extend T::Sig
+        extend ContextualResolver
 
-        sig { returns(T.untyped) }
+        sig { override.returns(T::Array[String]) }
         def self.command_names
           []
         end
 
-        sig { returns(T.untyped) }
+        sig { override.returns(T::Hash[String, String]) }
         def self.aliases
           {}
         end
 
-        sig { params(_name: T.untyped).returns(T.untyped) }
+        sig { override.params(_name: String).returns(CLI::Kit::BaseCommand) }
         def self.command_class(_name)
-          nil
+          raise(CLI::Kit::Abort, 'Cannot be called on the NullContextualResolver since command_names is empty')
         end
       end
 
-      sig { params(default: T.untyped, contextual_resolver: T.untyped).void }
-      def initialize(default:, contextual_resolver: nil)
+      sig { params(default: String, contextual_resolver: ContextualResolver).void }
+      def initialize(default:, contextual_resolver: NullContextualResolver)
         @commands = {}
         @aliases  = {}
         @default = default
-        @contextual_resolver = contextual_resolver || NullContextualResolver
+        @contextual_resolver = contextual_resolver
       end
 
       sig { returns(T.untyped) }
