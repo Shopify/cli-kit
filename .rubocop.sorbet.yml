@@ -19,6 +19,7 @@ Sorbet/TrueSigil:
   Exclude:
     - lib/cli/kit/sorbet_runtime_stub.rb
     - "test/**/*"
+    - "lib/cli/kit/support/test_helper.rb"
 
 Sorbet/EnforceSigilOrder:
   Enabled: true
@@ -29,6 +30,7 @@ Sorbet/EnforceSignatures:
     - lib/cli/kit/sorbet_runtime_stub.rb
     - "test/**/*"
     - bin/testunit
+    - "lib/cli/kit/support/test_helper.rb"
 
 Sorbet/SignatureBuildOrder:
   Enabled: true
