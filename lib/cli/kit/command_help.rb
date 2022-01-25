@@ -137,9 +137,9 @@ module CLI
             if o.is_a?(Args::Definition::Option)
               z = '  ' + [o.short&.prepend('-'), o.long&.prepend('--')].compact.join(', ') + ' VALUE'
               z << if o.desc
-                "  {{italic:{{gray:# #{o.desc} (default: #{o.default})}}}}"
+                "  {{italic:{{gray:# #{o.desc} (default: #{o.default.inspect})}}}}"
               else
-                "  {{italic:{{# (default: #{o.default})}}}}"
+                "  {{italic:{{# (default: #{o.default.inspect})}}}}"
               end
             else
               z = '  ' + [o.short&.prepend('-'), o.long&.prepend('--')].compact.join(', ')
