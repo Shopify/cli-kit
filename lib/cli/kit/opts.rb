@@ -16,7 +16,7 @@ module CLI
             short: T.nilable(String),
             long: T.nilable(String),
             desc: T.nilable(String),
-            default: T.nilable(String),
+            default: T.any(NilClass, String, T.proc.returns(String)),
           ).returns(T.nilable(String))
         end
         def option(name: infer_name, short: nil, long: nil, desc: nil, default: nil)
@@ -40,7 +40,7 @@ module CLI
             short: T.nilable(String),
             long: T.nilable(String),
             desc: T.nilable(String),
-            default: T.nilable(String),
+            default: T.any(NilClass, String, T.proc.returns(String)),
           ).returns(String)
         end
         def option!(name: infer_name, short: nil, long: nil, desc: nil, default: nil)

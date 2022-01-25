@@ -29,8 +29,14 @@ module CLI
           rescue Args::Error => e
             raise(Abort, e)
           end
-          invoke(res, name)
+          invoke_wrapper(res, name)
         end
+      end
+
+      # use to implement error handling
+      sig { params(op: T.untyped, name: String).void }
+      def invoke_wrapper(op, name)
+        invoke(op, name)
       end
 
       sig { params(op: T.untyped, name: String).void }
@@ -136,10 +142,17 @@ module CLI
           "{{bold:Options:}}\n" + merged.map do |o|
             if o.is_a?(Args::Definition::Option)
               z = '  ' + [o.short&.prepend('-'), o.long&.prepend('--')].compact.join(', ') + ' VALUE'
-              z << if o.desc
-                "  {{italic:{{gray:# #{o.desc} (default: #{o.default.inspect})}}}}"
+              default = if o.dynamic_default?
+                '(generated default)'
+              elsif o.default.nil?
+                '(no default)'
               else
-                "  {{italic:{{# (default: #{o.default.inspect})}}}}"
+                "(default: #{o.default.inspect})"
+              end
+              z << if o.desc
+                "  {{italic:{{gray:# #{o.desc} #{default}}}}}"
+              else
+                "  {{italic:{{gray:# #{default}}}}}"
               end
             else
               z = '  ' + [o.short&.prepend('-'), o.long&.prepend('--')].compact.join(', ')

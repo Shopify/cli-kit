@@ -34,7 +34,8 @@ module CLI
         sig do
           params(
             name: Symbol, short: T.nilable(String), long: T.nilable(String),
-            desc: T.nilable(String), default: T.nilable(String), required: T::Boolean,
+            desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
+            required: T::Boolean,
           ).void
         end
         def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false)
@@ -91,7 +92,18 @@ module CLI
           extend T::Sig
 
           sig { returns(T.nilable(String)) }
-          attr_reader :default
+          def default
+            if @default.is_a?(Proc)
+              @default.call
+            else
+              @default
+            end
+          end
+
+          sig { returns(T::Boolean) }
+          def dynamic_default?
+            @default.is_a?(Proc)
+          end
 
           sig { returns(T::Boolean) }
           attr_reader :required
@@ -99,7 +111,8 @@ module CLI
           sig do
             params(
               name: Symbol, short: T.nilable(String), long: T.nilable(String),
-              desc: T.nilable(String), default: T.nilable(String), required: T::Boolean
+              desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
+              required: T::Boolean
             ).void
           end
           def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false)
