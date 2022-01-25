@@ -93,11 +93,6 @@ module CLI
 
       DEFAULT_OPTIONS = [:helpflag]
 
-      sig { params(name: String).returns(T.nilable(Symbol)) }
-      def option_missing(name)
-        nil
-      end
-
       sig { returns(T::Boolean) }
       def helpflag
         flag(name: :help, short: '-h', long: '--help', desc: 'Show this help message')
@@ -191,14 +186,11 @@ module CLI
       def install_to_definition
         raise('not a Definition') unless @obj.is_a?(Args::Definition)
 
-        @obj.option_missing(method(:option_missing))
-
         methods = self.class.ancestors.reduce([]) do |acc, klass|
           break(acc) if klass == CLI::Kit::Opts
           acc + klass.public_instance_methods(false)
         end
         methods.each do |m|
-          next if m == :option_missing
           send(m)
         end
         DEFAULT_OPTIONS.each do |m|

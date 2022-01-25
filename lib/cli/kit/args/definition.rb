@@ -18,11 +18,6 @@ module CLI
         sig { returns(T::Array[Option]) }
         attr_reader :options
 
-        sig { params(meth: T.any(Method, Proc)).void }
-        def option_missing(meth)
-          @option_missing = meth
-        end
-
         sig { params(name: Symbol, short: T.nilable(String), long: T.nilable(String), desc: T.nilable(String)).void }
         def add_flag(name, short: nil, long: nil, desc: nil)
           short, long = strip_prefixes_and_validate(short, long)
@@ -141,19 +136,13 @@ module CLI
         sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
         def lookup_short(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
-
-          opt = @by_short[name]
-          return(opt) if opt
-          resolve_missing_option(name, name, nil)
+          @by_short[name]
         end
 
         sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
         def lookup_long(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
-
-          opt = @by_long[name]
-          return(opt) if opt
-          resolve_missing_option(name, nil, name)
+          @by_long[name]
         end
 
         private
@@ -210,31 +199,6 @@ module CLI
             raise(ConflictingFlag, "Flag '#{flagopt.name}' already defined by #{existing.name}")
           end
           @by_name[flagopt.name] = flagopt
-        end
-
-        sig do
-          params(name: String, short: T.nilable(String), long: T.nilable(String))
-            .returns(T.any(Flag, Option, NilClass))
-        end
-        def resolve_missing_option(name, short, long)
-          return(nil) if @option_missing.nil?
-          tagged_name = short ? "-#{name}" : "--#{name}"
-          case (v = @option_missing.call(tagged_name))
-          when :option
-            opt = Option.new(name: name.to_sym, short: short, long: long)
-            add_resolution(opt)
-            @options << opt
-            opt
-          when :flag
-            flag = Flag.new(name: name.to_sym, short: short, long: long)
-            add_resolution(flag)
-            @flags << flag
-            flag
-          when nil
-            nil
-          else
-            raise(Error, "bug: option_missing returned invalid value `#{v}'")
-          end
         end
       end
     end

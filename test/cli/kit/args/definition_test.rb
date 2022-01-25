@@ -81,27 +81,6 @@ module CLI
           assert_raises(Definition::InvalidLookup) { defn.lookup_long('--b') }
           assert_raises(Definition::InvalidLookup) { defn.lookup_long('-b') }
         end
-
-        def test_option_missing
-          defn = Definition.new
-          defn.option_missing(->(name) do
-            return(:option) if name =~ /^--config\./
-            return(:flag) if name =~ /^--toggle\./
-            return(:invalid) if name == '--invalid'
-            nil
-          end)
-          assert(defn.lookup_long('config.foo').class == Definition::Option)
-          assert(defn.lookup_long('toggle.foo').class == Definition::Flag)
-          refute(defn.lookup_long('foobar'))
-
-          assert(defn.lookup_option(:'config.foo'))
-          assert(defn.lookup_flag(:'toggle.foo'))
-          # this doesn't get magically populated until the variant has been
-          # used by lookup_{long,short}
-          refute(defn.lookup_flag(:'toggle.bar'))
-
-          assert_raises(Definition::Error) { defn.lookup_long('invalid') }
-        end
       end
     end
   end
