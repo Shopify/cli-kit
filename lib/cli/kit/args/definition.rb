@@ -30,13 +30,14 @@ module CLI
           params(
             name: Symbol, short: T.nilable(String), long: T.nilable(String),
             desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
-            required: T::Boolean,
+            required: T::Boolean, multi: T::Boolean,
           ).void
         end
-        def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false)
+        def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
           short, long = strip_prefixes_and_validate(short, long)
           option = Option.new(
-            name: name, short: short, long: long, desc: desc, default: default, required: required,
+            name: name, short: short, long: long, desc: desc, default: default,
+            required: required, multi: multi,
           )
           add_resolution(option)
           @options << option
@@ -103,17 +104,25 @@ module CLI
           sig { returns(T::Boolean) }
           attr_reader :required
 
+          sig { returns(T::Boolean) }
+          attr_reader :multi
+
           sig do
             params(
               name: Symbol, short: T.nilable(String), long: T.nilable(String),
               desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
-              required: T::Boolean
+              required: T::Boolean, multi: T::Boolean,
             ).void
           end
-          def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false)
+          def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
+            if multi && (default || required)
+              raise(ArgumentError, 'multi-valued options cannot have a default or required value')
+            end
+
             super(name: name, short: short, long: long, desc: desc)
             @default = default
             @required = required
+            @multi = multi
           end
         end
 

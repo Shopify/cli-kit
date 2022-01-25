@@ -22,44 +22,44 @@ module CLI
 
           sig { params(sym: Symbol).returns(T::Boolean) }
           def method_missing(sym)
-            flag = @result.defn.lookup_flag(sym)
+            flag = @evaluation.defn.lookup_flag(sym)
             unless flag
               raise NoMethodError, "undefined flag `#{sym}' for #{self}"
             end
-            @result.send(:lookup_flag, flag)
+            @evaluation.send(:lookup_flag, flag)
           end
 
           sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
           def respond_to_missing?(sym, include_private = false)
-            !!@result.defn.lookup_flag(sym)
+            !!@evaluation.defn.lookup_flag(sym)
           end
 
-          sig { params(result: Evaluation).void }
-          def initialize(result)
-            @result = result
+          sig { params(evaluation: Evaluation).void }
+          def initialize(evaluation)
+            @evaluation = evaluation
           end
         end
 
         class OptionProxy
           extend T::Sig
 
-          sig { params(sym: Symbol).returns(T.nilable(String)) }
+          sig { params(sym: Symbol).returns(T.any(NilClass, String, T::Array[String])) }
           def method_missing(sym)
-            opt = @result.defn.lookup_option(sym)
+            opt = @evaluation.defn.lookup_option(sym)
             unless opt
               raise NoMethodError, "undefined option `#{sym}' for #{self}"
             end
-            @result.send(:lookup_option, opt)
+            @evaluation.send(:lookup_option, opt)
           end
 
           sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
           def respond_to_missing?(sym, include_private = false)
-            !!@result.defn.lookup_option(sym)
+            !!@evaluation.defn.lookup_option(sym)
           end
 
-          sig { params(result: Evaluation).void }
-          def initialize(result)
-            @result = result
+          sig { params(evaluation: Evaluation).void }
+          def initialize(evaluation)
+            @evaluation = evaluation
           end
         end
 
@@ -140,15 +140,16 @@ module CLI
           false
         end
 
-        sig { params(opt: Definition::Option).returns(T.nilable(String)) }
+        sig { params(opt: Definition::Option).returns(T.any(NilClass, String, T::Array[String])) }
         def lookup_option(opt)
           if opt.short
             opts = T.cast(
               parse.select { |node| node.is_a?(Parser::Node::ShortOption) },
               T::Array[Parser::Node::ShortOption],
             )
-            if (match = opts.reverse.detect { |node| node.name == opt.short })
-              return match.value
+            matches = opts.reverse.select { |node| node.name == opt.short }
+            if (first = matches.first)
+              return(opt.multi ? matches.map(&:value) : first.value)
             end
           end
           if opt.long
@@ -156,11 +157,12 @@ module CLI
               parse.select { |node| node.is_a?(Parser::Node::LongOption) },
               T::Array[Parser::Node::LongOption],
             )
-            if (match = opts.reverse.detect { |node| node.name == opt.long })
-              return match.value
+            matches = opts.reverse.select { |node| node.name == opt.long }
+            if (first = matches.first)
+              return(opt.multi ? matches.map(&:value) : first.value)
             end
           end
-          opt.default
+          opt.multi ? [] : opt.default
         end
       end
     end

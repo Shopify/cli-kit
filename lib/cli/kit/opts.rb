@@ -61,6 +61,26 @@ module CLI
             short: T.nilable(String),
             long: T.nilable(String),
             desc: T.nilable(String),
+          ).returns(T::Array[String])
+        end
+        def multi_option(name: infer_name, short: nil, long: nil, desc: nil)
+          case @obj
+          when Args::Definition
+            @obj.add_option(
+              name, short: short, long: long, desc: desc, multi: true,
+            )
+            ['(result unavailable)']
+          when Args::Evaluation
+            @obj.opt.send(name)
+          end
+        end
+
+        sig do
+          params(
+            name: Symbol,
+            short: T.nilable(String),
+            long: T.nilable(String),
+            desc: T.nilable(String),
           ).returns(T::Boolean)
         end
         def flag(name: infer_name, short: nil, long: nil, desc: nil)
