@@ -22,7 +22,7 @@ module CLI
         sig { params(msg: T.untyped).returns(T.untyped) }
         def sudo_reason(msg)
           # See if sudo has a cached password
-          %x(env SUDO_ASKPASS=/usr/bin/false sudo -A true)
+          %x(env SUDO_ASKPASS=/usr/bin/false sudo -A true > /dev/null 2>&1)
           return if $CHILD_STATUS.success?
           CLI::UI.with_frame_color(:blue) do
             puts(CLI::UI.fmt("{{i}} #{msg}"))
