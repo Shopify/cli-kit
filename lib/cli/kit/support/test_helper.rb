@@ -56,7 +56,8 @@ module CLI
             module System
               class << self
                 alias_method :original_system, :system
-                def system(*a, sudo: false, env: {}, **kwargs)
+                def system(cmd, *a, sudo: false, env: {}, **kwargs)
+                  a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
@@ -71,7 +72,8 @@ module CLI
                 end
 
                 alias_method :original_capture2, :capture2
-                def capture2(*a, sudo: false, env: {}, **kwargs)
+                def capture2(cmd, *a, sudo: false, env: {}, **kwargs)
+                  a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
@@ -89,7 +91,8 @@ module CLI
                 end
 
                 alias_method :original_capture2e, :capture2e
-                def capture2e(*a, sudo: false, env: {}, **kwargs)
+                def capture2e(cmd, *a, sudo: false, env: {}, **kwargs)
+                  a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
@@ -107,7 +110,8 @@ module CLI
                 end
 
                 alias_method :original_capture3, :capture3
-                def capture3(*a, sudo: false, env: {}, **kwargs)
+                def capture3(cmd, *a, sudo: false, env: {}, **kwargs)
+                  a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
                   # In the case of an unexpected command, expected_command will be nil
