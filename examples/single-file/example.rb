@@ -14,16 +14,16 @@ module Example
   module Commands
     Registry = CLI::Kit::CommandRegistry.new(default: 'hello')
 
-    sig { params(const: T.untyped, cmd: T.untyped, path: T.untyped).returns(T.untyped) }
-    def self.register(const, cmd, path)
+    sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(Example::Command)).void }
+    def self.register(const, cmd, path, lamda_const)
       autoload(const, path)
-      Registry.add(->() { const_get(const) }, cmd)
+      Registry.add(lamda_const, cmd)
     end
 
-    # register(:Hello, 'hello', 'a/b/hello')
+    # register(:Hello, 'hello', 'a/b/hello', -> { Commands::Hello })
 
     class Hello < Example::Command
-      sig { params(_args: T.untyped, _name: T.untyped).returns(T.untyped) }
+      sig { override.params(_args: T::Array[String], _name: String).void }
       def call(_args, _name)
         puts 'hello, world!'
       end
@@ -31,7 +31,7 @@ module Example
   end
 
   module EntryPoint
-    sig { params(args: T.untyped).returns(T.untyped) }
+    sig { params(args: T::Array[String]).void }
     def self.call(args)
       cmd, command_name, args = Example::Resolver.call(args)
       Example::Executor.call(cmd, command_name, args)

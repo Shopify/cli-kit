@@ -33,7 +33,7 @@ module CLI
       # Copyright (c) 2006-2013 Paul Battley, Michael Neumann, Tim Fletcher.
       #
       # Returns a value representing the "cost" of transforming str1 into str2
-      sig { params(str1: T.untyped, str2: T.untyped).returns(T.untyped) }
+      sig { params(str1: String, str2: String).returns(Integer) }
       def distance(str1, str2)
         n = str1.length
         m = str2.length
@@ -41,7 +41,7 @@ module CLI
         return n if m.zero?
 
         d = (0..m).to_a
-        x = T.let(nil, T.nilable(Integer))
+        x = 0
 
         # to avoid duplicating an enumerable object, create it outside of the loop
         str2_codepoints = str2.codepoints
@@ -51,9 +51,9 @@ module CLI
           while j < m
             cost = char1 == str2_codepoints[j] ? 0 : 1
             x = min3(
-              d[j + 1] + 1, # insertion
-              i + 1,      # deletion
-              d[j] + cost # substitution
+              T.must(d[j + 1]) + 1, # insertion
+              i + 1, # deletion
+              T.must(d[j]) + cost # substitution
             )
             d[j] = i
             i = x
@@ -73,7 +73,7 @@ module CLI
       # faster than `[a, b, c].min` and puts less GC pressure.
       # See https://github.com/yuki24/did_you_mean/pull/1 for a performance
       # benchmark.
-      sig { params(a: T.untyped, b: T.untyped, c: T.untyped).returns(T.untyped) }
+      sig { params(a: Integer, b: Integer, c: Integer).returns(Integer) }
       def min3(a, b, c)
         if a < b && a < c
           a

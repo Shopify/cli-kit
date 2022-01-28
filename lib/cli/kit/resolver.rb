@@ -6,13 +6,13 @@ module CLI
     class Resolver
       extend T::Sig
 
-      sig { params(tool_name: T.untyped, command_registry: T.untyped).void }
+      sig { params(tool_name: String, command_registry: CLI::Kit::CommandRegistry).void }
       def initialize(tool_name:, command_registry:)
         @tool_name = tool_name
         @command_registry = command_registry
       end
 
-      sig { params(args: T.untyped).returns(T.untyped) }
+      sig { params(args: T::Array[String]).returns([T.class_of(CLI::Kit::BaseCommand), String, T::Array[String]]) }
       def call(args)
         args = args.dup
         command_name = args.shift
@@ -29,7 +29,7 @@ module CLI
 
       private
 
-      sig { params(name: T.untyped).returns(T.untyped) }
+      sig { params(name: T.nilable(String)).void }
       def command_not_found(name)
         CLI::UI::Frame.open('Command not found', color: :red, timing: false) do
           $stderr.puts(CLI::UI.fmt("{{command:#{@tool_name} #{name}}} was not found"))
@@ -58,7 +58,7 @@ module CLI
         end
       end
 
-      sig { returns(T.untyped) }
+      sig { returns(T::Array[String]) }
       def commands_and_aliases
         @command_registry.command_names + @command_registry.aliases.keys
       end

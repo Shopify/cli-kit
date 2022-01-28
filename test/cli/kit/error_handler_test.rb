@@ -4,9 +4,7 @@ require 'tempfile'
 module CLI
   module Kit
     class ErrorHandlerTest < Minitest::Test
-      module MockExceptionReporter
-        extend ErrorHandler::ExceptionReporter
-
+      class MockExceptionReporter < ErrorHandler::ExceptionReporter
         def self.report(_exception, _logs); end
       end
 
