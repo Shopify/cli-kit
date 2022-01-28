@@ -88,9 +88,6 @@ module CLI
         @config.set('section', 'some-key', '~/.test')
         @config.set('section', 'some-other-key', '~/.test')
         assert_equal("[section]\nsome-key = ~/.test\nsome-other-key = ~/.test", File.read(@file))
-
-        assert_equal('~/.test', @config.get('section', 'some-key'))
-        assert_equal(File.expand_path('.test', ENV['HOME']), @config.get_path('section', 'some-key'))
       end
 
       def test_config_unset
