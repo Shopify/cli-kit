@@ -3,14 +3,6 @@ require 'test_helper'
 module CLI
   module Kit
     class UtilTest < Minitest::Test
-      def test_snake_case
-        assert_equal('', CLI::Kit::Util.snake_case(''))
-        assert_equal('a', CLI::Kit::Util.snake_case('A'))
-        assert_equal('aa', CLI::Kit::Util.snake_case('AA'))
-        assert_equal('a', CLI::Kit::Util.snake_case('a'))
-        assert_equal('foo/bar_b', CLI::Kit::Util.snake_case('Foo::BarB'))
-      end
-
       def test_to_filesize
         assert_equal('0B', CLI::Kit::Util.to_filesize(0))
         assert_equal('0 B',  CLI::Kit::Util.to_filesize(0, space: true))
@@ -44,22 +36,6 @@ module CLI
         assert_raises(ArgumentError) do
           CLI::Kit::Util.to_si_scale(0, '', factor: 10)
         end
-      end
-
-      def test_english_join
-        assert_equal('',  CLI::Kit::Util.english_join(nil))
-        assert_equal('',  CLI::Kit::Util.english_join([]))
-        assert_equal('foo', CLI::Kit::Util.english_join(['foo']))
-        assert_equal('foo and bar',  CLI::Kit::Util.english_join(['foo', 'bar']))
-        assert_equal('foo, bar, baz, and qux', CLI::Kit::Util.english_join(['foo', 'bar', 'baz', 'qux']))
-      end
-
-      def test_with_environment
-        orig_path = ENV['PATH']
-        CLI::Kit::Util.with_environment('PATH', '/foo') do
-          assert_equal('/foo', ENV['PATH'], 'Environment should be overridden')
-        end
-        assert_equal(orig_path, ENV['PATH'], 'Original environment should have been restored')
       end
     end
   end
