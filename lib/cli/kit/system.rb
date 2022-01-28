@@ -135,7 +135,7 @@ module CLI
                 .returns([IO, IO, Process::Waiter])
             )
           )
-            .returns([String, String, Process::Status])
+            .returns([IO, IO, Process::Waiter])
         end
         def popen2(cmd, *args, sudo: false, env: ENV.to_h, **kwargs, &block)
           delegate_open3(cmd, args, kwargs, sudo: sudo, env: env, method: :popen2, &block)
@@ -153,7 +153,7 @@ module CLI
                 .returns([IO, IO, Process::Waiter])
             )
           )
-            .returns([String, String, Process::Status])
+            .returns([IO, IO, Process::Waiter])
         end
         def popen2e(cmd, *args, sudo: false, env: ENV.to_h, **kwargs, &block)
           delegate_open3(cmd, args, kwargs, sudo: sudo, env: env, method: :popen2e, &block)
@@ -171,7 +171,7 @@ module CLI
                 .returns([IO, IO, IO, Process::Waiter])
             )
           )
-            .returns([String, String, Process::Status])
+            .returns([IO, IO, IO, Process::Waiter])
         end
         def popen3(cmd, *args, sudo: false, env: ENV.to_h, **kwargs, &block)
           delegate_open3(cmd, args, kwargs, sudo: sudo, env: env, method: :popen3, &block)
@@ -283,7 +283,7 @@ module CLI
         def apply_sudo(cmd, args, sudo)
           return [cmd, args] unless sudo
           sudo_reason(sudo) if sudo.is_a?(String)
-          ['sudo', args.unshift('-S', '-p', SUDO_PROMPT, '--')]
+          ['sudo', args.unshift('-S', '-p', SUDO_PROMPT, '--', cmd)]
         end
 
         sig do
