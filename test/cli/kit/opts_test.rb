@@ -15,6 +15,10 @@ module CLI
         def file
           option(long: '--file')
         end
+
+        def args
+          rest
+        end
       end
 
       def test_stuff

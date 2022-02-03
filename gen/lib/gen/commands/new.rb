@@ -17,16 +17,17 @@ module Gen
       example('mycliapp', "create a new project called 'mycliapp'")
 
       class Opts < CLI::Kit::Opts
+        extend(T::Sig)
+
+        sig { returns(String) }
+        def project_name
+          position!
+        end
       end
 
       sig { params(op: Opts, _name: T.untyped).returns(T.untyped) }
       def invoke(op, _name)
-        unless op.args.size == 1
-          puts(self.class.build_help)
-          raise(CLI::Kit::AbortSilent)
-        end
-
-        Gen::Generator.run(op.args.first)
+        Gen::Generator.run(op.project_name)
       end
     end
   end

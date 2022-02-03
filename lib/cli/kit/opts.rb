@@ -93,6 +93,39 @@ module CLI
           end
         end
 
+        sig { params(name: Symbol, desc: T.nilable(String)).returns(String) }
+        def position!(name: infer_name, desc: nil)
+          case @obj
+          when Args::Definition
+            @obj.add_position(name, desc: desc, required: true, multiple: false)
+            '(result unavailable)'
+          when Args::Evaluation
+            @obj.position.send(name)
+          end
+        end
+
+        sig { params(name: Symbol, desc: T.nilable(String)).returns(T.nilable(String)) }
+        def position(name: infer_name, desc: nil)
+          case @obj
+          when Args::Definition
+            @obj.add_position(name, desc: desc, required: false, multiple: false)
+            '(result unavailable)'
+          when Args::Evaluation
+            @obj.position.send(name)
+          end
+        end
+
+        sig { params(name: Symbol, desc: T.nilable(String)).returns(T::Array[String]) }
+        def rest(name: infer_name, desc: nil)
+          case @obj
+          when Args::Definition
+            @obj.add_position(name, desc: desc, required: false, multiple: true)
+            ['(result unavailable)']
+          when Args::Evaluation
+            @obj.position.send(name)
+          end
+        end
+
         private
 
         sig { returns(Symbol) }
@@ -121,12 +154,6 @@ module CLI
       sig { params(obj: T.any(Args::Definition, Args::Evaluation)).void }
       def initialize(obj)
         @obj = obj
-      end
-
-      sig { returns(T::Array[String]) }
-      def args
-        obj = assert_result!
-        obj.args
       end
 
       sig { returns(T::Array[String]) }

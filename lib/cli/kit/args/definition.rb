@@ -11,12 +11,16 @@ module CLI
         ConflictingFlag = Class.new(Error)
         InvalidFlag = Class.new(Error)
         InvalidLookup = Class.new(Error)
+        InvalidPosition = Class.new(Error)
 
         sig { returns(T::Array[Flag]) }
         attr_reader :flags
 
         sig { returns(T::Array[Option]) }
         attr_reader :options
+
+        sig { returns(T::Array[Position]) }
+        attr_reader :positions
 
         sig { params(name: Symbol, short: T.nilable(String), long: T.nilable(String), desc: T.nilable(String)).void }
         def add_flag(name, short: nil, long: nil, desc: nil)
@@ -43,6 +47,15 @@ module CLI
           @options << option
         end
 
+        sig { params(name: Symbol, required: T::Boolean, multiple: T::Boolean, desc: T.nilable(String)).void }
+        def add_position(name, required:, multiple:, desc: nil)
+          index = @positions.size
+          position = Position.new(name: name, desc: desc, required: required, multiple: multiple, index: index)
+          validate_order(position)
+          add_name_resolution(position)
+          @positions << position
+        end
+
         sig { void }
         def initialize
           @flags = []
@@ -50,6 +63,7 @@ module CLI
           @by_short = {}
           @by_long = {}
           @by_name = {}
+          @positions = []
         end
 
         class Flag
@@ -81,6 +95,47 @@ module CLI
             @short = short
             @long = long
             @desc = desc
+          end
+        end
+
+        class Position
+          extend T::Sig
+
+          sig { returns(Symbol) }
+          attr_reader :name
+
+          sig { returns(T.nilable(String)) }
+          attr_reader :desc
+
+          sig { returns(Integer) }
+          attr_reader :index
+
+          sig do
+            params(name: Symbol, desc: T.nilable(String), required: T::Boolean, multiple: T::Boolean, index: Integer)
+              .void
+          end
+          def initialize(name:, desc:, required:, multiple:, index:)
+            raise(ArgumentError, 'Cannot be required and multiple') if required && multiple
+            @name = name
+            @desc = desc
+            @required = required
+            @multiple = multiple
+            @index = index
+          end
+
+          sig { returns(T::Boolean) }
+          def required?
+            @required
+          end
+
+          sig { returns(T::Boolean) }
+          def multiple?
+            @multiple
+          end
+
+          sig { returns(T::Boolean) }
+          def optional?
+            !required?
           end
         end
 
@@ -154,7 +209,24 @@ module CLI
           @by_long[name]
         end
 
+        sig { params(name: Symbol).returns(T.nilable(Position)) }
+        def lookup_position(name)
+          position = @by_name[name]
+          if position.class == Position
+            position
+          end
+        end
+
         private
+
+        sig { params(position: Position).void }
+        def validate_order(position)
+          if @positions.last&.multiple?
+            raise(InvalidPosition, 'Cannot have any more positional arguments after multiple')
+          elsif @positions.last&.optional? && !position.optional?
+            raise(InvalidPosition, 'Cannot have any more required positional arguments after optional ones')
+          end
+        end
 
         sig { params(short: String).returns(String) }
         def strip_short_prefix(short)
@@ -204,10 +276,15 @@ module CLI
             end
             @by_long[flagopt.long] = flagopt
           end
-          if (existing = @by_name[flagopt.name])
-            raise(ConflictingFlag, "Flag '#{flagopt.name}' already defined by #{existing.name}")
+          add_name_resolution(flagopt)
+        end
+
+        sig { params(arg: T.any(Flag, Position)).void }
+        def add_name_resolution(arg)
+          if (existing = @by_name[arg.name])
+            raise(ConflictingFlag, "Flag '#{arg.name}' already defined by #{existing.name}")
           end
-          @by_name[flagopt.name] = flagopt
+          @by_name[arg.name] = arg
         end
       end
     end

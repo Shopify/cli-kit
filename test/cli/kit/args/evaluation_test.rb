@@ -16,6 +16,8 @@ module CLI
           @defn.add_flag(:verbose, long: '--verbose')
           @defn.add_option(:output, short: '-o', default: 'text')
           @defn.add_option(:notprovided, short: '-n')
+          @defn.add_position(:first, required: true, multiple: false)
+          @defn.add_position(:rest, required: false, multiple: true)
 
           @parse = [
             Node::ShortFlag.new('f'),
@@ -45,7 +47,8 @@ module CLI
           refute(evl.opt.respond_to?(:foobar))
           assert(evl.flag.respond_to?(:f))
           assert(evl.opt.respond_to?(:height))
-          assert_equal(['a', 'b', 'c'], evl.args)
+          assert_equal('a', evl.position.first)
+          assert_equal(['b', 'c'], evl.position.rest)
           assert_equal(['d', '--neato', '-f'], evl.unparsed)
         end
 

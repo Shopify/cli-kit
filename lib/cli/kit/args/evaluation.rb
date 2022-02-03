@@ -17,6 +17,12 @@ module CLI
           end
         end
 
+        class MissingRequiredPosition < Error
+        end
+
+        class TooManyPositions < Error
+        end
+
         class FlagProxy
           extend T::Sig
 
@@ -63,6 +69,29 @@ module CLI
           end
         end
 
+        class PositionProxy
+          extend T::Sig
+
+          sig { params(sym: Symbol).returns(T.any(NilClass, String, T::Array[String])) }
+          def method_missing(sym)
+            position = @evaluation.defn.lookup_position(sym)
+            unless position
+              raise NoMethodError, "undefined position `#{sym}' for #{self}"
+            end
+            @evaluation.send(:lookup_position, position)
+          end
+
+          sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
+          def respond_to_missing?(sym, include_private = false)
+            !!@evaluation.defn.lookup_position(sym)
+          end
+
+          sig { params(evaluation: Evaluation).void }
+          def initialize(evaluation)
+            @evaluation = evaluation
+          end
+        end
+
         sig { returns(FlagProxy) }
         def flag
           @flag_proxy ||= FlagProxy.new(self)
@@ -73,22 +102,16 @@ module CLI
           @option_proxy ||= OptionProxy.new(self)
         end
 
+        sig { returns(PositionProxy) }
+        def position
+          @position_proxy ||= PositionProxy.new(self)
+        end
+
         sig { returns(Definition) }
         attr_reader :defn
 
         sig { returns(T::Array[Parser::Node]) }
         attr_reader :parse
-
-        sig { returns(T::Array[String]) }
-        def args
-          @args ||= begin
-            nodes = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::Argument) },
-              T::Array[Parser::Node::Argument],
-            )
-            nodes.map(&:value)
-          end
-        end
 
         sig { returns(T::Array[String]) }
         def unparsed
@@ -119,6 +142,14 @@ module CLI
               raise(MissingRequiredOption, opt.as_written_by_user)
             end
           end
+          min_positions = @defn.positions.count(&:required?)
+          max_positions = if @defn.positions.last&.multiple?
+            Float::INFINITY
+          else
+            min_positions + @defn.positions.count(&:optional?)
+          end
+          raise(MissingRequiredPosition) if args.size < min_positions
+          raise(TooManyPositions) if args.size > max_positions
         end
 
         sig { params(flag: Definition::Flag).returns(T::Boolean) }
@@ -163,6 +194,28 @@ module CLI
             end
           end
           opt.multi ? [] : opt.default
+        end
+
+        sig { params(position: Definition::Position).returns(T.any(NilClass, String, T::Array[String])) }
+        def lookup_position(position)
+          if position.multiple?
+            args[position.index..]
+          else
+            args[position.index]
+          end
+        end
+
+        private
+
+        sig { returns(T::Array[String]) }
+        def args
+          @args ||= begin
+            nodes = T.cast(
+              parse.select { |node| node.is_a?(Parser::Node::Argument) },
+              T::Array[Parser::Node::Argument],
+            )
+            nodes.map(&:value)
+          end
         end
       end
     end
