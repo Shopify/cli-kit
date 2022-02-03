@@ -41,17 +41,17 @@ module CLI
             when :init
               state, val = parse_token(T.must(arg), next_arg)
               nodes << val
-            when :rest
-              unless arg.is_a?(Tokenizer::Token::RestArgument)
-                raise(Error, 'bug: non-rest argument after rest argument')
+            when :unparsed
+              unless arg.is_a?(Tokenizer::Token::UnparsedArgument)
+                raise(Error, 'bug: non-unparsed argument after unparsed argument')
               end
-              rest = nodes.last
-              unless rest.is_a?(Node::Rest)
+              unparsed = nodes.last
+              unless unparsed.is_a?(Node::Unparsed)
                 # :nocov: not actually possible, in theory
-                raise(Error, 'bug: parser failed to recognize first rest argument')
+                raise(Error, 'bug: parser failed to recognize first unparsed argument')
                 # :nocov:
               end
-              rest.value << arg.value
+              unparsed.value << arg.value
             end
           end
           nodes
@@ -94,8 +94,8 @@ module CLI
             [:init, Node::Argument.new(token.value)]
           when Tokenizer::Token::OptionValueOrPositionalArgument
             [:init, Node::Argument.new(token.value)]
-          when Tokenizer::Token::RestArgument
-            [:rest, Node::Rest.new([token.value])]
+          when Tokenizer::Token::UnparsedArgument
+            [:unparsed, Node::Unparsed.new([token.value])]
           else
             raise(Error, "bug: unexpected token type: #{token.class}")
           end

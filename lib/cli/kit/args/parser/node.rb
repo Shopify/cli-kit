@@ -104,7 +104,7 @@ module CLI
             end
           end
 
-          class Rest < Node
+          class Unparsed < Node
             sig { returns(T::Array[String]) }
             attr_reader :value
 

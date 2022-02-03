@@ -26,7 +26,7 @@ module CLI
         assert_equal('json', opts.output)
         refute(opts.file)
         assert_equal(['test'], opts.args)
-        assert_equal(['a', 'b'], opts.rest)
+        assert_equal(['a', 'b'], opts.unparsed)
 
         assert_equal({ output: 'json', file: nil }, opts.each_option.to_h)
         assert_equal({ force: true, help: false }, opts.each_flag.to_h)

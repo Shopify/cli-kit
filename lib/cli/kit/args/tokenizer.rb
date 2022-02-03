@@ -53,7 +53,7 @@ module CLI
           OptionValue = Class.new(Token)
           PositionalArgument = Class.new(Token)
           OptionValueOrPositionalArgument = Class.new(Token)
-          RestArgument = Class.new(Token)
+          UnparsedArgument = Class.new(Token)
         end
 
         class << self
@@ -67,12 +67,12 @@ module CLI
 
             raw_args.each do |arg|
               case mode
-              when :rest
-                args << Token::RestArgument.new(arg)
+              when :unparsed
+                args << Token::UnparsedArgument.new(arg)
               when :init
                 case arg
                 when '--'
-                  mode = :rest
+                  mode = :unparsed
                 when /\A--/
                   name, value = arg.split('=', 2)
                   args << Token::LongOptionName.new(T.must(T.must(name)[2..-1]))

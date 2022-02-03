@@ -130,9 +130,9 @@ module CLI
       end
 
       sig { returns(T::Array[String]) }
-      def rest
+      def unparsed
         obj = assert_result!
-        obj.rest
+        obj.unparsed
       end
 
       sig do

@@ -91,11 +91,11 @@ module CLI
         end
 
         sig { returns(T::Array[String]) }
-        def rest
-          @rest ||= begin
+        def unparsed
+          @unparsed ||= begin
             nodes = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::Rest) },
-              T::Array[Parser::Node::Rest],
+              parse.select { |node| node.is_a?(Parser::Node::Unparsed) },
+              T::Array[Parser::Node::Unparsed],
             )
             nodes.flat_map(&:value)
           end

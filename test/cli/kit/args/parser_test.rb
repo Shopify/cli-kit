@@ -88,30 +88,30 @@ module CLI
           ], parse)
         end
 
-        def test_rest
+        def test_unparsed
           parse = Args::Parser.new(@defn).parse([
-            Token::RestArgument.new('a'),
-            Token::RestArgument.new('b'),
+            Token::UnparsedArgument.new('a'),
+            Token::UnparsedArgument.new('b'),
           ])
           assert_equal([
-            Node::Rest.new(['a', 'b']),
+            Node::Unparsed.new(['a', 'b']),
           ], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::ShortOptionName.new('f'),
-            Token::RestArgument.new('a'),
-            Token::RestArgument.new('b'),
+            Token::UnparsedArgument.new('a'),
+            Token::UnparsedArgument.new('b'),
           ])
           assert_equal([
             Node::ShortFlag.new('f'),
-            Node::Rest.new(['a', 'b']),
+            Node::Unparsed.new(['a', 'b']),
           ], parse)
 
           assert_raises(Parser::Error) do
             Args::Parser.new(@defn).parse([
-              Token::RestArgument.new('a'),
+              Token::UnparsedArgument.new('a'),
               Token::ShortOptionName.new('f'),
-              Token::RestArgument.new('b'),
+              Token::UnparsedArgument.new('b'),
             ])
           end
         end
@@ -157,9 +157,9 @@ module CLI
             Token::PositionalArgument.new('a'),
             Token::PositionalArgument.new('b'),
             Token::PositionalArgument.new('c'),
-            Token::RestArgument.new('d'),
-            Token::RestArgument.new('--neato'),
-            Token::RestArgument.new('-f'),
+            Token::UnparsedArgument.new('d'),
+            Token::UnparsedArgument.new('--neato'),
+            Token::UnparsedArgument.new('-f'),
           ])
           assert_equal([
             Node::ShortFlag.new('f'),
@@ -169,7 +169,7 @@ module CLI
             Node::Argument.new('a'),
             Node::Argument.new('b'),
             Node::Argument.new('c'),
-            Node::Rest.new(['d', '--neato', '-f']),
+            Node::Unparsed.new(['d', '--neato', '-f']),
           ], parse)
           assert_equal([
             '#<CLI::Kit::Args::Parser::Node::ShortFlag f>',
@@ -179,7 +179,7 @@ module CLI
             '#<CLI::Kit::Args::Parser::Node::Argument a>',
             '#<CLI::Kit::Args::Parser::Node::Argument b>',
             '#<CLI::Kit::Args::Parser::Node::Argument c>',
-            '#<CLI::Kit::Args::Parser::Node::Rest d --neato -f>',
+            '#<CLI::Kit::Args::Parser::Node::Unparsed d --neato -f>',
           ], parse.map(&:inspect))
         end
       end

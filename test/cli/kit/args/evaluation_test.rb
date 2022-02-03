@@ -26,7 +26,7 @@ module CLI
             Node::Argument.new('b'),
             Node::Argument.new('c'),
             Node::LongFlag.new('print'),
-            Node::Rest.new(['d', '--neato', '-f']),
+            Node::Unparsed.new(['d', '--neato', '-f']),
           ]
         end
 
@@ -46,7 +46,7 @@ module CLI
           assert(evl.flag.respond_to?(:f))
           assert(evl.opt.respond_to?(:height))
           assert_equal(['a', 'b', 'c'], evl.args)
-          assert_equal(['d', '--neato', '-f'], evl.rest)
+          assert_equal(['d', '--neato', '-f'], evl.unparsed)
         end
 
         def test_evaluation_required

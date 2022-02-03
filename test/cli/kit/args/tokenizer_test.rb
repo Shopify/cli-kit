@@ -43,19 +43,19 @@ module CLI
           ])
         end
 
-        def test_rest
+        def test_unparsed
           check('-- b c', [
-            Token::RestArgument.new('b'),
-            Token::RestArgument.new('c'),
+            Token::UnparsedArgument.new('b'),
+            Token::UnparsedArgument.new('c'),
           ])
           check('-a -- b c', [
             Token::ShortOptionName.new('a'),
-            Token::RestArgument.new('b'),
-            Token::RestArgument.new('c'),
+            Token::UnparsedArgument.new('b'),
+            Token::UnparsedArgument.new('c'),
           ])
           check('-- -a --b', [
-            Token::RestArgument.new('-a'),
-            Token::RestArgument.new('--b'),
+            Token::UnparsedArgument.new('-a'),
+            Token::UnparsedArgument.new('--b'),
           ])
         end
 
@@ -71,9 +71,9 @@ module CLI
             Token::PositionalArgument.new('a'),
             Token::PositionalArgument.new('b'),
             Token::PositionalArgument.new('c'),
-            Token::RestArgument.new('d'),
-            Token::RestArgument.new('--neato'),
-            Token::RestArgument.new('-f'),
+            Token::UnparsedArgument.new('d'),
+            Token::UnparsedArgument.new('--neato'),
+            Token::UnparsedArgument.new('-f'),
           ])
         end
 
