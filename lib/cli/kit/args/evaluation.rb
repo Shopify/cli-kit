@@ -7,7 +7,7 @@ module CLI
       class Evaluation
         extend T::Sig
 
-        Error = Class.new(StandardError)
+        Error = Class.new(Args::Error)
 
         class MissingRequiredOption < Error
           extend T::Sig
