@@ -10,6 +10,39 @@ module CLI
         extend T::Sig
         include Kernel
 
+        module MixinClassMethods
+          extend T::Sig
+
+          sig { params(included_module: Module).void }
+          def include(included_module)
+            super
+            return unless included_module.is_a?(MixinClassMethods)
+            included_module.tracked_methods.each { |m| track_method(m) }
+          end
+
+          # No signature - Sorbet uses method_added internally, so can't verify it
+          def method_added(method_name) # rubocop:disable Sorbet/EnforceSignatures
+            super
+            track_method(method_name)
+          end
+
+          sig { params(method_name: Symbol).void }
+          def track_method(method_name)
+            @tracked_methods ||= []
+            @tracked_methods << method_name
+          end
+
+          sig { returns(T::Array[Symbol]) }
+          def tracked_methods
+            @tracked_methods || []
+          end
+        end
+
+        sig { params(klass: Module).void }
+        def self.included(klass)
+          klass.extend(MixinClassMethods)
+        end
+
         sig do
           params(
             name: Symbol,
@@ -233,11 +266,7 @@ module CLI
       def install_to_definition
         raise('not a Definition') unless @obj.is_a?(Args::Definition)
 
-        methods = self.class.ancestors.reduce([]) do |acc, klass|
-          break(acc) if klass == CLI::Kit::Opts
-          acc + klass.public_instance_methods(false)
-        end
-        methods.each do |m|
+        T.cast(self.class, Mixin::MixinClassMethods).tracked_methods.each do |m|
           send(m)
         end
         DEFAULT_OPTIONS.each do |m|
