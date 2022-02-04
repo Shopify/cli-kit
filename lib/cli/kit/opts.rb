@@ -28,13 +28,13 @@ module CLI
 
           sig { params(method_name: Symbol).void }
           def track_method(method_name)
-            @tracked_methods ||= []
+            @tracked_methods ||= Set.new
             @tracked_methods << method_name
           end
 
-          sig { returns(T::Array[Symbol]) }
+          sig { returns(T::Set[Symbol]) }
           def tracked_methods
-            @tracked_methods || []
+            @tracked_methods || Set.new
           end
         end
 
