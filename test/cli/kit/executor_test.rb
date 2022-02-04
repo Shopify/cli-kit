@@ -6,6 +6,12 @@ module CLI
     class ExecutorTest < Minitest::Test
       attr_reader :exe
 
+      class Kill < CLI::Kit::BaseCommand
+        def call(args, _name)
+          Process.kill(args.first, Process.pid)
+        end
+      end
+
       def setup
         @tf  = Tempfile.create('executor-log').tap(&:close)
         @exe = Executor.new(log_file: @tf.path)
@@ -63,7 +69,7 @@ module CLI
       def test_siginfo_handling
         if Signal.list.key?('INFO')
           out, err = capture_io do
-            exe.call(->(*) { Process.kill('INFO', Process.pid) }, 'foo', [])
+            exe.call(Kill, 'foo', ['INFO'])
           end
           assert_empty(out)
           lines = err.lines
@@ -78,7 +84,7 @@ module CLI
         if Signal.list.key?('QUIT')
           @exe.expects(:exit).with(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
           out, err = capture_io do
-            exe.call(->(*) { Process.kill('QUIT', Process.pid) }, 'foo', [])
+            exe.call(Kill, 'foo', ['QUIT'])
           end
           assert_empty(out)
           lines = err.lines

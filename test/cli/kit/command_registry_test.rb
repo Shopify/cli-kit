@@ -7,10 +7,11 @@ module CLI
 
       def setup
         @reg = CommandRegistry.new(default: 'dflt')
-        @ctx_reg = CommandRegistry.new(default: 'dflt', contextual_resolver: ContextualResolver)
+        @ctx_reg = CommandRegistry.new(default: 'dflt', contextual_resolver: MyContextualResolver)
       end
 
-      module ContextualResolver
+      module MyContextualResolver
+        extend CLI::Kit::CommandRegistry::ContextualResolver
         class CommandClass < CLI::Kit::BaseCommand
           def call(args, name)
           end
@@ -71,16 +72,16 @@ module CLI
       end
 
       def test_command_names
-        reg.add(42, 'abc')
-        reg.add(42, 'xyz')
+        reg.add(MyContextualResolver::CommandClass, 'abc')
+        reg.add(MyContextualResolver::CommandClass, 'xyz')
         assert_equal(['abc', 'xyz'], reg.command_names.sort)
       end
 
       def test_commands_and_resolved_commands
-        block = ->() { 42 }
+        block = ->() { MyContextualResolver::CommandClass }
         reg.add(block, 'abc')
         assert_equal({ 'abc' => block }, reg.commands)
-        assert_equal({ 'abc' => 42 }, reg.resolved_commands)
+        assert_equal({ 'abc' => MyContextualResolver::CommandClass }, reg.resolved_commands)
       end
 
       def test_aliases
@@ -89,12 +90,12 @@ module CLI
       end
 
       def test_contextual_resolution
-        ctx_reg.add(nil, 'asdf')
+        ctx_reg.add(MyContextualResolver::CommandClass, 'asdf')
         ctx_reg.add_alias('neato', 'ctx-a')
         # NOTE: even though ctx_reg has an alias, it's not surfaced here.
         assert_equal({ 'neato' => 'ctx-a' }, ctx_reg.aliases)
         # ...but the alias does resolve.
-        cclass = ContextualResolver::CommandClass
+        cclass = MyContextualResolver::CommandClass
         assert_lookup(ctx_reg, cclass, 'ctx-a', 'a')
         assert_lookup(ctx_reg, cclass, 'ctx-a', 'ctx-a')
         assert_lookup(ctx_reg, cclass, 'ctx-a', 'neato')
