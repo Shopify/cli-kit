@@ -1,4 +1,4 @@
-require 'sorbet-runtime'
+require 'sorbet-runtime' unless ENV['BUNDLE_WITHOUT'] == 'typecheck'
 
 addpath = lambda do |p|
   path = File.expand_path("../../#{p}", __FILE__)
