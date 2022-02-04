@@ -18,9 +18,19 @@ module CLI
         end
 
         class MissingRequiredPosition < Error
+          extend T::Sig
+          sig { void }
+          def initialize
+            super('more arguments required')
+          end
         end
 
         class TooManyPositions < Error
+          extend T::Sig
+          sig { void }
+          def initialize
+            super('too many arguments')
+          end
         end
 
         class FlagProxy
