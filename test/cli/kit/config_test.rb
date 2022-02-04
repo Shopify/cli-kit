@@ -25,7 +25,7 @@ module CLI
       end
 
       def test_config_get_bool_non_existant_with_default
-        assert(@config.get('section', 'invalid-key-no-existing', default: true))
+        assert_equal('default', @config.get('section', 'invalid-key-no-existing', default: 'default'))
         assert(@config.get_bool('section', 'invalid-key-no-existing', default: true))
       end
 

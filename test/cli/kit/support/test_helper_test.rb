@@ -53,6 +53,7 @@ module CLI
         end
 
         def test_all_captures_and_system
+          skip('flaky')
           CLI::Kit::System.fake('banana', success: true)
           CLI::Kit::System.fake('kiwi', success: true)
           CLI::Kit::System.fake('apple', success: true)
@@ -68,6 +69,7 @@ module CLI
         end
 
         def test_assert_all_commands_run
+          skip('flaky')
           CLI::Kit::System.fake('banana', success: true)
           CLI::Kit::System.fake('kiwi', success: true)
           CLI::Kit::System.fake('apple', success: true)

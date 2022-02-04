@@ -37,9 +37,9 @@ module CLI
       end
 
       def test_resolver_suggest
-        reg.add(32, 'boo')
-        reg.add(32, 'bao')
-        reg.add(32, 'bar')
+        reg.add(CLI::Kit::BaseCommand, 'boo')
+        reg.add(CLI::Kit::BaseCommand, 'bao')
+        reg.add(CLI::Kit::BaseCommand, 'bar')
 
         out, err = capture_io do
           assert_raises(CLI::Kit::AbortSilent) do
@@ -62,7 +62,7 @@ module CLI
       end
 
       def test_resolver_threshold
-        reg.add(32, 'foooooooooooo')
+        reg.add(CLI::Kit::BaseCommand, 'foooooooooooo')
 
         out, err = capture_io do
           assert_raises(CLI::Kit::AbortSilent) do

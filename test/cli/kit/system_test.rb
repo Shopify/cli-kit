@@ -40,7 +40,7 @@ module CLI
 
         with_script_in_tmpdir('ruby') do |tmpdir|
           Dir.chdir(tmpdir) do
-            out, stat = System.capture2('ruby', '-e', "puts 'system ruby'", env: ENV)
+            out, stat = System.capture2('ruby', '-e', "puts 'system ruby'", env: ENV.to_h)
 
             assert(stat, message: 'expected command to successfully run')
             assert_equal('system ruby', out.chomp)
@@ -53,7 +53,7 @@ module CLI
 
         with_script_in_tmpdir('ruby') do |tmpdir|
           with_env('PATH' => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV["PATH"]}") do
-            out, stat = System.capture2('ruby', '-e', "puts 'system ruby'", env: ENV)
+            out, stat = System.capture2('ruby', '-e', "puts 'system ruby'", env: ENV.to_h)
 
             assert(stat, message: 'expected command to successfully run')
             assert_equal('from script', out.chomp)
@@ -66,7 +66,7 @@ module CLI
 
         with_script_in_tmpdir('ruby') do |tmpdir|
           with_env('PATH' => "#{tmpdir}#{File::PATH_SEPARATOR}#{ENV["PATH"]}") do
-            out, stat = System.capture2("ruby -e 'puts \"system ruby\"'", env: ENV)
+            out, stat = System.capture2("ruby -e 'puts \"system ruby\"'", env: ENV.to_h)
 
             assert(stat, message: 'expected command to successfully run')
             assert_equal('from script', out.chomp)

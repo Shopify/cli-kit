@@ -76,7 +76,7 @@ module CLI
         end
       end
 
-      sig { params(_sig: String).void }
+      sig { params(_sig: T.untyped).void }
       def quit_handler(_sig)
         z = caller
         CLI::UI.raw do
@@ -86,7 +86,7 @@ module CLI
         exit(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
       end
 
-      sig { params(_sig: String).void }
+      sig { params(_sig: T.untyped).void }
       def info_handler(_sig)
         z = caller
         CLI::UI.raw do

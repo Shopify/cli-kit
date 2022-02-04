@@ -9,7 +9,9 @@ commands:
   check:
     run: 'srb && rake style test'
     aliases: [ck]
-  test: rake test
+  test:
+    run: rake test
+    aliases: [t]
   style:
     run: rake style
     aliases: [st]
@@ -20,14 +22,14 @@ commands:
     aliases: [w]
     subcommands:
       style:
-        run: fswatch -e coverage -e "/\." -o . | xargs -n1 -I@ rake style
+        run: bin/onchange rake style
         aliases: [st]
       test:
-        run: fswatch -e coverage -e "/\." -o . | xargs -n1 -I@ rake test
-        alises: [t]
+        run: bin/onchange rake test
+        aliases: [t]
       typecheck:
-        run: fswatch -e coverage -e "/\." -o . | xargs -n1 -I@ srb
+        run: bin/onchange srb
         aliases: [tc]
       check:
-        run: fswatch -e coverage -e "/\." -o . | xargs -n1 -I@ bash -c 'srb && rake style test'
+        run: bin/onchange 'srb && rake style test'
         aliases: [ck]

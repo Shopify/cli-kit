@@ -6,6 +6,8 @@ module CLI
     class BaseCommand
       extend T::Sig
       extend T::Helpers
+      include CLI::Kit::CommandHelp
+      extend CLI::Kit::CommandHelp::ClassMethods
       abstract!
 
       sig { returns(T::Boolean) }
@@ -22,9 +24,6 @@ module CLI
           raise e
         end
       end
-
-      sig { abstract.params(_args: T::Array[String], _command_name: String).void }
-      def call(_args, _command_name); end
 
       sig { returns(T::Boolean) }
       def has_subcommands?

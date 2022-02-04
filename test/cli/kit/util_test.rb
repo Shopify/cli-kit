@@ -17,7 +17,7 @@ module CLI
         assert_equal('12.9kB',  CLI::Kit::Util.to_filesize(13_212))
         assert_equal('126.0MB', CLI::Kit::Util.to_filesize(132_121_322))
         assert_equal('1.23GB',  CLI::Kit::Util.to_filesize(1_321_213_212))
-        assert_equal('-10.5kB', CLI::Kit::Util.to_filesize(-10.5 * 1024**1))
+        assert_equal('-10.5kB', CLI::Kit::Util.to_filesize((-10.5 * 1024**1).round))
       end
 
       # Extra tests for edge cases of to_si_scale
