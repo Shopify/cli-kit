@@ -21,6 +21,41 @@ module CLI
         end
       end
 
+      module FirstMixin
+        include(CLI::Kit::Opts::Mixin)
+
+        def first
+          position!
+        end
+      end
+
+      module MixinMixin
+        include(CLI::Kit::Opts::Mixin)
+
+        def penultimate
+          position!
+        end
+      end
+
+      module LastMixin
+        include(CLI::Kit::Opts::Mixin)
+        include(MixinMixin)
+
+        def last
+          position!
+        end
+      end
+
+      class OrderOpts < CLI::Kit::Opts
+        include(FirstMixin)
+
+        def middle
+          position!
+        end
+
+        include(LastMixin)
+      end
+
       def test_stuff
         defn = Args::Definition.new
         TestOpts.new(defn).install_to_definition
@@ -44,6 +79,17 @@ module CLI
 
         assert_equal('json', opts['output'])
         assert_equal(true, opts['force'])
+      end
+
+      def test_order
+        defn = Args::Definition.new
+        OrderOpts.new(defn).install_to_definition
+        evl = evaluate(defn, 'a b c d')
+        opts = OrderOpts.new(evl)
+        assert_equal('a', opts.first)
+        assert_equal('b', opts.middle)
+        assert_equal('c', opts.penultimate)
+        assert_equal('d', opts.last)
       end
 
       private
