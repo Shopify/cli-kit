@@ -17,6 +17,11 @@ module CLI
           parse = Args::Parser.new(defn).parse(tokens)
           result = Args::Evaluation.new(defn, parse)
           opts_inst = opts.new(result)
+        rescue Args::Evaluation::TooManyPositions, Args::Evaluation::MissingRequiredPosition => e
+          STDERR.puts CLI::UI.fmt("{{red:{{bold:Error: #{e.message}}}}}")
+          STDERR.puts
+          STDERR.puts self.class.build_help
+          raise(AbortSilent)
         rescue Args::Error => e
           raise(Abort, e)
         end
