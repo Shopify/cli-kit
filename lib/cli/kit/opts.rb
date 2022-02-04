@@ -1,5 +1,6 @@
 # typed: true
 require 'cli/kit'
+require 'set'
 
 module CLI
   module Kit
