@@ -1,3 +1,5 @@
+require 'sorbet-runtime'
+
 addpath = lambda do |p|
   path = File.expand_path("../../#{p}", __FILE__)
   $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
@@ -18,8 +20,6 @@ if ENV['CLI_UI_DEV']
 end
 
 require 'byebug'
-
-require 'sorbet-runtime'
 
 require 'simplecov'
 SimpleCov.start do
