@@ -140,24 +140,12 @@ module CLI
       elsif exception.is_a?(String)
         T.unsafe(Kernel).raise(RuntimeError, exception, Kernel.caller(depth), cause: cause)
       else
-        T.unsafe(Kernel).raise(exception, nil, Kernel.caller(depth), cause: cause)
+        T.unsafe(Kernel).raise(exception, exception.message, Kernel.caller(depth), cause: cause)
       end
     rescue Exception => e # rubocop:disable Lint/RescueException
-      case bug
-      when true
-        e.bug!
-      when false
-        e.not_bug!
-      end
-
-      case silent
-      when true
-        e.silent!
-      when false
-        e.not_silent!
-      end
-
-      Kernel.raise(e)
+      e.bug!(bug) unless bug.nil?
+      e.silent!(silent) unless silent.nil?
+      Kernel.raise(e, cause: cause)
     end
   end
 end

@@ -58,11 +58,14 @@ module CLI
       sig { params(error: T.nilable(Exception)).void }
       def report_exception(error)
         if (notify_with = exception_for_submission(error))
-          logs = begin
-            File.read(@log_file)
-          rescue => e
-            "(#{e.class}: #{e.message})"
-          end if @log_file
+          logs = nil
+          if @log_file
+            logs = begin
+              File.read(@log_file)
+            rescue => e
+              "(#{e.class}: #{e.message})"
+            end
+          end
           exception_reporter.report(notify_with, logs)
         end
       end
@@ -88,8 +91,7 @@ module CLI
         rescue Interrupt => e # Ctrl-C
           # transform message, prevent bugsnag
           exc = e.exception('Interrupt')
-          exc.not_bug!
-          raise(exc)
+          CLI::Kit.raise(exc, bug: false)
         rescue Errno::ENOSPC => e
           # transform message, prevent bugsnag
           message = if @tool_name
@@ -98,8 +100,7 @@ module CLI
             'Your disk is full - free space is required to operate'
           end
           exc = e.exception(message)
-          exc.not_bug!
-          raise(exc)
+          CLI::Kit.raise(exc, bug: false)
         end
       rescue Exception => e # rubocop:disable Lint/RescueException
         @at_exit_exception = e if e.bug?

@@ -18,23 +18,13 @@ class Exception
     false
   end
 
-  sig { void }
-  def bug!
-    singleton_class.define_method(:bug?) { true }
+  sig { params(bug: T::Boolean).void }
+  def bug!(bug = true)
+    singleton_class.define_method(:bug?) { bug }
   end
 
-  sig { void }
-  def not_bug!
-    singleton_class.define_method(:bug?) { false }
-  end
-
-  sig { void }
-  def silent!
-    singleton_class.define_method(:silent?) { true }
-  end
-
-  sig { void }
-  def not_silent!
-    singleton_class.define_method(:silent?) { false }
+  sig { params(silent: T::Boolean).void }
+  def silent!(silent = true)
+    singleton_class.define_method(:silent?) { silent }
   end
 end
