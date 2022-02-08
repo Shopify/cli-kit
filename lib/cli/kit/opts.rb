@@ -1,6 +1,5 @@
 # typed: true
 require 'cli/kit'
-require 'set'
 
 module CLI
   module Kit
@@ -29,13 +28,13 @@ module CLI
 
           sig { params(method_name: Symbol).void }
           def track_method(method_name)
-            @tracked_methods ||= Set.new
-            @tracked_methods << method_name
+            @tracked_methods ||= []
+            @tracked_methods << method_name unless @tracked_methods.include?(method_name)
           end
 
-          sig { returns(T::Set[Symbol]) }
+          sig { returns(T::Array[Symbol]) }
           def tracked_methods
-            @tracked_methods || Set.new
+            @tracked_methods || []
           end
         end
 
