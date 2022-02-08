@@ -5,7 +5,7 @@ module CLI
   module Kit
     class ErrorHandlerTest < Minitest::Test
       class MockExceptionReporter < ErrorHandler::ExceptionReporter
-        def self.report(_exception, _logs); end
+        def self.report(_exception, _logs = nil); end
       end
 
       def setup
@@ -54,7 +54,7 @@ module CLI
       def test_bug_silent
         File.write(@tf.path, 'words')
         run_test(
-          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_code:   CLI::Kit::EXIT_BUG,
           expect_out:    '',
           expect_err:    '',
           expect_report: [is_a(CLI::Kit::BugSilent), 'words'],
@@ -65,7 +65,7 @@ module CLI
 
       def test_bug
         run_test(
-          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_code:   CLI::Kit::EXIT_BUG,
           expect_out:    '',
           expect_err:    /foo/,
           expect_report: [is_a(CLI::Kit::Bug), ''],
@@ -108,7 +108,19 @@ module CLI
         end
       end
 
-      def test_unhandled
+      def test_arbitrary
+        run_test(
+          expect_code:   CLI::Kit::EXIT_BUG,
+          expect_out:    '',
+          expect_err:    "\e[0;31mwups\e[0m\n",
+          expect_report: [is_a(RuntimeError), ''],
+        ) do
+          raise('wups')
+        end
+      end
+
+      def test_dev_mode_bugs_reraise
+        @eh = error_handler(dev_mode: true)
         run_test(
           expect_code:   :unhandled,
           expect_out:    '',
@@ -117,6 +129,41 @@ module CLI
         ) do
           raise('wups')
         end
+      end
+
+      def test_dev_mode_aborts_dont_change_behaviour
+        @eh = error_handler(dev_mode: true)
+        run_test(
+          expect_code:   CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG,
+          expect_out:    '',
+          expect_err:    /foo/,
+          expect_report: false,
+        ) do
+          raise(CLI::Kit::Abort, 'foo')
+        end
+      end
+
+      def test_override_exception_handler
+        @eh = error_handler(dev_mode: true)
+
+        exc = nil
+        @eh.override_exception_handler = ->(e) do
+          puts('out')
+          $stderr.puts('err')
+          exc = e
+          42
+        end
+
+        run_test(
+          expect_code:   42,
+          expect_out:    "out\n",
+          expect_err:    "err\n",
+          expect_report: [is_a(RuntimeError), ''],
+        ) do
+          raise('a bug')
+        end
+
+        assert_equal('a bug', exc.message)
       end
 
       # the rest of these are hard because they kind of rely on the handler
@@ -146,8 +193,10 @@ module CLI
 
       private
 
-      def error_handler(tool_name: nil)
-        ErrorHandler.new(log_file: @tf.path, exception_reporter: @rep, tool_name: tool_name).tap do |eh|
+      def error_handler(tool_name: nil, dev_mode: false)
+        ErrorHandler.new(
+          log_file: @tf.path, exception_reporter: @rep, tool_name: tool_name, dev_mode: dev_mode,
+        ).tap do |eh|
           class << eh
             attr_reader :exit_handler
 
