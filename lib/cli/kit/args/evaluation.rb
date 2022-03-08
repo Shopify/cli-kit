@@ -42,6 +42,7 @@ module CLI
             unless flag
               raise NoMethodError, "undefined flag `#{sym}' for #{self}"
             end
+
             @evaluation.send(:lookup_flag, flag)
           end
 
@@ -65,6 +66,7 @@ module CLI
             unless opt
               raise NoMethodError, "undefined option `#{sym}' for #{self}"
             end
+
             @evaluation.send(:lookup_option, opt)
           end
 
@@ -88,6 +90,7 @@ module CLI
             unless position
               raise NoMethodError, "undefined position `#{sym}' for #{self}"
             end
+
             @evaluation.send(:lookup_position, position)
           end
 
@@ -145,6 +148,7 @@ module CLI
         def check_required!
           @defn.options.each do |opt|
             next unless opt.required
+
             node = @parse.detect do |node|
               node.is_a?(Parser::Node::Option) && node.name == opt.name
             end

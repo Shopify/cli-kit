@@ -111,6 +111,7 @@ module CLI
       def resolve_global_command(name)
         klass = resolve_class(commands.fetch(name, nil))
         return nil unless klass
+
         [klass, name]
       rescue NameError
         nil
@@ -120,6 +121,7 @@ module CLI
       def resolve_contextual_command(name)
         found = @contextual_resolver.command_names.include?(name)
         return nil unless found
+
         [@contextual_resolver.command_class(name), name]
       end
 

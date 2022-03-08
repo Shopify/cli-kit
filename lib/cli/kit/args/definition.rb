@@ -91,6 +91,7 @@ module CLI
             if long&.start_with?('-') || short&.start_with?('-')
               raise(ArgumentError, 'invalid - prefix')
             end
+
             @name = name
             @short = short
             @long = long
@@ -116,6 +117,7 @@ module CLI
           end
           def initialize(name:, desc:, required:, multiple:, index:)
             raise(ArgumentError, 'Cannot be required and multiple') if required && multiple
+
             @name = name
             @desc = desc
             @required = required
@@ -200,12 +202,14 @@ module CLI
         sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
         def lookup_short(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
+
           @by_short[name]
         end
 
         sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
         def lookup_long(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
+
           @by_long[name]
         end
 
@@ -236,6 +240,7 @@ module CLI
           if short.size != 2
             raise(InvalidFlag, 'Short flag must be a single character')
           end
+
           short.sub(/^-/, '')
         end
 
@@ -244,6 +249,7 @@ module CLI
           unless long.match?(/^--[^-]/)
             raise(InvalidFlag, "Long flag '#{long}' does not start with '--'")
           end
+
           long.sub(/^--/, '')
         end
 
@@ -268,12 +274,14 @@ module CLI
             if (existing = @by_short[flagopt.short])
               raise(ConflictingFlag, "Short flag '#{flagopt.short}' already defined by #{existing.name}")
             end
+
             @by_short[flagopt.short] = flagopt
           end
           if flagopt.long
             if (existing = @by_long[flagopt.long])
               raise(ConflictingFlag, "Long flag '#{flagopt.long}' already defined by #{existing.name}")
             end
+
             @by_long[flagopt.long] = flagopt
           end
           add_name_resolution(flagopt)
@@ -284,6 +292,7 @@ module CLI
           if (existing = @by_name[arg.name])
             raise(ConflictingFlag, "Flag '#{arg.name}' already defined by #{existing.name}")
           end
+
           @by_name[arg.name] = arg
         end
       end

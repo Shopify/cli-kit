@@ -81,6 +81,7 @@ module CLI
       def format_debug(msg)
         msg = CLI::UI.fmt(msg)
         return msg unless CLI::UI::StdoutRouter.current_id
+
         "[#{CLI::UI::StdoutRouter.current_id&.fetch(:id, nil)}] #{msg}"
       end
 

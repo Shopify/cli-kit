@@ -43,3 +43,7 @@ Style/MultilineBlockChain:
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes
+
+# We heavily manage output on purpose
+Style/GlobalStdStream:
+  Enabled: false

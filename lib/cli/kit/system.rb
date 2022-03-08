@@ -24,6 +24,7 @@ module CLI
           # See if sudo has a cached password
           %x(env SUDO_ASKPASS=/usr/bin/false sudo -A true > /dev/null 2>&1)
           return if $CHILD_STATUS.success?
+
           CLI::UI.with_frame_color(:blue) do
             puts(CLI::UI.fmt("{{i}} #{msg}"))
           end
@@ -260,6 +261,7 @@ module CLI
           partial_character_sub_index = final_bytes.rindex { |byte| byte & 0b1100_0000 == 0b1100_0000 }
           # Bail out for non UTF-8
           return [data, ''] unless partial_character_sub_index
+
           partial_character_index = min_bound + partial_character_sub_index
 
           [T.must(data.byteslice(0...partial_character_index)), T.must(data.byteslice(partial_character_index..-1))]
@@ -282,6 +284,7 @@ module CLI
         end
         def apply_sudo(cmd, args, sudo)
           return [cmd, args] unless sudo
+
           sudo_reason(sudo) if sudo.is_a?(String)
           ['sudo', args.unshift('-S', '-p', SUDO_PROMPT, '--', cmd)]
         end

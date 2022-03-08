@@ -17,6 +17,7 @@ module CLI
           def include(included_module)
             super
             return unless included_module.is_a?(MixinClassMethods)
+
             included_module.tracked_methods.each { |m| track_method(m) }
           end
 
@@ -56,6 +57,7 @@ module CLI
           unless default.nil?
             raise(ArgumentError, 'declare options with non-nil defaults using `option!` instead of `option`')
           end
+
           case @obj
           when Args::Definition
             @obj.add_option(
@@ -166,6 +168,7 @@ module CLI
           to_skip = 1
           Kernel.caller_locations&.each do |loc|
             next if loc.path =~ /sorbet-runtime/
+
             if to_skip > 0
               to_skip -= 1
               next
@@ -204,6 +207,7 @@ module CLI
       end
       def each_option(&block)
         return(enum_for(:each_option)) unless block_given?
+
         obj = assert_result!
         obj.defn.options.each do |opt|
           name = opt.name
@@ -221,6 +225,7 @@ module CLI
       end
       def each_flag(&block)
         return(enum_for(:each_flag)) unless block_given?
+
         obj = assert_result!
         obj.defn.flags.each do |flag|
           name = flag.name
@@ -259,6 +264,7 @@ module CLI
       sig { returns(Args::Evaluation) }
       def assert_result!
         raise(NotImplementedError, 'not implemented') if @obj.is_a?(Args::Definition)
+
         @obj
       end
 

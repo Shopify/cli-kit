@@ -59,6 +59,7 @@ module CLI
         unless @tool_name
           raise 'You must set CLI::Kit::CommandHelp.tool_name='
         end
+
         @tool_name
       end
 
@@ -98,6 +99,7 @@ module CLI
         sig { returns(String) }
         def _command_name
           return @command_name if @command_name
+
           last_camel = send(:name).split('::').last
           last_camel.gsub(/([a-z])([A-Z])/, '\1-\2').downcase
         end
@@ -132,6 +134,7 @@ module CLI
           loop do
             methods.concat(opts.public_instance_methods(false))
             break if opts.superclass == CLI::Kit::Opts
+
             opts = opts.superclass
           end
 
@@ -179,6 +182,7 @@ module CLI
           if @command_name
             raise(ArgumentError, "Command name already set to #{@command_name}")
           end
+
           @command_name = command_name
         end
 
@@ -190,6 +194,7 @@ module CLI
           if @desc
             raise(ArgumentError, 'description already set')
           end
+
           @desc = desc
         end
 
@@ -198,6 +203,7 @@ module CLI
           if @long_desc
             raise(ArgumentError, 'long description already set')
           end
+
           @long_desc = long_desc
         end
 
@@ -218,6 +224,7 @@ module CLI
         sig { returns(T.nilable(String)) }
         def build_examples
           return nil unless @examples
+
           cmd_prefix = "  {{command:#{CommandHelp._tool_name} #{_command_name}}}"
           "{{bold:Examples:}}\n" + @examples.map do |command, explanation|
             cmd = "#{cmd_prefix} #{command}"
