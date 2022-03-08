@@ -45,12 +45,14 @@ module CLI
               unless arg.is_a?(Tokenizer::Token::UnparsedArgument)
                 raise(Error, 'bug: non-unparsed argument after unparsed argument')
               end
+
               unparsed = nodes.last
               unless unparsed.is_a?(Node::Unparsed)
                 # :nocov: not actually possible, in theory
                 raise(Error, 'bug: parser failed to recognize first unparsed argument')
                 # :nocov:
               end
+
               unparsed.value << arg.value
             end
           end

@@ -92,6 +92,7 @@ module Gen
       each_template_file do |source_name|
         target_name = translations.fetch(source_name, source_name)
         next if target_name == false
+
         target_name = apply_template_variables(target_name)
 
         source = File.join(TEMPLATE_ROOT, source_name)

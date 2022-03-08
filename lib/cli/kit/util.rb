@@ -115,6 +115,7 @@ module CLI
           @block_that_might_raise.call
         rescue exception => e
           raise if (retries -= 1) < 0
+
           if before_retry
             if before_retry.arity == 0
               T.cast(before_retry, T.proc.void).call

@@ -224,6 +224,7 @@ module CLI
                   end
 
                   return nil if final_error.empty?
+
                   "\n" + final_error.join("\n") # Initial new line for formatting reasons
                 end
 
