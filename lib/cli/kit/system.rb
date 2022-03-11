@@ -254,13 +254,31 @@ module CLI
           last_byte = T.must(data.getbyte(-1))
           return [data, ''] if (last_byte & 0b1000_0000).zero?
 
-          # UTF-8 is up to 6 characters per rune, so we could never want to trim more than that, and we want to avoid
+          # UTF-8 is up to 4 characters per rune, so we could never want to trim more than that, and we want to avoid
           # allocating an array for the whole of data with bytes
-          min_bound = -[6, data.bytesize].min
+          min_bound = -[4, data.bytesize].min
           final_bytes = T.must(data.byteslice(min_bound..-1)).bytes
           partial_character_sub_index = final_bytes.rindex { |byte| byte & 0b1100_0000 == 0b1100_0000 }
+
           # Bail out for non UTF-8
           return [data, ''] unless partial_character_sub_index
+
+          start_byte = final_bytes[partial_character_sub_index]
+          full_size = if start_byte & 0b1111_1000 == 0b1111_0000
+            4
+          elsif start_byte & 0b1111_0000 == 0b1110_0000
+            3
+          elsif start_byte & 0b1110_0000 == 0b110_00000
+            2
+          else
+            # Bail out for non UTF-8
+            return [data, '']
+          end
+
+          if final_bytes.size - partial_character_sub_index == full_size
+            # We have a full UTF-8 character, so we can just return the data
+            return [data, '']
+          end
 
           partial_character_index = min_bound + partial_character_sub_index
 
