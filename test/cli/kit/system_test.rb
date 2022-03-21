@@ -35,6 +35,12 @@ module CLI
         assert_equal([str, ''], System.split_partial_characters(str))
       end
 
+      def test_split_partial_characters_when_ending_in_multibyte_character
+        str = 'ルビ'
+
+        assert_equal([str, ''], System.split_partial_characters(str))
+      end
+
       def test_system_finds_system_ruby_instead_of_local_script
         CLI::Kit::System.fake('ruby', '-e', "puts 'system ruby'", allow: true)
 
