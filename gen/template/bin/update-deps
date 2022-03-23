@@ -49,7 +49,7 @@ deps.each do |dep|
   dirty = false
 
   Dir.chdir(path) do
-    _, _, stat = Open3.capture3('git fetch origin master')
+    _, _, stat = Open3.capture3('git fetch origin main')
     bail("couldn't git fetch in dependency: {{yellow:#{dep}}}") unless stat.success?
 
     head_sha, stat = Open3.capture2('git rev-parse HEAD')
@@ -68,7 +68,7 @@ deps.each do |dep|
         "Copying files from {{yellow:#{path}}} to satisfy dependency {{yellow:#{dep}}}.\n" \
         "  However, the repo at {{yellow:#{path}}} isn't up to date.\n" \
         "  The checked-out revision is {{yellow:#{head_sha[0..8]}}}, and "\
-        "{{yellow:origin/master}} is {{yellow:#{fetch_head_sha[0..8]}}}.\n" \
+        "{{yellow:origin/main}} is {{yellow:#{fetch_head_sha[0..8]}}}.\n" \
         "  Unless you know what you're doing, you should {{green:cd}} to that repo and {{green:git pull}}, then run this again."
       )
     end
