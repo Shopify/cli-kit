@@ -199,17 +199,24 @@ module CLI
             args: String,
             sudo: T.any(T::Boolean, String),
             env: T::Hash[String, T.nilable(String)],
+            stdin: T.nilable(T.any(IO, String, Integer, Symbol)),
             kwargs: T.untyped,
             block: T.nilable(T.proc.params(out: String, err: String).void)
           )
             .returns(Process::Status)
         end
-        def system(cmd, *args, sudo: false, env: ENV.to_h, **kwargs, &block)
+        def system(cmd, *args, sudo: false, env: ENV.to_h, stdin: nil, **kwargs, &block)
           cmd, args = apply_sudo(cmd, args, sudo)
 
           out_r, out_w = IO.pipe
           err_r, err_w = IO.pipe
-          in_stream = STDIN.closed? ? :close : STDIN
+          in_stream = if stdin
+            stdin
+          elsif STDIN.closed?
+            :close
+          else
+            STDIN
+          end
           cmd, args = resolve_path(cmd, args, env)
           pid = T.unsafe(Process).spawn(env, cmd, *args, 0 => in_stream, :out => out_w, :err => err_w, **kwargs)
           out_w.close
