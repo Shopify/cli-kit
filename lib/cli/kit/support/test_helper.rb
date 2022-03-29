@@ -56,7 +56,7 @@ module CLI
             module System
               class << self
                 alias_method :original_system, :system
-                def system(cmd, *a, sudo: false, env: {}, **kwargs)
+                def system(cmd, *a, sudo: false, env: {}, stdin: nil, **kwargs)
                   a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
