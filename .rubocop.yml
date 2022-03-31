@@ -47,3 +47,7 @@ Style/StringLiterals:
 # We heavily manage output on purpose
 Style/GlobalStdStream:
   Enabled: false
+
+# Sometimes (often) explicit is good
+Style/EmptyElse:
+  Enabled: false

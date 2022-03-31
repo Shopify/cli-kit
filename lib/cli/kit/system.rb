@@ -278,9 +278,9 @@ module CLI
           elsif start_byte & 0b1110_0000 == 0b110_00000
             2
           else
-            # Bail out for non UTF-8
-            return [data, '']
+            nil # Not a valid UTF-8 character
           end
+          return [data, ''] if full_size.nil? # Bail out for non UTF-8
 
           if final_bytes.size - partial_character_sub_index == full_size
             # We have a full UTF-8 character, so we can just return the data
