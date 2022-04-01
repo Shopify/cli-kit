@@ -10,6 +10,7 @@ module CLI
           check('-a', [Token::ShortOptionName.new('a')])
           check('--b', [Token::LongOptionName.new('b')])
           check('c', [Token::PositionalArgument.new('c')])
+          check('-', [Token::PositionalArgument.new('-')])
           assert_raises(Tokenizer::InvalidCharInShortOption) { Tokenizer.tokenize(['-@']) }
         end
 

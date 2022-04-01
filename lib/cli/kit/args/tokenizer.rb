@@ -73,13 +73,13 @@ module CLI
                 case arg
                 when '--'
                   mode = :unparsed
-                when /\A--/
+                when /\A--./
                   name, value = arg.split('=', 2)
                   args << Token::LongOptionName.new(T.must(T.must(name)[2..-1]))
                   if value
                     args << Token::OptionValue.new(value)
                   end
-                when /\A-/
+                when /\A-./
                   args.concat(tokenize_short_option(T.must(arg[1..-1])))
                 else
                   args << if args.last.is_a?(Token::OptionName)
