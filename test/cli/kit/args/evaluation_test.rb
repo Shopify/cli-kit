@@ -16,8 +16,10 @@ module CLI
           @defn.add_flag(:verbose, long: '--verbose')
           @defn.add_option(:output, short: '-o', default: 'text')
           @defn.add_option(:notprovided, short: '-n')
-          @defn.add_position(:first, required: true, multiple: false)
-          @defn.add_position(:rest, required: false, multiple: true)
+          @defn.add_position(:first, required: true, multi: false)
+          @defn.add_position(:second, required: false, multi: false, skip: ->(arg) { arg == 'b' })
+          @defn.add_position(:third, required: false, multi: false, skip: ->(arg) { arg != 'b' })
+          @defn.add_position(:rest, required: false, multi: true)
 
           @parse = [
             Node::ShortFlag.new('f'),
@@ -27,6 +29,7 @@ module CLI
             Node::Argument.new('a'),
             Node::Argument.new('b'),
             Node::Argument.new('c'),
+            Node::Argument.new('d'),
             Node::LongFlag.new('print'),
             Node::Unparsed.new(['d', '--neato', '-f']),
           ]
@@ -34,6 +37,7 @@ module CLI
 
         def test_evaluation
           evl = Evaluation.new(@defn, @parse)
+          evl.resolve_positions!
           assert(evl.flag.f)
           assert(evl.flag.print)
           refute(evl.flag.verbose)
@@ -48,7 +52,9 @@ module CLI
           assert(evl.flag.respond_to?(:f))
           assert(evl.opt.respond_to?(:height))
           assert_equal('a', evl.position.first)
-          assert_equal(['b', 'c'], evl.position.rest)
+          assert_nil(evl.position.second)
+          assert_equal('b', evl.position.third)
+          assert_equal(['c', 'd'], evl.position.rest)
           assert_equal(['d', '--neato', '-f'], evl.unparsed)
         end
 

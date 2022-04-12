@@ -141,13 +141,13 @@ module CLI
         def initialize(defn, parse)
           @defn = defn
           @parse = parse
-          check_required!
+          check_required_options!
         end
 
         sig { void }
-        def check_required!
+        def check_required_options!
           @defn.options.each do |opt|
-            next unless opt.required
+            next unless opt.required?
 
             node = @parse.detect do |node|
               node.is_a?(Parser::Node::Option) && node.name == opt.name
@@ -156,14 +156,25 @@ module CLI
               raise(MissingRequiredOption, opt.as_written_by_user)
             end
           end
-          min_positions = @defn.positions.count(&:required?)
-          max_positions = if @defn.positions.last&.multiple?
-            Float::INFINITY
-          else
-            min_positions + @defn.positions.count(&:optional?)
+        end
+
+        sig { void }
+        def resolve_positions!
+          args_i = 0
+          @position_values = Hash.new
+          @defn.positions.each do |position|
+            raise(MissingRequiredPosition) if position.required? && args_i >= args.size
+            next if args_i >= args.size || position.skip?(T.must(args[args_i]))
+
+            if position.multi?
+              @position_values[position.name] = args[args_i..]
+              args_i = args.size
+            else
+              @position_values[position.name] = T.must(args[args_i])
+              args_i += 1
+            end
           end
-          raise(MissingRequiredPosition) if args.size < min_positions
-          raise(TooManyPositions) if args.size > max_positions
+          raise(TooManyPositions) if args_i < args.size
         end
 
         sig { params(flag: Definition::Flag).returns(T::Boolean) }
@@ -194,7 +205,7 @@ module CLI
             )
             matches = opts.reverse.select { |node| node.name == opt.short }
             if (first = matches.first)
-              return(opt.multi ? matches.map(&:value) : first.value)
+              return(opt.multi? ? matches.map(&:value) : first.value)
             end
           end
           if opt.long
@@ -204,19 +215,15 @@ module CLI
             )
             matches = opts.reverse.select { |node| node.name == opt.long }
             if (first = matches.first)
-              return(opt.multi ? matches.map(&:value) : first.value)
+              return(opt.multi? ? matches.map(&:value) : first.value)
             end
           end
-          opt.multi ? [] : opt.default
+          opt.multi? ? [] : opt.default
         end
 
         sig { params(position: Definition::Position).returns(T.any(NilClass, String, T::Array[String])) }
         def lookup_position(position)
-          if position.multiple?
-            args[position.index..]
-          else
-            args[position.index]
-          end
+          @position_values.fetch(position.name) { position.multi? ? [] : position.default }
         end
 
         private

@@ -10,13 +10,14 @@ module CLI
       sig { params(args: T::Array[String], name: String).void }
       def call(args, name)
         begin
-          defn = Args::Definition.new
           opts = self.class.opts_class
-          opts.new(defn).install_to_definition
+          opts_inst = opts.new
+          defn = Args::Definition.new
+          opts_inst.define!(defn)
           tokens = Args::Tokenizer.tokenize(args)
           parse = Args::Parser.new(defn).parse(tokens)
-          result = Args::Evaluation.new(defn, parse)
-          opts_inst = opts.new(result)
+          evl = Args::Evaluation.new(defn, parse)
+          opts_inst.evaluate!(evl)
         rescue Args::Evaluation::TooManyPositions, Args::Evaluation::MissingRequiredPosition => e
           STDERR.puts CLI::UI.fmt("{{red:{{bold:Error: #{e.message}}}}}")
           STDERR.puts
@@ -29,12 +30,7 @@ module CLI
         if opts_inst.helpflag
           puts self.class.build_help
         else
-          res = begin
-            opts.new(result)
-          rescue Args::Error => e
-            raise(Abort, e)
-          end
-          invoke_wrapper(res, name)
+          invoke_wrapper(opts_inst, name)
         end
       end
 
@@ -139,8 +135,8 @@ module CLI
           end
 
           @defn = Args::Definition.new
-          o = opts.new(@defn)
-          o.install_to_definition
+          o = opts.new
+          o.define!(@defn)
 
           return nil if @defn.options.empty? && @defn.flags.empty?
 

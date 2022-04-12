@@ -56,11 +56,30 @@ module CLI
         include(LastMixin)
       end
 
+      class SkipOpts < CLI::Kit::Opts
+        def first
+          position(skip: -> { skip? }, default: 'default')
+        end
+
+        def second
+          position(skip: ->(arg) { arg == 'skip' })
+        end
+
+        def third
+          position!
+        end
+
+        def skip?
+          flag(long: '--skip')
+        end
+      end
+
       def test_stuff
+        opts = TestOpts.new
         defn = Args::Definition.new
-        TestOpts.new(defn).install_to_definition
+        opts.define!(defn)
         evl = evaluate(defn, '-f -o json test -- a b')
-        opts = TestOpts.new(evl)
+        opts.evaluate!(evl)
         assert(opts.force)
         assert_equal('json', opts.output)
         refute(opts.file)
@@ -83,13 +102,34 @@ module CLI
 
       def test_order
         defn = Args::Definition.new
-        OrderOpts.new(defn).install_to_definition
+        opts = OrderOpts.new
+        opts.define!(defn)
         evl = evaluate(defn, 'a b c d')
-        opts = OrderOpts.new(evl)
+        opts.evaluate!(evl)
         assert_equal('a', opts.first)
         assert_equal('b', opts.middle)
         assert_equal('c', opts.penultimate)
         assert_equal('d', opts.last)
+      end
+
+      def test_skip
+        defn = Args::Definition.new
+        opts = SkipOpts.new
+        opts.define!(defn)
+        evl = evaluate(defn, 'skip --skip')
+        opts.evaluate!(evl)
+        assert_equal('default', opts.first)
+        assert_nil(opts.second)
+        assert_equal('skip', opts.third)
+
+        defn = Args::Definition.new
+        opts = SkipOpts.new
+        opts.define!(defn)
+        evl = evaluate(defn, 'a b c')
+        opts.evaluate!(evl)
+        assert_equal('a', opts.first)
+        assert_equal('b', opts.second)
+        assert_equal('c', opts.third)
       end
 
       private
