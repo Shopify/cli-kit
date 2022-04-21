@@ -47,10 +47,25 @@ module CLI
           @options << option
         end
 
-        sig { params(name: Symbol, required: T::Boolean, multiple: T::Boolean, desc: T.nilable(String)).void }
-        def add_position(name, required:, multiple:, desc: nil)
-          index = @positions.size
-          position = Position.new(name: name, desc: desc, required: required, multiple: multiple, index: index)
+        sig do
+          params(
+            name: Symbol,
+            required: T::Boolean,
+            multi: T::Boolean,
+            desc: T.nilable(String),
+            default: T.any(NilClass, String, T.proc.returns(String)),
+            skip: T.any(
+              NilClass,
+              T.proc.returns(T::Boolean),
+              T.proc.params(arg0: String).returns(T::Boolean),
+            ),
+          ).void
+        end
+        def add_position(name, required:, multi:, desc: nil, default: nil, skip: nil)
+          position = Position.new(
+            name: name, desc: desc, required: required, multi: multi,
+            default: default, skip: skip
+          )
           validate_order(position)
           add_name_resolution(position)
           @positions << position
@@ -66,20 +81,58 @@ module CLI
           @positions = []
         end
 
-        class Flag
+        module OptBase
           extend T::Sig
 
           sig { returns(Symbol) }
           attr_reader :name
 
           sig { returns(T.nilable(String)) }
+          attr_reader :desc
+        end
+
+        module OptValue
+          extend T::Sig
+
+          sig { returns(T.nilable(String)) }
+          def default
+            if @default.is_a?(Proc)
+              @default.call
+            else
+              @default
+            end
+          end
+
+          sig { returns(T::Boolean) }
+          def dynamic_default?
+            @default.is_a?(Proc)
+          end
+
+          sig { returns(T::Boolean) }
+          def required?
+            @required
+          end
+
+          sig { returns(T::Boolean) }
+          def multi?
+            @multi
+          end
+
+          sig { returns(T::Boolean) }
+          def optional?
+            !required?
+          end
+        end
+
+        class Flag
+          extend T::Sig
+          include OptBase
+
+          sig { returns(T.nilable(String)) }
           attr_reader :short
 
           sig { returns(T.nilable(String)) }
           attr_reader :long
-
-          sig { returns(T.nilable(String)) }
-          attr_reader :desc
 
           sig { returns(String) }
           def as_written_by_user
@@ -101,68 +154,51 @@ module CLI
 
         class Position
           extend T::Sig
-
-          sig { returns(Symbol) }
-          attr_reader :name
-
-          sig { returns(T.nilable(String)) }
-          attr_reader :desc
-
-          sig { returns(Integer) }
-          attr_reader :index
+          include OptBase
+          include OptValue
 
           sig do
-            params(name: Symbol, desc: T.nilable(String), required: T::Boolean, multiple: T::Boolean, index: Integer)
-              .void
+            params(
+              name: Symbol,
+              desc: T.nilable(String),
+              required: T::Boolean,
+              multi: T::Boolean,
+              default: T.any(NilClass, String, T.proc.returns(String)),
+              skip: T.any(
+                NilClass,
+                T.proc.returns(T::Boolean),
+                T.proc.params(arg0: String).returns(T::Boolean),
+              ),
+            ).void
           end
-          def initialize(name:, desc:, required:, multiple:, index:)
-            raise(ArgumentError, 'Cannot be required and multiple') if required && multiple
+          def initialize(name:, desc:, required:, multi:, default: nil, skip: nil)
+            if multi && (default || required)
+              raise(ArgumentError, 'multi-valued positions cannot have a default or required value')
+            end
 
             @name = name
             @desc = desc
             @required = required
-            @multiple = multiple
-            @index = index
+            @multi = multi
+            @default = default
+            @skip = skip
           end
 
-          sig { returns(T::Boolean) }
-          def required?
-            @required
-          end
-
-          sig { returns(T::Boolean) }
-          def multiple?
-            @multiple
-          end
-
-          sig { returns(T::Boolean) }
-          def optional?
-            !required?
+          sig { params(arg: String).returns(T::Boolean) }
+          def skip?(arg)
+            if @skip.nil?
+              false
+            elsif T.must(@skip).arity == 0
+              T.cast(@skip, T.proc.returns(T::Boolean)).call
+            else
+              T.cast(@skip, T.proc.params(arg0: String).returns(T::Boolean)).call(arg)
+            end
           end
         end
 
         class Option < Flag
           extend T::Sig
-
-          sig { returns(T.nilable(String)) }
-          def default
-            if @default.is_a?(Proc)
-              @default.call
-            else
-              @default
-            end
-          end
-
-          sig { returns(T::Boolean) }
-          def dynamic_default?
-            @default.is_a?(Proc)
-          end
-
-          sig { returns(T::Boolean) }
-          attr_reader :required
-
-          sig { returns(T::Boolean) }
-          attr_reader :multi
+          include OptValue
 
           sig do
             params(
@@ -225,11 +261,7 @@ module CLI
 
         sig { params(position: Position).void }
         def validate_order(position)
-          if @positions.last&.multiple?
-            raise(InvalidPosition, 'Cannot have any more positional arguments after multiple')
-          elsif @positions.last&.optional? && !position.optional?
-            raise(InvalidPosition, 'Cannot have any more required positional arguments after optional ones')
-          end
+          raise(InvalidPosition, 'Cannot have any more positional arguments after multi') if @positions.last&.multi?
         end
 
         sig { params(short: String).returns(String) }

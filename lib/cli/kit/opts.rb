@@ -132,18 +132,29 @@ module CLI
         def position!(name: infer_name, desc: nil)
           case @obj
           when Args::Definition
-            @obj.add_position(name, desc: desc, required: true, multiple: false)
+            @obj.add_position(name, desc: desc, required: true, multi: false)
             '(result unavailable)'
           when Args::Evaluation
             @obj.position.send(name)
           end
         end
 
-        sig { params(name: Symbol, desc: T.nilable(String)).returns(T.nilable(String)) }
-        def position(name: infer_name, desc: nil)
+        sig do
+          params(
+            name: Symbol,
+            desc: T.nilable(String),
+            default: T.any(NilClass, String, T.proc.returns(String)),
+            skip: T.any(
+              NilClass,
+              T.proc.returns(T::Boolean),
+              T.proc.params(arg0: String).returns(T::Boolean),
+            ),
+          ).returns(T.nilable(String))
+        end
+        def position(name: infer_name, desc: nil, default: nil, skip: nil)
           case @obj
           when Args::Definition
-            @obj.add_position(name, desc: desc, required: false, multiple: false)
+            @obj.add_position(name, desc: desc, required: false, multi: false, default: default, skip: skip)
             '(result unavailable)'
           when Args::Evaluation
             @obj.position.send(name)
@@ -154,7 +165,7 @@ module CLI
         def rest(name: infer_name, desc: nil)
           case @obj
           when Args::Definition
-            @obj.add_position(name, desc: desc, required: false, multiple: true)
+            @obj.add_position(name, desc: desc, required: false, multi: true)
             ['(result unavailable)']
           when Args::Evaluation
             @obj.position.send(name)
@@ -185,11 +196,6 @@ module CLI
       sig { returns(T::Boolean) }
       def helpflag
         flag(name: :help, short: '-h', long: '--help', desc: 'Show this help message')
-      end
-
-      sig { params(obj: T.any(Args::Definition, Args::Evaluation)).void }
-      def initialize(obj)
-        @obj = obj
       end
 
       sig { returns(T::Array[String]) }
@@ -268,16 +274,21 @@ module CLI
         @obj
       end
 
-      sig { void }
-      def install_to_definition
-        raise('not a Definition') unless @obj.is_a?(Args::Definition)
-
+      sig { params(defn: Args::Definition).void }
+      def define!(defn)
+        @obj = defn
         T.cast(self.class, Mixin::MixinClassMethods).tracked_methods.each do |m|
           send(m)
         end
         DEFAULT_OPTIONS.each do |m|
           send(m)
         end
+      end
+
+      sig { params(ev: Args::Evaluation).void }
+      def evaluate!(ev)
+        @obj = ev
+        ev.resolve_positions!
       end
     end
   end
