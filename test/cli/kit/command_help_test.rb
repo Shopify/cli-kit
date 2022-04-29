@@ -80,6 +80,16 @@ module CLI
             desc('a' * 81)
           end
         end
+        # custom max length
+        CLI::Kit::CommandHelp.max_desc_length = 85
+        Class.new(CLI::Kit::BaseCommand) do
+          desc('b' * 85)
+        end
+        assert_raises do
+          Class.new(CLI::Kit::BaseCommand) do
+            desc('b' * 86)
+          end
+        end
       end
 
       class DoSomething < CLI::Kit::BaseCommand

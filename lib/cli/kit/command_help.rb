@@ -59,6 +59,16 @@ module CLI
         @tool_name
       end
 
+      sig { params(max: Integer).void }
+      def self.max_desc_length=(max)
+        @max_desc_length = max
+      end
+
+      sig { returns(T.nilable(Integer)) }
+      def self._max_desc_length
+        @max_desc_length
+      end
+
       module ClassMethods
         extend T::Sig
         include Kernel # for sorbet
@@ -184,8 +194,9 @@ module CLI
 
         sig { params(desc: String).void }
         def desc(desc)
-          if desc.size > 80
-            raise(ArgumentError, 'description must be 80 characters or less')
+          max_desc_length = CommandHelp._max_desc_length || 80
+          if desc.size > max_desc_length
+            raise(ArgumentError, "description must be #{max_desc_length.to_s} characters or less")
           end
           if @desc
             raise(ArgumentError, 'description already set')
