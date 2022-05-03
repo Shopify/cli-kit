@@ -64,9 +64,9 @@ module CLI
         @max_desc_length = max
       end
 
-      sig { returns(T.nilable(Integer)) }
+      sig { returns(Integer) }
       def self._max_desc_length
-        @max_desc_length
+        @max_desc_length || 80
       end
 
       module ClassMethods
@@ -194,9 +194,16 @@ module CLI
 
         sig { params(desc: String).void }
         def desc(desc)
-          max_desc_length = CommandHelp._max_desc_length || 80
-          if desc.size > max_desc_length
-            raise(ArgumentError, "description must be #{max_desc_length.to_s} characters or less")
+          # A limit of 80 characters has been chosen to fit on standard terminal configurations. `long_desc` is
+          # available when descriptions don't fit nicely in that space. If you're using CLI::Kit for an application
+          # where you control the runtime environments and know that terminals will have more than 80 columns
+          # available, you can use
+          #
+          #   CLI::Kit::CommandHelp.max_desc_length =
+          #
+          # to increase this limit.
+          if desc.size > CommandHelp._max_desc_length
+            raise(ArgumentError, "description must be #{CommandHelp._max_desc_length} characters or less")
           end
           if @desc
             raise(ArgumentError, 'description already set')
