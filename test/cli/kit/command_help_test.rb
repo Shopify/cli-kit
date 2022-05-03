@@ -85,7 +85,7 @@ module CLI
         Class.new(CLI::Kit::BaseCommand) do
           desc('b' * 85)
         end
-        assert_raises do
+        assert_raises(ArgumentError, 'description must be 85 characters or less') do
           Class.new(CLI::Kit::BaseCommand) do
             desc('b' * 86)
           end
