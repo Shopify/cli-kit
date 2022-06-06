@@ -1,4 +1,5 @@
 # typed: true
+
 require 'cli/kit'
 
 module CLI
