@@ -1,4 +1,5 @@
 # typed: true
+
 require 'cli/kit'
 require 'English'
 require 'fileutils'

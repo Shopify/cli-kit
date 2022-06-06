@@ -1,4 +1,5 @@
 # typed: true
+
 require 'gen'
 
 module Gen
