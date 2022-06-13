@@ -34,7 +34,12 @@ module CLI
         sig do
           params(
             name: Symbol, short: T.nilable(String), long: T.nilable(String),
-            desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
+            desc: T.nilable(String),
+            default: T.any(
+              NilClass,
+              String, T.proc.returns(String),
+              T::Array[String], T.proc.returns(T::Array[String]),
+            ),
             required: T::Boolean, multi: T::Boolean,
           ).void
         end
@@ -95,7 +100,7 @@ module CLI
         module OptValue
           extend T::Sig
 
-          sig { returns(T.nilable(String)) }
+          sig { returns(T.any(NilClass, String, T::Array[String])) }
           def default
             if @default.is_a?(Proc)
               @default.call
@@ -204,13 +209,18 @@ module CLI
           sig do
             params(
               name: Symbol, short: T.nilable(String), long: T.nilable(String),
-              desc: T.nilable(String), default: T.any(NilClass, String, T.proc.returns(String)),
+              desc: T.nilable(String),
+              default: T.any(
+                NilClass,
+                String, T.proc.returns(String),
+                T::Array[String], T.proc.returns(T::Array[String]),
+              ),
               required: T::Boolean, multi: T::Boolean,
             ).void
           end
           def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
-            if multi && (default || required)
-              raise(ArgumentError, 'multi-valued options cannot have a default or required value')
+            if multi && required
+              raise(ArgumentError, 'multi-valued options cannot have a required value')
             end
 
             super(name: name, short: short, long: long, desc: desc)

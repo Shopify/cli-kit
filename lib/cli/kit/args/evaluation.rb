@@ -204,9 +204,9 @@ module CLI
               parse.select { |node| node.is_a?(Parser::Node::ShortOption) },
               T::Array[Parser::Node::ShortOption],
             )
-            matches = opts.reverse.select { |node| node.name == opt.short }
-            if (first = matches.first)
-              return(opt.multi? ? matches.map(&:value) : first.value)
+            matches = opts.select { |node| node.name == opt.short }
+            if (last = matches.last)
+              return(opt.multi? ? matches.map(&:value) : last.value)
             end
           end
           if opt.long
@@ -214,12 +214,12 @@ module CLI
               parse.select { |node| node.is_a?(Parser::Node::LongOption) },
               T::Array[Parser::Node::LongOption],
             )
-            matches = opts.reverse.select { |node| node.name == opt.long }
-            if (first = matches.first)
-              return(opt.multi? ? matches.map(&:value) : first.value)
+            matches = opts.select { |node| node.name == opt.long }
+            if (last = matches.last)
+              return(opt.multi? ? matches.map(&:value) : last.value)
             end
           end
-          opt.multi? ? [] : opt.default
+          opt.default
         end
 
         sig { params(position: Definition::Position).returns(T.any(NilClass, String, T::Array[String])) }

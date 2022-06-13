@@ -15,6 +15,7 @@ module CLI
           @defn.add_flag(:print, long: '--print')
           @defn.add_flag(:verbose, long: '--verbose')
           @defn.add_option(:output, short: '-o', default: 'text')
+          @defn.add_option(:multi_default, short: '-m', multi: true, default: ['a'])
           @defn.add_option(:notprovided, short: '-n')
           @defn.add_position(:first, required: true, multi: false)
           @defn.add_position(:second, required: false, multi: false, skip: ->(arg) { arg == 'b' })
@@ -44,6 +45,7 @@ module CLI
           assert_equal('200', evl.opt.zk)
           assert_equal('3', evl.opt.height)
           assert_equal('text', evl.opt.output)
+          assert_equal(['a'], evl.opt.multi_default)
           refute(evl.opt.notprovided)
           assert_raises(NameError) { evl.opt.foobar }
           assert_raises(NameError) { evl.flag.foobar }
