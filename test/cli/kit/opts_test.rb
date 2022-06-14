@@ -74,6 +74,16 @@ module CLI
         end
       end
 
+      class MultiDefaultOpts < CLI::Kit::Opts
+        def multi
+          multi_option(long: '--multi', default: -> { no_multi? ? [] : ['default'] })
+        end
+
+        def no_multi?
+          flag(long: '--no-multi')
+        end
+      end
+
       def test_stuff
         opts = TestOpts.new
         defn = Args::Definition.new
@@ -130,6 +140,29 @@ module CLI
         assert_equal('a', opts.first)
         assert_equal('b', opts.second)
         assert_equal('c', opts.third)
+      end
+
+      def test_multi_default
+        opts = MultiDefaultOpts.new
+        defn = Args::Definition.new
+        opts.define!(defn)
+        evl = evaluate(defn, '')
+        opts.evaluate!(evl)
+        assert_equal(['default'], opts.multi)
+
+        defn = Args::Definition.new
+        opts = MultiDefaultOpts.new
+        opts.define!(defn)
+        evl = evaluate(defn, '--no-multi')
+        opts.evaluate!(evl)
+        assert_equal([], opts.multi)
+
+        defn = Args::Definition.new
+        opts = MultiDefaultOpts.new
+        opts.define!(defn)
+        evl = evaluate(defn, '--multi a --multi b')
+        opts.evaluate!(evl)
+        assert_equal(['a', 'b'], opts.multi)
       end
 
       private

@@ -97,13 +97,14 @@ module CLI
             short: T.nilable(String),
             long: T.nilable(String),
             desc: T.nilable(String),
+            default: T.any(T::Array[String], T.proc.returns(T::Array[String])),
           ).returns(T::Array[String])
         end
-        def multi_option(name: infer_name, short: nil, long: nil, desc: nil)
+        def multi_option(name: infer_name, short: nil, long: nil, desc: nil, default: [])
           case @obj
           when Args::Definition
             @obj.add_option(
-              name, short: short, long: long, desc: desc, multi: true,
+              name, short: short, long: long, desc: desc, default: default, multi: true,
             )
             ['(result unavailable)']
           when Args::Evaluation
