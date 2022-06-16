@@ -103,6 +103,12 @@ module CLI
           exc = e.exception(message)
           CLI::Kit.raise(exc, bug: false)
         end
+      # If SystemExit was raised, e.g. `exit()`, then
+      # return whatever status is attached to the exception
+      # object. The special exit statuses have already been
+      # handled below.
+      rescue SystemExit => e
+        e.status
       rescue Exception => e # rubocop:disable Lint/RescueException
         @at_exit_exception = e if e.bug?
 
@@ -136,9 +142,11 @@ module CLI
             # indicative of bugs. However, users should see it presented as 1.
             exit(1)
           else
-            # A weird termination status happened. `error.exception "message"`
-            # will maintain backtrace but allow us to set a message
-            error.exception("abnormal termination status: #{error.status}")
+            # don't treat this as an exception, simply reraise.
+            # this is indicative of `exit` being called with a
+            # non-zero number, and the requested exit status
+            # needs to be maintained.
+            exit(error.status)
           end
         else
           error
