@@ -302,6 +302,19 @@ module CLI
           raise "Could not determine OS from platform #{RUBY_PLATFORM}"
         end
 
+        sig { params(cmd: String, env: T::Hash[String, T.nilable(String)]).returns(T.nilable(String)) }
+        def which(cmd, env)
+          exts = os == :windows ? (env['PATHEXT'] || 'exe').split(';') : ['']
+          (env['PATH'] || '').split(File::PATH_SEPARATOR).each do |path|
+            exts.each do |ext|
+              exe = File.join(path, "#{cmd}#{ext}")
+              return exe if File.executable?(exe) && !File.directory?(exe)
+            end
+          end
+
+          nil
+        end
+
         private
 
         sig do
@@ -356,19 +369,6 @@ module CLI
           return [cmd, args] if cmd.include?('/')
 
           [which(cmd, env) || cmd, args]
-        end
-
-        sig { params(cmd: T.untyped, env: T.untyped).returns(T.untyped) }
-        def which(cmd, env)
-          exts = os == :windows ? env.fetch('PATHEXT').split(';') : ['']
-          env.fetch('PATH', '').split(File::PATH_SEPARATOR).each do |path|
-            exts.each do |ext|
-              exe = File.join(path, "#{cmd}#{ext}")
-              return exe if File.executable?(exe) && !File.directory?(exe)
-            end
-          end
-
-          nil
         end
       end
     end
