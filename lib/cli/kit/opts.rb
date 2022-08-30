@@ -40,9 +40,13 @@ module CLI
           end
         end
 
-        sig { params(klass: Module).void }
-        def self.included(klass)
-          klass.extend(MixinClassMethods)
+        class << self
+          extend T::Sig
+
+          sig { params(klass: Module).void }
+          def included(klass)
+            klass.extend(MixinClassMethods)
+          end
         end
 
         sig do

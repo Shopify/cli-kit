@@ -36,19 +36,23 @@ module CLI
         extend T::Sig
         extend ContextualResolver
 
-        sig { override.returns(T::Array[String]) }
-        def self.command_names
-          []
-        end
+        class << self
+          extend T::Sig
 
-        sig { override.returns(T::Hash[String, String]) }
-        def self.aliases
-          {}
-        end
+          sig { override.returns(T::Array[String]) }
+          def command_names
+            []
+          end
 
-        sig { override.params(_name: String).returns(T.class_of(CLI::Kit::BaseCommand)) }
-        def self.command_class(_name)
-          raise(CLI::Kit::Abort, 'Cannot be called on the NullContextualResolver since command_names is empty')
+          sig { override.returns(T::Hash[String, String]) }
+          def aliases
+            {}
+          end
+
+          sig { override.params(_name: String).returns(T.class_of(CLI::Kit::BaseCommand)) }
+          def command_class(_name)
+            raise(CLI::Kit::Abort, 'Cannot be called on the NullContextualResolver since command_names is empty')
+          end
         end
       end
 

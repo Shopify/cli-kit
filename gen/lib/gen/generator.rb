@@ -10,9 +10,13 @@ module Gen
   class Generator
     extend T::Sig
 
-    sig { params(project_name: String).void }
-    def self.run(project_name)
-      new(project_name).run
+    class << self
+      extend T::Sig
+
+      sig { params(project_name: String).void }
+      def run(project_name)
+        new(project_name).run
+      end
     end
 
     TEMPLATE_ROOT = File.expand_path('gen/template', Gen::ROOT)

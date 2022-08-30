@@ -14,13 +14,15 @@ module Example
   module Commands
     Registry = CLI::Kit::CommandRegistry.new(default: 'hello')
 
-    sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(Example::Command)).void }
-    def self.register(const, cmd, path, lamda_const)
-      autoload(const, path)
-      Registry.add(lamda_const, cmd)
-    end
+    class << self
+      sig { params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(Example::Command)).void }
+      def register(const, cmd, path, lamda_const)
+        autoload(const, path)
+        Registry.add(lamda_const, cmd)
+      end
 
-    # register(:Hello, 'hello', 'a/b/hello', -> { Commands::Hello })
+      # register(:Hello, 'hello', 'a/b/hello', -> { Commands::Hello })
+    end
 
     class Hello < Example::Command
       sig { override.params(_args: T::Array[String], _name: String).void }
@@ -31,10 +33,12 @@ module Example
   end
 
   module EntryPoint
-    sig { params(args: T::Array[String]).void }
-    def self.call(args)
-      cmd, command_name, args = Example::Resolver.call(args)
-      Example::Executor.call(cmd, command_name, args)
+    class << self
+      sig { params(args: T::Array[String]).void }
+      def call(args)
+        cmd, command_name, args = Example::Resolver.call(args)
+        Example::Executor.call(cmd, command_name, args)
+      end
     end
   end
 

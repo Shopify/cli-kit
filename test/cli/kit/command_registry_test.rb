@@ -17,16 +17,18 @@ module CLI
           end
         end
 
-        def self.command_names
-          ['ctx-a', 'ctx-b']
-        end
+        class << self
+          def command_names
+            ['ctx-a', 'ctx-b']
+          end
 
-        def self.aliases
-          { 'a' => 'ctx-a' }
-        end
+          def aliases
+            { 'a' => 'ctx-a' }
+          end
 
-        def self.command_class(_name)
-          CommandClass
+          def command_class(_name)
+            CommandClass
+          end
         end
       end
 

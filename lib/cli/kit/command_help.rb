@@ -46,28 +46,28 @@ module CLI
         raise(NotImplementedError, '#invoke must be implemented, or #call overridden')
       end
 
-      sig { params(name: String).void }
-      def self.tool_name=(name)
-        @tool_name = name
-      end
+      class << self
+        extend T::Sig
 
-      sig { returns(String) }
-      def self._tool_name
-        unless @tool_name
-          raise 'You must set CLI::Kit::CommandHelp.tool_name='
+        sig { params(tool_name: String).void }
+        attr_writer :tool_name
+
+        sig { params(max_desc_length: Integer).void }
+        attr_writer :max_desc_length
+
+        sig { returns(String) }
+        def _tool_name
+          unless @tool_name
+            raise 'You must set CLI::Kit::CommandHelp.tool_name='
+          end
+
+          @tool_name
         end
 
-        @tool_name
-      end
-
-      sig { params(max: Integer).void }
-      def self.max_desc_length=(max)
-        @max_desc_length = max
-      end
-
-      sig { returns(Integer) }
-      def self._max_desc_length
-        @max_desc_length || 80
+        sig { returns(Integer) }
+        def _max_desc_length
+          @max_desc_length || 80
+        end
       end
 
       module ClassMethods
