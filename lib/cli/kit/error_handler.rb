@@ -35,16 +35,24 @@ module CLI
         extend T::Helpers
         abstract!
 
-        sig { abstract.params(exception: T.nilable(Exception), logs: T.nilable(String)).void }
-        def self.report(exception, logs = nil); end
+        class << self
+          extend T::Sig
+
+          sig { abstract.params(exception: T.nilable(Exception), logs: T.nilable(String)).void }
+          def report(exception, logs = nil); end
+        end
       end
 
       class NullExceptionReporter < ExceptionReporter
         extend T::Sig
 
-        sig { override.params(_exception: T.nilable(Exception), _logs: T.nilable(String)).void }
-        def self.report(_exception, _logs = nil)
-          nil
+        class << self
+          extend T::Sig
+
+          sig { override.params(_exception: T.nilable(Exception), _logs: T.nilable(String)).void }
+          def report(_exception, _logs = nil)
+            nil
+          end
         end
       end
 

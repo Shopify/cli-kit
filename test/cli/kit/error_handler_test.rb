@@ -5,7 +5,9 @@ module CLI
   module Kit
     class ErrorHandlerTest < Minitest::Test
       class MockExceptionReporter < ErrorHandler::ExceptionReporter
-        def self.report(_exception, _logs = nil); end
+        class << self
+          def report(_exception, _logs = nil); end
+        end
       end
 
       def setup
