@@ -325,7 +325,7 @@ module CLI
           return [cmd, args] unless sudo
 
           sudo_reason(sudo) if sudo.is_a?(String)
-          ['sudo', args.unshift('-S', '-p', SUDO_PROMPT, '--', cmd)]
+          ['sudo', args.unshift('-E', '-S', '-p', SUDO_PROMPT, '--', cmd)]
         end
 
         sig do
