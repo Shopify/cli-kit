@@ -66,7 +66,7 @@ module CLI
           case @obj
           when Args::Definition
             @obj.add_option(
-              name, short: short, long: long, desc: desc, default: default,
+              name, short: short, long: long, desc: desc, default: default
             )
             '(result unavailable)'
           when Args::Evaluation
@@ -87,7 +87,7 @@ module CLI
           case @obj
           when Args::Definition
             @obj.add_option(
-              name, short: short, long: long, desc: desc, default: default,
+              name, short: short, long: long, desc: desc, default: default
             )
             '(result unavailable)'
           when Args::Evaluation
@@ -108,7 +108,7 @@ module CLI
           case @obj
           when Args::Definition
             @obj.add_option(
-              name, short: short, long: long, desc: desc, default: default, multi: true,
+              name, short: short, long: long, desc: desc, default: default, multi: true
             )
             ['(result unavailable)']
           when Args::Evaluation

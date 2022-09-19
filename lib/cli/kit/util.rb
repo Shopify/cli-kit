@@ -109,7 +109,7 @@ module CLI
           params(
             exception: T.class_of(Exception),
             retries: Integer,
-            before_retry: T.nilable(T.proc.params(e: Exception).void)
+            before_retry: T.nilable(T.proc.params(e: Exception).void),
           ).returns(BlockReturnType)
         end
         def retry_after(exception = StandardError, retries: 1, &before_retry)
