@@ -48,7 +48,7 @@ module Example
   Executor = CLI::Kit::Executor.new(log_file: LOG_FILE)
   Resolver = CLI::Kit::Resolver.new(
     tool_name: TOOL_NAME,
-    command_registry: Example::Commands::Registry
+    command_registry: Example::Commands::Registry,
   )
 
   ErrorHandler = CLI::Kit::ErrorHandler.new(log_file: LOG_FILE)

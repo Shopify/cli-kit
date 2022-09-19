@@ -61,7 +61,7 @@ module CLI
         assert_equal(%(foo: ["a", "b"]\n), out)
         assert_match(
           /\[\d{5}\] foo: \["a", "b"\]\n/,
-          File.read(@tf.path)
+          File.read(@tf.path),
         )
         assert_empty(err)
       end

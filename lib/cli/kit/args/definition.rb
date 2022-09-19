@@ -38,16 +38,16 @@ module CLI
             default: T.any(
               NilClass,
               String, T.proc.returns(String),
-              T::Array[String], T.proc.returns(T::Array[String]),
+              T::Array[String], T.proc.returns(T::Array[String])
             ),
-            required: T::Boolean, multi: T::Boolean,
+            required: T::Boolean, multi: T::Boolean
           ).void
         end
         def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
           short, long = strip_prefixes_and_validate(short, long)
           option = Option.new(
             name: name, short: short, long: long, desc: desc, default: default,
-            required: required, multi: multi,
+            required: required, multi: multi
           )
           add_resolution(option)
           @options << option
@@ -213,9 +213,9 @@ module CLI
               default: T.any(
                 NilClass,
                 String, T.proc.returns(String),
-                T::Array[String], T.proc.returns(T::Array[String]),
+                T::Array[String], T.proc.returns(T::Array[String])
               ),
-              required: T::Boolean, multi: T::Boolean,
+              required: T::Boolean, multi: T::Boolean
             ).void
           end
           def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)

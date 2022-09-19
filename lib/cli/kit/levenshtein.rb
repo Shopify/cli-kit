@@ -54,7 +54,7 @@ module CLI
             x = min3(
               T.must(d[j + 1]) + 1, # insertion
               i + 1, # deletion
-              T.must(d[j]) + cost # substitution
+              T.must(d[j]) + cost, # substitution
             )
             d[j] = i
             i = x

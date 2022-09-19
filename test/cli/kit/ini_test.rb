@@ -7,7 +7,7 @@ module CLI
         helper = Ini.new(fixture_path('ini_with_heading.conf'))
         assert_equal(
           { '[global]' => { 'key' => 'val', 'key2' => 'val2=' } },
-          helper.parse
+          helper.parse,
         )
       end
 
@@ -15,7 +15,7 @@ module CLI
         helper = Ini.new(config: "[global]\nkey=val\nkey2=val2")
         assert_equal(
           { '[global]' => { 'key' => 'val', 'key2' => 'val2' } },
-          helper.parse
+          helper.parse,
         )
       end
 
@@ -23,7 +23,7 @@ module CLI
         helper = Ini.new(fixture_path('ini_without_heading.conf'))
         assert_equal(
           { '[global]' => { 'key' => 'val', 'key2' => 'val2=' } },
-          helper.parse
+          helper.parse,
         )
       end
 
@@ -36,7 +36,7 @@ module CLI
         helper = Ini.new('/not/a/path')
         assert_equal(
           {},
-          helper.parse
+          helper.parse,
         )
       end
 

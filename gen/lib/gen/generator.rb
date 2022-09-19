@@ -48,7 +48,7 @@ module Gen
     def initialize(project_name)
       raise(
         CLI::Kit::Abort,
-        "project name must match {{bold:#{VALID_PROJECT_NAME}}} (but can be changed later)"
+        "project name must match {{bold:#{VALID_PROJECT_NAME}}} (but can be changed later)",
       ) unless project_name =~ VALID_PROJECT_NAME
       @project_name = project_name
       @title_case_project_name = @project_name.sub(/^./, &:upcase)

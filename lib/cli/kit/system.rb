@@ -54,7 +54,7 @@ module CLI
             args: String,
             sudo: T.any(T::Boolean, String),
             env: T::Hash[String, T.nilable(String)],
-            kwargs: T.untyped
+            kwargs: T.untyped,
           )
             .returns([String, Process::Status])
         end
@@ -85,7 +85,7 @@ module CLI
             args: String,
             sudo: T.any(T::Boolean, String),
             env: T::Hash[String, T.nilable(String)],
-            kwargs: T.untyped
+            kwargs: T.untyped,
           )
             .returns([String, Process::Status])
         end
@@ -117,7 +117,7 @@ module CLI
             args: String,
             sudo: T.any(T::Boolean, String),
             env: T::Hash[String, T.nilable(String)],
-            kwargs: T.untyped
+            kwargs: T.untyped,
           )
             .returns([String, String, Process::Status])
         end
@@ -134,8 +134,8 @@ module CLI
             kwargs: T.untyped,
             block: T.nilable(
               T.proc.params(stdin: IO, stdout: IO, wait_thr: Process::Waiter)
-                .returns([IO, IO, Process::Waiter])
-            )
+                .returns([IO, IO, Process::Waiter]),
+            ),
           )
             .returns([IO, IO, Process::Waiter])
         end
@@ -152,8 +152,8 @@ module CLI
             kwargs: T.untyped,
             block: T.nilable(
               T.proc.params(stdin: IO, stdout: IO, wait_thr: Process::Waiter)
-                .returns([IO, IO, Process::Waiter])
-            )
+                .returns([IO, IO, Process::Waiter]),
+            ),
           )
             .returns([IO, IO, Process::Waiter])
         end
@@ -170,8 +170,8 @@ module CLI
             kwargs: T.untyped,
             block: T.nilable(
               T.proc.params(stdin: IO, stdout: IO, stderr: IO, wait_thr: Process::Waiter)
-                .returns([IO, IO, IO, Process::Waiter])
-            )
+                .returns([IO, IO, IO, Process::Waiter]),
+            ),
           )
             .returns([IO, IO, IO, Process::Waiter])
         end
@@ -202,7 +202,7 @@ module CLI
             env: T::Hash[String, T.nilable(String)],
             stdin: T.nilable(T.any(IO, String, Integer, Symbol)),
             kwargs: T.untyped,
-            block: T.nilable(T.proc.params(out: String, err: String).void)
+            block: T.nilable(T.proc.params(out: String, err: String).void),
           )
             .returns(Process::Status)
         end
@@ -336,7 +336,7 @@ module CLI
             sudo: T.any(T::Boolean, String),
             env: T::Hash[String, T.nilable(String)],
             method: Symbol,
-            block: T.untyped
+            block: T.untyped,
           ).returns(T.untyped)
         end
         def delegate_open3(cmd, args, kwargs, sudo: raise, env: raise, method: raise, &block)
