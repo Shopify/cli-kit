@@ -33,3 +33,7 @@ commands:
       check:
         run: bin/onchange 'srb && rake style test'
         aliases: [ck]
+fastcheck:
+  Test: bundle exec rake test
+  Style: bundle exec rake style
+  Typecheck: bundle exec srb tc
