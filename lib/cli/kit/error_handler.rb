@@ -164,7 +164,7 @@ module CLI
       sig { params(message: String).void }
       def stderr_puts(message)
         $stderr.puts(CLI::UI.fmt("{{red:#{message}}}"))
-      rescue Errno::EPIPE
+      rescue Errno::EPIPE, Errno::EIO
         nil
       end
 
