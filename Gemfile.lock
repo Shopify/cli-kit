@@ -29,7 +29,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (2.0.1)
+    mocha (2.0.2)
       ruby2_keywords (>= 0.0.5)
     netrc (0.11.0)
     parallel (1.22.1)
@@ -117,7 +117,6 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
-  ruby
   universal-darwin
   x86_64-linux
 
@@ -129,7 +128,7 @@ DEPENDENCIES
   method_source
   minitest (>= 5.0.0)
   minitest-reporters
-  mocha (~> 2.0.1)
+  mocha (~> 2.0.2)
   rake (~> 13.0)
   rubocop
   rubocop-rake
