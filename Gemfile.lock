@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cli-kit (4.0.0)
+    cli-kit (5.0.0)
       cli-ui (~> 2.0)
 
 GEM
@@ -106,6 +106,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  ruby
   universal-darwin
   x86_64-linux
 
