@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'cli-ui', git: 'https://github.com/Shopify/cli-ui', ref: '0eefd57248f42ec163639884e77a071d82bfbda8'
+  gem 'cli-ui'
   gem 'rubocop'
   gem 'rubocop-rake'
   gem 'rubocop-shopify'
