@@ -40,7 +40,7 @@ module Gen
         max_len = cmds.map(&:first).map(&:length).max
 
         cmds.each do |name, desc|
-          to.write(CLI::UI.fmt("  {{command:#{name.ljust(max_len)}}}  #{desc}\n"))
+          to.write(CLI::UI.fmt("  {{command:#{name.ljust(T.must(max_len))}}}  #{desc}\n"))
         end
       end
 
