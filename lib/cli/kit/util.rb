@@ -18,8 +18,13 @@ module CLI
         # Converts a number to a human readable format on the SI scale
         #
         sig do
-          params(number: Numeric, unit: String, factor: Integer, precision: Integer,
-            space: T::Boolean).returns(String)
+          params(
+            number: Numeric,
+            unit: String,
+            factor: Integer,
+            precision: Integer,
+            space: T::Boolean,
+          ).returns(String)
         end
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
           raise ArgumentError, 'factor should only be 1000 or 1024' unless [1000, 1024].include?(factor)

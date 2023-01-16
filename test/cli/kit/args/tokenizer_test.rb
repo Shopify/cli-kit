@@ -80,9 +80,12 @@ module CLI
 
         def test_inspect
           tokens = Tokenizer.tokenize(['-f'])
-          assert_equal([
-            '#<CLI::Kit::Args::Tokenizer::Token::ShortOptionName f>',
-          ], tokens.map(&:inspect))
+          assert_equal(
+            [
+              '#<CLI::Kit::Args::Tokenizer::Token::ShortOptionName f>',
+            ],
+            tokens.map(&:inspect),
+          )
         end
 
         def test_errors

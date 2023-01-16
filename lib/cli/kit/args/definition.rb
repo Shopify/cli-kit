@@ -33,21 +33,31 @@ module CLI
 
         sig do
           params(
-            name: Symbol, short: T.nilable(String), long: T.nilable(String),
+            name: Symbol,
+            short: T.nilable(String),
+            long: T.nilable(String),
             desc: T.nilable(String),
             default: T.any(
               NilClass,
-              String, T.proc.returns(String),
-              T::Array[String], T.proc.returns(T::Array[String])
+              String,
+              T.proc.returns(String),
+              T::Array[String],
+              T.proc.returns(T::Array[String]),
             ),
-            required: T::Boolean, multi: T::Boolean
+            required: T::Boolean,
+            multi: T::Boolean,
           ).void
         end
         def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
           short, long = strip_prefixes_and_validate(short, long)
           option = Option.new(
-            name: name, short: short, long: long, desc: desc, default: default,
-            required: required, multi: multi
+            name: name,
+            short: short,
+            long: long,
+            desc: desc,
+            default: default,
+            required: required,
+            multi: multi,
           )
           add_resolution(option)
           @options << option
@@ -69,8 +79,12 @@ module CLI
         end
         def add_position(name, required:, multi:, desc: nil, default: nil, skip: nil)
           position = Position.new(
-            name: name, desc: desc, required: required, multi: multi,
-            default: default, skip: skip
+            name: name,
+            desc: desc,
+            required: required,
+            multi: multi,
+            default: default,
+            skip: skip,
           )
           validate_order(position)
           add_name_resolution(position)
@@ -208,14 +222,19 @@ module CLI
 
           sig do
             params(
-              name: Symbol, short: T.nilable(String), long: T.nilable(String),
+              name: Symbol,
+              short: T.nilable(String),
+              long: T.nilable(String),
               desc: T.nilable(String),
               default: T.any(
                 NilClass,
-                String, T.proc.returns(String),
-                T::Array[String], T.proc.returns(T::Array[String])
+                String,
+                T.proc.returns(String),
+                T::Array[String],
+                T.proc.returns(T::Array[String]),
               ),
-              required: T::Boolean, multi: T::Boolean
+              required: T::Boolean,
+              multi: T::Boolean,
             ).void
           end
           def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)

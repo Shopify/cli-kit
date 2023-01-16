@@ -17,8 +17,10 @@ end
 system(*cmd_args)
 
 fswatch_args = [
-  '-e', 'coverage',
-  '-e', '/\.git',
+  '-e',
+  'coverage',
+  '-e',
+  '/\.git',
   '--one-per-batch',
   *extra_fswatch_args,
   '.',
