@@ -87,7 +87,7 @@ module CLI
           is_windows = CLI::Kit::System.os == :windows
           script_name += '.BAT' if is_windows
 
-          File.open(File.join(tmpdir, script_name), 'w', 0755) do |f|
+          File.open(File.join(tmpdir, script_name), 'w', 0o755) do |f|
             if is_windows
               f.write("@echo off\n")
             else

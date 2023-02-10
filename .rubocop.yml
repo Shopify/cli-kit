@@ -11,6 +11,7 @@ AllCops:
   Exclude:
     - gen/template/**/*
     - vendor/**/*
+    - lib/cli/kit/levenshtein.rb # Vendored
   TargetRubyVersion: 2.7
   NewCops: disable
 
@@ -50,4 +51,20 @@ Style/GlobalStdStream:
 
 # Sometimes (often) explicit is good
 Style/EmptyElse:
+  Enabled: false
+
+# We make frequent use Open3 methods to run other programs. When passing long command lines, it's useful and informative
+# to place the argument to an option on the same line as its option, eg:
+# Open3.capture3(
+#   'curl',
+#   '-H', 'X-Header: value',
+#   '-o', 'file.txt',
+#   '-L',
+#   'https://example.com/',
+# )
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: false
+Layout/MultilineArrayLineBreaks:
+  Enabled: false
+Layout/MultilineHashKeyLineBreaks:
   Enabled: false

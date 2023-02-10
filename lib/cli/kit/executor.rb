@@ -56,8 +56,9 @@ module CLI
       end
 
       sig do
-        type_parameters(:T).params(signal: String, handler: Method,
-          block: T.proc.returns(T.type_parameter(:T))).returns(T.type_parameter(:T))
+        type_parameters(:T)
+          .params(signal: String, handler: Method, block: T.proc.returns(T.type_parameter(:T)))
+          .returns(T.type_parameter(:T))
       end
       def twrap(signal, handler, &block)
         return yield unless Signal.list.key?(signal)
