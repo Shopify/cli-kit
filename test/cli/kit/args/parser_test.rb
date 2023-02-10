@@ -24,16 +24,12 @@ module CLI
           parse = Args::Parser.new(@defn).parse([
             Token::ShortOptionName.new('f'),
           ])
-          assert_equal([
-            Node::ShortFlag.new('f'),
-          ], parse)
+          assert_equal([Node::ShortFlag.new('f')], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::LongOptionName.new('force'),
           ])
-          assert_equal([
-            Node::LongFlag.new('force'),
-          ], parse)
+          assert_equal([Node::LongFlag.new('force')], parse)
         end
 
         def test_parse_long_option
@@ -41,17 +37,13 @@ module CLI
             Token::LongOptionName.new('zookeeper'),
             Token::OptionValueOrPositionalArgument.new('3'),
           ])
-          assert_equal([
-            Node::LongOption.new('zookeeper', '3'),
-          ], parse)
+          assert_equal([Node::LongOption.new('zookeeper', '3')], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::LongOptionName.new('zookeeper'),
             Token::OptionValue.new('4'),
           ])
-          assert_equal([
-            Node::LongOption.new('zookeeper', '4'),
-          ], parse)
+          assert_equal([Node::LongOption.new('zookeeper', '4')], parse)
 
           assert_raises(Parser::OptionRequiresAnArgumentError) do
             Args::Parser.new(@defn).parse([
@@ -65,27 +57,19 @@ module CLI
           parse = Args::Parser.new(@defn).parse([
             Token::PositionalArgument.new('what'),
           ])
-          assert_equal([
-            Node::Argument.new('what'),
-          ], parse)
+          assert_equal([Node::Argument.new('what')], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::ShortOptionName.new('f'),
             Token::PositionalArgument.new('what'),
           ])
-          assert_equal([
-            Node::ShortFlag.new('f'),
-            Node::Argument.new('what'),
-          ], parse)
+          assert_equal([Node::ShortFlag.new('f'), Node::Argument.new('what')], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::ShortOptionName.new('f'),
             Token::OptionValueOrPositionalArgument.new('what'),
           ])
-          assert_equal([
-            Node::ShortFlag.new('f'),
-            Node::Argument.new('what'),
-          ], parse)
+          assert_equal([Node::ShortFlag.new('f'), Node::Argument.new('what')], parse)
         end
 
         def test_unparsed
@@ -93,19 +77,14 @@ module CLI
             Token::UnparsedArgument.new('a'),
             Token::UnparsedArgument.new('b'),
           ])
-          assert_equal([
-            Node::Unparsed.new(['a', 'b']),
-          ], parse)
+          assert_equal([Node::Unparsed.new(['a', 'b'])], parse)
 
           parse = Args::Parser.new(@defn).parse([
             Token::ShortOptionName.new('f'),
             Token::UnparsedArgument.new('a'),
             Token::UnparsedArgument.new('b'),
           ])
-          assert_equal([
-            Node::ShortFlag.new('f'),
-            Node::Unparsed.new(['a', 'b']),
-          ], parse)
+          assert_equal([Node::ShortFlag.new('f'), Node::Unparsed.new(['a', 'b'])], parse)
 
           assert_raises(Parser::Error) do
             Args::Parser.new(@defn).parse([
@@ -161,26 +140,32 @@ module CLI
             Token::UnparsedArgument.new('--neato'),
             Token::UnparsedArgument.new('-f'),
           ])
-          assert_equal([
-            Node::ShortFlag.new('f'),
-            Node::ShortOption.new('z', '200'),
-            Node::LongOption.new('height', '3'),
-            Node::LongOption.new('w', '4'),
-            Node::Argument.new('a'),
-            Node::Argument.new('b'),
-            Node::Argument.new('c'),
-            Node::Unparsed.new(['d', '--neato', '-f']),
-          ], parse)
-          assert_equal([
-            '#<CLI::Kit::Args::Parser::Node::ShortFlag f>',
-            '#<CLI::Kit::Args::Parser::Node::ShortOption z=200>',
-            '#<CLI::Kit::Args::Parser::Node::LongOption height=3>',
-            '#<CLI::Kit::Args::Parser::Node::LongOption w=4>',
-            '#<CLI::Kit::Args::Parser::Node::Argument a>',
-            '#<CLI::Kit::Args::Parser::Node::Argument b>',
-            '#<CLI::Kit::Args::Parser::Node::Argument c>',
-            '#<CLI::Kit::Args::Parser::Node::Unparsed d --neato -f>',
-          ], parse.map(&:inspect))
+          assert_equal(
+            [
+              Node::ShortFlag.new('f'),
+              Node::ShortOption.new('z', '200'),
+              Node::LongOption.new('height', '3'),
+              Node::LongOption.new('w', '4'),
+              Node::Argument.new('a'),
+              Node::Argument.new('b'),
+              Node::Argument.new('c'),
+              Node::Unparsed.new(['d', '--neato', '-f']),
+            ],
+            parse,
+          )
+          assert_equal(
+            [
+              '#<CLI::Kit::Args::Parser::Node::ShortFlag f>',
+              '#<CLI::Kit::Args::Parser::Node::ShortOption z=200>',
+              '#<CLI::Kit::Args::Parser::Node::LongOption height=3>',
+              '#<CLI::Kit::Args::Parser::Node::LongOption w=4>',
+              '#<CLI::Kit::Args::Parser::Node::Argument a>',
+              '#<CLI::Kit::Args::Parser::Node::Argument b>',
+              '#<CLI::Kit::Args::Parser::Node::Argument c>',
+              '#<CLI::Kit::Args::Parser::Node::Unparsed d --neato -f>',
+            ],
+            parse.map(&:inspect),
+          )
         end
       end
     end

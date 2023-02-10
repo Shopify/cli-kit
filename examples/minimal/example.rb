@@ -9,12 +9,15 @@ CLI::UI::StdoutRouter.enable
 include(CLI::Kit)
 
 registry = CommandRegistry.new(default: 'hello')
-registry.add(Class.new(BaseCommand) do
-  sig { params(_args: T::Array[String], _name: String).void }
-  def call(_args, _name)
-    puts 'hello, world!'
-  end
-end, 'hello')
+registry.add(
+  Class.new(BaseCommand) do
+    sig { params(_args: T::Array[String], _name: String).void }
+    def call(_args, _name)
+      puts 'hello, world!'
+    end
+  end,
+  'hello',
+)
 
 executor      = Executor.new(log_file: '/tmp/example.log')
 error_handler = ErrorHandler.new(log_file: '/tmp/example.log', exception_reporter: nil)
