@@ -151,7 +151,7 @@ module CLI
             next unless opt.required?
 
             node = @parse.detect do |node|
-              node.is_a?(Parser::Node::Option) && node.name == opt.name
+              node.is_a?(Parser::Node::Option) && node.name.to_sym == opt.name
             end
             if !node || T.cast(node, Parser::Node::Option).value.nil?
               raise(MissingRequiredOption, opt.as_written_by_user)
