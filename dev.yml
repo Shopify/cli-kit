@@ -5,6 +5,9 @@ up:
   - bundler
 
 commands:
+  add-back-ruby:
+    run: bundle lock --add-platform ruby && git commit -a -m 'Add back ruby platform' && git push
+    aliases: [abr]
   console: irb -I./lib -rcli/kit
   check:
     run: 'srb && rake style test'
