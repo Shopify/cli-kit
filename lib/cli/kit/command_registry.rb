@@ -107,8 +107,8 @@ module CLI
       sig { params(name: String).returns([T.nilable(T.class_of(CLI::Kit::BaseCommand)), String]) }
       def resolve_command(name)
         name = resolve_alias(name)
-        resolve_global_command(name) || \
-          resolve_contextual_command(name) || \
+        resolve_global_command(name) ||
+          resolve_contextual_command(name) ||
           [nil, name]
       end
 
