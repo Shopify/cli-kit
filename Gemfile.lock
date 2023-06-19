@@ -22,7 +22,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (2.0.2)
+    mocha (2.0.4)
       ruby2_keywords (>= 0.0.5)
     netrc (0.11.0)
     parallel (1.23.0)
@@ -118,7 +118,7 @@ DEPENDENCIES
   method_source
   minitest (>= 5.0.0)
   minitest-reporters
-  mocha (~> 2.0.1)
+  mocha (~> 2.0.4)
   rake (~> 13.0)
   rubocop
   rubocop-rake
