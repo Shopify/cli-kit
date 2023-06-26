@@ -115,7 +115,7 @@ module CLI
       sig { params(name: String).returns(T.nilable([T.class_of(CLI::Kit::BaseCommand), String])) }
       def resolve_global_command(name)
         klass = resolve_class(commands.fetch(name, nil))
-        return nil unless klass
+        return unless klass
 
         [klass, name]
       rescue NameError
@@ -125,7 +125,7 @@ module CLI
       sig { params(name: String).returns(T.nilable([T.class_of(CLI::Kit::BaseCommand), String])) }
       def resolve_contextual_command(name)
         found = @contextual_resolver.command_names.include?(name)
-        return nil unless found
+        return unless found
 
         [@contextual_resolver.command_class(name), name]
       end

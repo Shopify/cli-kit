@@ -149,7 +149,7 @@ module CLI
           o = opts.new
           o.define!(@defn)
 
-          return nil if @defn.options.empty? && @defn.flags.empty?
+          return if @defn.options.empty? && @defn.flags.empty?
 
           merged = T.let(@defn.options, T::Array[T.any(Args::Definition::Option, Args::Definition::Flag)])
           merged += @defn.flags
@@ -238,7 +238,7 @@ module CLI
 
         sig { returns(T.nilable(String)) }
         def build_examples
-          return nil unless @examples
+          return unless @examples
 
           cmd_prefix = "  {{command:#{CommandHelp._tool_name} #{_command_name}}}"
           "{{bold:Examples:}}\n" + @examples.map do |command, explanation|
