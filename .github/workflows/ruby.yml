@@ -11,7 +11,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
         bundler-cache: true
     - name: Check style
       run: bundle exec rake style
@@ -23,7 +23,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.0'
         bundler-cache: true
     - name: Typecheck
       run: bundle exec srb tc
@@ -31,26 +31,10 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         ruby-version: ['2.7', '3.0']
 
     runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true
-    - name: Run tests
-      run: bundle exec rake test
-
-  test-windows:
-    strategy:
-      matrix:
-        ruby-version: ['2.7', '3.0']
-
-    runs-on: windows-latest
     env:
       BUNDLE_WITHOUT: typecheck
     steps:
