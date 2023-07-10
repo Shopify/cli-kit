@@ -223,7 +223,7 @@ module CLI
                     EOF
                   end
 
-                  return nil if final_error.empty?
+                  return if final_error.empty?
 
                   "\n" + final_error.join("\n") # Initial new line for formatting reasons
                 end
@@ -235,7 +235,7 @@ module CLI
 
                   if expected_cmd.nil?
                     @delegate_open3[a.join(' ')] = { unexpected: true }
-                    return nil
+                    return
                   end
 
                   expected_cmd[:run] = true
