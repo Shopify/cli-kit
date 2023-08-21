@@ -183,7 +183,7 @@ module CLI
         sig { returns(Symbol) }
         def infer_name
           to_skip = 1
-          Kernel.caller_locations&.each do |loc|
+          Kernel.caller_locations.each do |loc|
             next if loc.path =~ /sorbet-runtime/
 
             if to_skip > 0
