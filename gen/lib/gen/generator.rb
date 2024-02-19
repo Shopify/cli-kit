@@ -149,10 +149,10 @@ module Gen
     sig { params(s: String).returns(String) }
     def apply_template_variables(s)
       s
-        .gsub(/__app__/, @project_name)
-        .gsub(/__App__/, @title_case_project_name)
-        .gsub(/__cli-kit-version__/, cli_kit_version)
-        .gsub(/__cli-ui-version__/, cli_ui_version)
+        .gsub('__app__', @project_name)
+        .gsub('__App__', @title_case_project_name)
+        .gsub('__cli-kit-version__', cli_kit_version)
+        .gsub('__cli-ui-version__', cli_ui_version)
     end
 
     sig { returns(String) }
