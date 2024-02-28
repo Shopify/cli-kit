@@ -21,6 +21,7 @@ module CLI
           @defn.add_position(:second, required: false, multi: false, skip: ->(arg) { arg == 'b' })
           @defn.add_position(:third, required: false, multi: false, skip: ->(arg) { arg != 'b' })
           @defn.add_position(:rest, required: false, multi: true)
+          @defn.add_option(:yo, short: '-y', long: '--yo', multi: true)
 
           @parse = [
             Node::ShortFlag.new('f'),
@@ -32,6 +33,8 @@ module CLI
             Node::Argument.new('c'),
             Node::Argument.new('d'),
             Node::LongFlag.new('print'),
+            Node::ShortOption.new('y', 'a'),
+            Node::LongOption.new('yo', 'b'),
             Node::Unparsed.new(['d', '--neato', '-f']),
           ]
         end
@@ -56,6 +59,7 @@ module CLI
           assert_equal('a', evl.position.first)
           assert_nil(evl.position.second)
           assert_equal('b', evl.position.third)
+          assert_equal(['a', 'b'], evl.opt.yo)
           assert_equal(['c', 'd'], evl.position.rest)
           assert_equal(['d', '--neato', '-f'], evl.unparsed)
         end
