@@ -199,26 +199,15 @@ module CLI
 
         sig { params(opt: Definition::Option).returns(T.any(NilClass, String, T::Array[String])) }
         def lookup_option(opt)
-          if opt.short
-            opts = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::ShortOption) },
-              T::Array[Parser::Node::ShortOption],
-            )
-            matches = opts.select { |node| node.name == opt.short }
-            if (last = matches.last)
-              return(opt.multi? ? matches.map(&:value) : last.value)
-            end
+          opts = T.cast(
+            parse.select { |node| node.is_a?(Parser::Node::ShortOption) || node.is_a?(Parser::Node::LongOption) },
+            T::Array[T.any(Parser::Node::ShortOption, Parser::Node::LongOption)],
+          )
+          matches = opts.select { |node| (opt.short && node.name == opt.short) || (opt.long && node.name == opt.long) }
+          if (last = matches.last)
+            return(opt.multi? ? matches.map(&:value) : last.value)
           end
-          if opt.long
-            opts = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::LongOption) },
-              T::Array[Parser::Node::LongOption],
-            )
-            matches = opts.select { |node| node.name == opt.long }
-            if (last = matches.last)
-              return(opt.multi? ? matches.map(&:value) : last.value)
-            end
-          end
+
           opt.default
         end
 
