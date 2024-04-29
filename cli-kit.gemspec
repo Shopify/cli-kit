@@ -24,6 +24,8 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency('cli-ui', '~> 2.0')
 
+  spec.required_ruby_version = '>= 3.0'
+
   spec.add_development_dependency('bundler', '~> 2.1')
   spec.add_development_dependency('minitest', '~> 5.0')
   spec.add_development_dependency('rake', '~> 13.0')

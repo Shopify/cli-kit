@@ -12,7 +12,6 @@ AllCops:
     - gen/template/**/*
     - vendor/**/*
     - lib/cli/kit/levenshtein.rb # Vendored
-  TargetRubyVersion: 2.7
   NewCops: disable
 
 Style/ClassAndModuleChildren:
