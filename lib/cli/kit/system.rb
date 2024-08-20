@@ -237,11 +237,15 @@ module CLI
 
           previous_trailing = Hash.new('')
           loop do
+            break if Process.wait(pid, Process::WNOHANG)
+
             ios = [err_r, out_r].reject(&:closed?)
             break if ios.empty?
 
-            readers, = IO.select(ios)
-            (readers || []).each do |io|
+            readers, = IO.select(ios, [], [], 1)
+            next if readers.nil? # If IO.select times out we iterate again so we can check if the process has exited
+
+            readers.each do |io|
               data, trailing = split_partial_characters(io.readpartial(4096))
               handlers[io].call(previous_trailing[io] + data)
               previous_trailing[io] = trailing
