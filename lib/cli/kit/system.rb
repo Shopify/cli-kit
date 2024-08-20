@@ -240,7 +240,7 @@ module CLI
             break if Process.wait(pid, Process::WNOHANG)
 
             ios = [err_r, out_r].reject(&:closed?)
-            break if ios.empty?
+            next if ios.empty?
 
             readers, = IO.select(ios, [], [], 1)
             next if readers.nil? # If IO.select times out we iterate again so we can check if the process has exited
@@ -254,7 +254,6 @@ module CLI
             end
           end
 
-          Process.wait(pid)
           $CHILD_STATUS
         end
 
