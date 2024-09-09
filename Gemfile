@@ -20,7 +20,7 @@ group :typecheck do
 end
 
 group :test do
-  gem 'mocha', '~> 2.4.0', require: false
+  gem 'mocha', '~> 2.4.5', require: false
   gem 'minitest', '>= 5.0.0', require: false
   gem 'minitest-reporters', require: false
 end
