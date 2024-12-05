@@ -325,7 +325,7 @@ module CLI
             .returns([String, T::Array[String]])
         end
         def apply_sudo(cmd, args, sudo)
-          return [cmd, args] unless sudo
+          return [cmd, args] if !sudo || Process.uid.zero?
 
           sudo_reason(sudo) if sudo.is_a?(String)
           ['sudo', args.unshift('-E', '-S', '-p', SUDO_PROMPT, '--', cmd)]
