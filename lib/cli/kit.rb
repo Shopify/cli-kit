@@ -23,6 +23,7 @@ module CLI
     autoload :Levenshtein,     'cli/kit/levenshtein'
     autoload :Logger,          'cli/kit/logger'
     autoload :Opts,            'cli/kit/opts'
+    autoload :ParseArgs,       'cli/kit/parse_args'
     autoload :Resolver,        'cli/kit/resolver'
     autoload :Support,         'cli/kit/support'
     autoload :System,          'cli/kit/system'
