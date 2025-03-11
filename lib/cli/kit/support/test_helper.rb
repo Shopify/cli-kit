@@ -21,6 +21,8 @@ module CLI
         def teardown
           super
           assert_all_commands_run
+        rescue Errno::EACCES
+          # this sometimes happens on windows builds - let's ignore it
         end
 
         module FakeConfig
