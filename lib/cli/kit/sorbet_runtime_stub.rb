@@ -94,10 +94,8 @@ module T
       def log_info_handler=(value); end
       def scalar_types; end
       def scalar_types=(values); end
-      # rubocop:disable Naming/InclusiveLanguage
       def sealed_violation_whitelist; end
       def sealed_violation_whitelist=(sealed_violation_whitelist); end
-      # rubocop:enable Naming/InclusiveLanguage
       def sig_builder_error_handler=(value); end
       def sig_validation_error_handler(error, opts); end
       def sig_validation_error_handler=(value); end
