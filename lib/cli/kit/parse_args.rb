@@ -12,7 +12,12 @@ module CLI
       # and the resulting args[:opts] is pretty broad. There seems to be minimal value in expressing a
       # tighter subset of T.untyped.
 
-      sig { params(args: String, opts_defn: T::Hash[Symbol, T::Array[T.untyped]]).returns(T::Hash[Symbol, T.untyped]) }
+      sig do
+        params(
+          args: T.any(String, Array),
+          opts_defn: T::Hash[Symbol, T::Array[T.untyped]],
+        ).returns(T::Hash[Symbol, T.untyped])
+      end
       def parse_args(args, opts_defn)
         start_opts, parser_config = opts_defn.reduce([{}, []]) do |(ini, pcfg), (n, cfg)|
           (vals, desc, short, klass) = cfg
@@ -43,7 +48,12 @@ module CLI
           end
         end
 
-        arg_v = args.strip.split(/\s+/).map(&:strip)
+        arg_v = case args
+        when String
+          args.strip.split(/\s+/).map(&:strip)
+        else
+          args
+        end
         sub = prsr.parse(arg_v)
 
         { opts: start_opts.merge(acc_opts) }.tap do |a|

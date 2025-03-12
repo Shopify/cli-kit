@@ -48,6 +48,23 @@ module CLI
         )
       end
 
+      def test_array_args
+        @cmd.call('-m -i -c 100 -s 111 -v bar -x baz -o other_val -k cobras'.split(/\s/))
+        assert_equal(
+          {
+            maybe: true,
+            choice: true,
+            count: 100,
+            sum: 111,
+            val: 'bar',
+            str: 'baz',
+            opt: 'other_val',
+            snake_squad_alpha: 'cobras',
+          },
+          @cmd.args[:opts],
+        )
+      end
+
       def test_options_short
         @cmd.call('-m -i -c 100 -s 111 -v bar -x baz -o other_val -k cobras')
         assert_equal(
