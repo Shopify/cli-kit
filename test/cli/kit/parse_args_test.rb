@@ -26,6 +26,10 @@ module CLI
         def call(args)
           @args = parse_args(args, OPTS)
         end
+
+        def call_no_opts(args)
+          @args = parse_args(args)
+        end
       end
 
       def setup
@@ -45,6 +49,17 @@ module CLI
         assert_equal(
           { maybe: false, sum: 11, str: 'foo', opt: 'init_val', snake_squad_alpha: 'snakes' },
           @cmd.args[:opts],
+        )
+      end
+
+      def test_no_opts
+        @cmd.call_no_opts('one two')
+        assert_equal(
+          {
+            opts: {},
+            sub: ['one', 'two'],
+          },
+          @cmd.args,
         )
       end
 

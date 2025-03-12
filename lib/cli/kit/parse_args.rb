@@ -18,7 +18,7 @@ module CLI
           opts_defn: T::Hash[Symbol, T::Array[T.untyped]],
         ).returns(T::Hash[Symbol, T.untyped])
       end
-      def parse_args(args, opts_defn)
+      def parse_args(args, opts_defn = {})
         start_opts, parser_config = opts_defn.reduce([{}, []]) do |(ini, pcfg), (n, cfg)|
           (vals, desc, short, klass) = cfg
           (init_val, def_val) = Array(vals)
