@@ -99,6 +99,27 @@ module CLI
           @cmd.args[:opts],
         )
       end
+
+      def test_options_multi
+        # rubocop:disable Layout/LineLength
+        @cmd.call(
+          '--maybe --choice --count 100 --sum 111 --val bar --str baz --opt other_val --snake-squad-alpha cobras --count 200 --opt france --opt',
+        )
+        # rubocop:enable Layout/LineLength
+        assert_equal(
+          {
+            maybe: true,
+            choice: true,
+            count: [100, 200],
+            sum: 111,
+            val: 'bar',
+            str: 'baz',
+            opt: ['other_val', 'france', 'def_val'],
+            snake_squad_alpha: 'cobras',
+          },
+          @cmd.args[:opts],
+        )
+      end
     end
   end
 end

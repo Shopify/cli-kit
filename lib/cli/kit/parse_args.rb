@@ -12,9 +12,9 @@ module CLI
       # and the resulting args[:opts] is pretty broad. There seems to be minimal value in expressing a
       # tighter subset of T.untyped.
 
-      sig { params(args: String, opts: T::Hash[Symbol, T::Array[T.untyped]]).returns(T::Hash[Symbol, T.untyped]) }
-      def parse_args(args, opts)
-        opts, parser_config = opts.reduce([{}, []]) do |(ini, pcfg), (n, cfg)|
+      sig { params(args: String, opts_defn: T::Hash[Symbol, T::Array[T.untyped]]).returns(T::Hash[Symbol, T.untyped]) }
+      def parse_args(args, opts_defn)
+        start_opts, parser_config = opts_defn.reduce([{}, []]) do |(ini, pcfg), (n, cfg)|
           (vals, desc, short, klass) = cfg
           (init_val, def_val) = Array(vals)
 
@@ -25,6 +25,8 @@ module CLI
         end
 
         require('optparse')
+
+        acc_opts = {}
         prsr = OptionParser.new do |opt_p|
           parser_config.each do |(n, short, desc, def_val, klass)|
             (_, mark) = short.split(' ')
@@ -32,7 +34,11 @@ module CLI
             opt_args = klass.nil? ? [short, long, desc] : [short, long, klass, desc]
 
             T.unsafe(opt_p).on(*opt_args) do |v|
-              opts[n] = v || def_val
+              acc_opts[n] = if acc_opts.key?(n)
+                Array(acc_opts[n]) + Array(v || def_val)
+              else
+                v || def_val
+              end
             end
           end
         end
@@ -40,7 +46,7 @@ module CLI
         arg_v = args.strip.split(/\s+/).map(&:strip)
         sub = prsr.parse(arg_v)
 
-        { opts: opts }.tap do |a|
+        { opts: start_opts.merge(acc_opts) }.tap do |a|
           a[:sub] = sub if sub
         end
       end
