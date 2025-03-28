@@ -366,7 +366,7 @@ module CLI
         def resolve_path(cmd, args, env)
           # If only one argument was provided, make sure it's interpreted by a shell.
           if args.empty?
-            prefix = os == :windows ? 'break && ' : 'true ; '
+            prefix = os == :windows ? 'break && ' : 'true && '
             return [prefix + cmd, []]
           end
           return [cmd, args] if cmd.include?('/')
