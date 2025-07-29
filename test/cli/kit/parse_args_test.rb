@@ -124,7 +124,6 @@ module CLI
       end
 
       def test_options_multi
-        # rubocop:disable Layout/LineLength
         @cmd.call(
           '--maybe --choice --count 100 --sum 111 --val bar --str baz --opt other_val --snake-squad-alpha cobras --count 200 --opt france --opt',
         )

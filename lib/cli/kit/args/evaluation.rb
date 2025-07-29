@@ -205,7 +205,7 @@ module CLI
           )
           matches = opts.select { |node| (opt.short && node.name == opt.short) || (opt.long && node.name == opt.long) }
           if (last = matches.last)
-            return(opt.multi? ? matches.map(&:value) : last.value)
+            return (opt.multi? ? matches.map(&:value) : last.value)
           end
 
           opt.default
