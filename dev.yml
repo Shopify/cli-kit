@@ -1,5 +1,7 @@
+nix: true
+
 up:
-  - homebrew:
+  - packages:
       - fswatch
   - ruby
   - bundler
