@@ -180,6 +180,13 @@ module CLI
 
         private
 
+        sig { params(label: T.nilable(String)).returns(T.nilable(Symbol)) }
+        def symbolize(label)
+          return if label.nil?
+
+          label.split('#').last&.to_sym
+        end
+
         sig { returns(Symbol) }
         def infer_name
           to_skip = 1
@@ -190,7 +197,7 @@ module CLI
               to_skip -= 1
               next
             end
-            return(T.must(loc.label&.to_sym))
+            return(T.must(symbolize(loc.label)))
           end
           raise(ArgumentError, 'could not infer name')
         end
