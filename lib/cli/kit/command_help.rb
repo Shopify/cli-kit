@@ -135,7 +135,7 @@ module CLI
         sig { returns(T.nilable(String)) }
         def build_options
           opts = opts_class
-          return(nil) unless opts
+          return unless opts
 
           methods = []
           loop do

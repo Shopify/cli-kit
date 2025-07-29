@@ -133,9 +133,9 @@ module CLI
       sig { params(error: T.nilable(Exception)).returns(T.nilable(Exception)) }
       def exception_for_submission(error)
         # happens on normal non-error termination
-        return(nil) if error.nil?
+        return if error.nil?
 
-        return(nil) unless error.bug?
+        return unless error.bug?
 
         case error
         when SignalException

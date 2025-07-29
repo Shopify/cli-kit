@@ -197,7 +197,7 @@ module CLI
               to_skip -= 1
               next
             end
-            return(T.must(symbolize(loc.label)))
+            return T.must(symbolize(loc.label))
           end
           raise(ArgumentError, 'could not infer name')
         end
@@ -225,7 +225,7 @@ module CLI
         ).returns(T.untyped)
       end
       def each_option(&block)
-        return(enum_for(:each_option)) unless block_given?
+        return enum_for(:each_option) unless block_given?
 
         obj = assert_result!
         obj.defn.options.each do |opt|
@@ -243,7 +243,7 @@ module CLI
         ).returns(T.untyped)
       end
       def each_flag(&block)
-        return(enum_for(:each_flag)) unless block_given?
+        return enum_for(:each_flag) unless block_given?
 
         obj = assert_result!
         obj.defn.flags.each do |flag|
