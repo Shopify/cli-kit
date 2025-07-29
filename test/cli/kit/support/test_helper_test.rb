@@ -34,8 +34,9 @@ module CLI
           CLI::Kit::System.fake('banana', success: true)
           CLI::Kit::System.fake('kiwi', success: true)
 
-          CLI::Kit::System.system('banana', sudo: true, env: { kiwi: false })
-          CLI::Kit::System.system('kiwi', sudo: true, env: { kiwi: false })
+          env = { kiwi: false }
+          CLI::Kit::System.system('banana', sudo: true, env: env)
+          CLI::Kit::System.system('kiwi', sudo: true, env: env)
 
           errors = assert_all_commands_run(should_raise: false)
           expected_err = <<~EOF
@@ -43,11 +44,11 @@ module CLI
             Commands were not run as expected:
             banana
             - sudo was supposed to be false but was true
-            - env was supposed to be {} but was {:kiwi=>false}
+            - env was supposed to be {} but was #{env}
 
             kiwi
             - sudo was supposed to be false but was true
-            - env was supposed to be {} but was {:kiwi=>false}
+            - env was supposed to be {} but was #{env}
           EOF
           assert_equal(expected_err, CLI::UI::ANSI.strip_codes(errors))
         end
