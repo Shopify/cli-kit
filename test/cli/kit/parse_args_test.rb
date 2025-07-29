@@ -38,6 +38,9 @@ module CLI
 
         @cmd.call('alpha 1')
         assert_equal(['alpha', '1'], @cmd.args[:sub])
+
+        @cmd.call(['alpha', '1'])
+        assert_equal(['alpha', '1'], @cmd.args[:sub])
       end
 
       def test_options_default
@@ -46,10 +49,30 @@ module CLI
           { maybe: false, sum: 11, str: 'foo', opt: 'init_val', snake_squad_alpha: 'snakes' },
           @cmd.args[:opts],
         )
+        @cmd.call([])
+        assert_equal(
+          { maybe: false, sum: 11, str: 'foo', opt: 'init_val', snake_squad_alpha: 'snakes' },
+          @cmd.args[:opts],
+        )
       end
 
       def test_options_short
         @cmd.call('-m -i -c 100 -s 111 -v bar -x baz -o other_val -k cobras')
+        assert_equal(
+          {
+            maybe: true,
+            choice: true,
+            count: 100,
+            sum: 111,
+            val: 'bar',
+            str: 'baz',
+            opt: 'other_val',
+            snake_squad_alpha: 'cobras',
+          },
+          @cmd.args[:opts],
+        )
+
+        @cmd.call(['-m', '-i', '-c', '100', '-s', '111', '-v', 'bar', '-x', 'baz', '-o', 'other_val', '-k', 'cobras'])
         assert_equal(
           {
             maybe: true,
