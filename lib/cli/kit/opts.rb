@@ -5,16 +5,11 @@ require 'cli/kit'
 module CLI
   module Kit
     class Opts
-      extend T::Sig
-
       module Mixin
-        extend T::Sig
         include Kernel
 
         module MixinClassMethods
-          extend T::Sig
-
-          sig { params(included_module: Module).void }
+          #: (Module included_module) -> void
           def include(included_module)
             super
             return unless included_module.is_a?(MixinClassMethods)
@@ -28,36 +23,26 @@ module CLI
             track_method(method_name)
           end
 
-          sig { params(method_name: Symbol).void }
+          #: (Symbol method_name) -> void
           def track_method(method_name)
             @tracked_methods ||= []
             @tracked_methods << method_name unless @tracked_methods.include?(method_name)
           end
 
-          sig { returns(T::Array[Symbol]) }
+          #: -> Array[Symbol]
           def tracked_methods
             @tracked_methods || []
           end
         end
 
         class << self
-          extend T::Sig
-
-          sig { params(klass: Module).void }
+          #: (Module klass) -> void
           def included(klass)
             klass.extend(MixinClassMethods)
           end
         end
 
-        sig do
-          params(
-            name: Symbol,
-            short: T.nilable(String),
-            long: T.nilable(String),
-            desc: T.nilable(String),
-            default: T.any(NilClass, String, T.proc.returns(String)),
-          ).returns(T.nilable(String))
-        end
+        #: (?name: Symbol, ?short: String?, ?long: String?, ?desc: String?, ?default: (String | ^-> String)?) -> String?
         def option(name: infer_name, short: nil, long: nil, desc: nil, default: nil)
           unless default.nil?
             raise(ArgumentError, 'declare options with non-nil defaults using `option!` instead of `option`')
@@ -74,15 +59,7 @@ module CLI
           end
         end
 
-        sig do
-          params(
-            name: Symbol,
-            short: T.nilable(String),
-            long: T.nilable(String),
-            desc: T.nilable(String),
-            default: T.any(NilClass, String, T.proc.returns(String)),
-          ).returns(String)
-        end
+        #: (?name: Symbol, ?short: String?, ?long: String?, ?desc: String?, ?default: (String | ^-> String)?) -> String
         def option!(name: infer_name, short: nil, long: nil, desc: nil, default: nil)
           case @obj
           when Args::Definition
@@ -95,15 +72,7 @@ module CLI
           end
         end
 
-        sig do
-          params(
-            name: Symbol,
-            short: T.nilable(String),
-            long: T.nilable(String),
-            desc: T.nilable(String),
-            default: T.any(T::Array[String], T.proc.returns(T::Array[String])),
-          ).returns(T::Array[String])
-        end
+        #: (?name: Symbol, ?short: String?, ?long: String?, ?desc: String?, ?default: (Array[String] | ^-> Array[String])) -> Array[String]
         def multi_option(name: infer_name, short: nil, long: nil, desc: nil, default: [])
           case @obj
           when Args::Definition
@@ -116,14 +85,7 @@ module CLI
           end
         end
 
-        sig do
-          params(
-            name: Symbol,
-            short: T.nilable(String),
-            long: T.nilable(String),
-            desc: T.nilable(String),
-          ).returns(T::Boolean)
-        end
+        #: (?name: Symbol, ?short: String?, ?long: String?, ?desc: String?) -> bool
         def flag(name: infer_name, short: nil, long: nil, desc: nil)
           case @obj
           when Args::Definition
@@ -134,7 +96,7 @@ module CLI
           end
         end
 
-        sig { params(name: Symbol, desc: T.nilable(String)).returns(String) }
+        #: (?name: Symbol, ?desc: String?) -> String
         def position!(name: infer_name, desc: nil)
           case @obj
           when Args::Definition
@@ -145,18 +107,7 @@ module CLI
           end
         end
 
-        sig do
-          params(
-            name: Symbol,
-            desc: T.nilable(String),
-            default: T.any(NilClass, String, T.proc.returns(String)),
-            skip: T.any(
-              NilClass,
-              T.proc.returns(T::Boolean),
-              T.proc.params(arg0: String).returns(T::Boolean),
-            ),
-          ).returns(T.nilable(String))
-        end
+        #: (?name: Symbol, ?desc: String?, ?default: (String | ^-> String)?, ?skip: (^-> bool | ^(String arg0) -> bool)?) -> String?
         def position(name: infer_name, desc: nil, default: nil, skip: nil)
           case @obj
           when Args::Definition
@@ -167,7 +118,7 @@ module CLI
           end
         end
 
-        sig { params(name: Symbol, desc: T.nilable(String)).returns(T::Array[String]) }
+        #: (?name: Symbol, ?desc: String?) -> Array[String]
         def rest(name: infer_name, desc: nil)
           case @obj
           when Args::Definition
@@ -180,14 +131,14 @@ module CLI
 
         private
 
-        sig { params(label: T.nilable(String)).returns(T.nilable(Symbol)) }
+        #: (String? label) -> Symbol?
         def symbolize(label)
           return if label.nil?
 
           label.split('#').last&.to_sym
         end
 
-        sig { returns(Symbol) }
+        #: -> Symbol
         def infer_name
           to_skip = 1
           Kernel.caller_locations.each do |loc|
@@ -197,7 +148,7 @@ module CLI
               to_skip -= 1
               next
             end
-            return T.must(symbolize(loc.label))
+            return symbolize(loc.label) #: as !nil
           end
           raise(ArgumentError, 'could not infer name')
         end
@@ -206,24 +157,18 @@ module CLI
 
       DEFAULT_OPTIONS = [:helpflag]
 
-      sig { returns(T::Boolean) }
+      #: -> bool
       def helpflag
         flag(name: :help, short: '-h', long: '--help', desc: 'Show this help message')
       end
 
-      sig { returns(T::Array[String]) }
+      #: -> Array[String]
       def unparsed
         obj = assert_result!
         obj.unparsed
       end
 
-      sig do
-        params(
-          block: T.nilable(
-            T.proc.params(arg0: Symbol, arg1: T.nilable(String)).void,
-          ),
-        ).returns(T.untyped)
-      end
+      #: ?{ (Symbol arg0, String? arg1) -> void } -> untyped
       def each_option(&block)
         return enum_for(:each_option) unless block_given?
 
@@ -235,13 +180,7 @@ module CLI
         end
       end
 
-      sig do
-        params(
-          block: T.nilable(
-            T.proc.params(arg0: Symbol, arg1: T::Boolean).void,
-          ),
-        ).returns(T.untyped)
-      end
+      #: ?{ (Symbol arg0, bool arg1) -> void } -> untyped
       def each_flag(&block)
         return enum_for(:each_flag) unless block_given?
 
@@ -253,7 +192,7 @@ module CLI
         end
       end
 
-      sig { params(name: String).returns(T.nilable(T.any(String, T::Boolean))) }
+      #: (String name) -> (String | bool)?
       def [](name)
         obj = assert_result!
         if obj.opt.respond_to?(name)
@@ -263,7 +202,7 @@ module CLI
         end
       end
 
-      sig { params(name: String).returns(T.nilable(String)) }
+      #: (String name) -> String?
       def lookup_option(name)
         obj = assert_result!
         obj.opt.send(name)
@@ -272,7 +211,7 @@ module CLI
         nil
       end
 
-      sig { params(name: String).returns(T::Boolean) }
+      #: (String name) -> bool
       def lookup_flag(name)
         obj = assert_result!
         obj.flag.send(name)
@@ -280,17 +219,18 @@ module CLI
         false
       end
 
-      sig { returns(Args::Evaluation) }
+      #: -> Args::Evaluation
       def assert_result!
         raise(NotImplementedError, 'not implemented') if @obj.is_a?(Args::Definition)
 
         @obj
       end
 
-      sig { params(defn: Args::Definition).void }
+      #: (Args::Definition defn) -> void
       def define!(defn)
         @obj = defn
-        T.cast(self.class, Mixin::MixinClassMethods).tracked_methods.each do |m|
+        klass = self.class #: as Mixin::MixinClassMethods
+        klass.tracked_methods.each do |m|
           send(m)
         end
         DEFAULT_OPTIONS.each do |m|
@@ -298,7 +238,7 @@ module CLI
         end
       end
 
-      sig { params(ev: Args::Evaluation).void }
+      #: (Args::Evaluation ev) -> void
       def evaluate!(ev)
         @obj = ev
         ev.resolve_positions!

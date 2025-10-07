@@ -6,24 +6,22 @@ module CLI
   module Kit
     module Args
       class Definition
-        extend T::Sig
-
         Error = Class.new(Args::Error)
         ConflictingFlag = Class.new(Error)
         InvalidFlag = Class.new(Error)
         InvalidLookup = Class.new(Error)
         InvalidPosition = Class.new(Error)
 
-        sig { returns(T::Array[Flag]) }
+        #: Array[Flag]
         attr_reader :flags
 
-        sig { returns(T::Array[Option]) }
+        #: Array[Option]
         attr_reader :options
 
-        sig { returns(T::Array[Position]) }
+        #: Array[Position]
         attr_reader :positions
 
-        sig { params(name: Symbol, short: T.nilable(String), long: T.nilable(String), desc: T.nilable(String)).void }
+        #: (Symbol name, ?short: String?, ?long: String?, ?desc: String?) -> void
         def add_flag(name, short: nil, long: nil, desc: nil)
           short, long = strip_prefixes_and_validate(short, long)
           flag = Flag.new(name: name, short: short, long: long, desc: desc)
@@ -31,18 +29,7 @@ module CLI
           @flags << flag
         end
 
-        sig do
-          params(
-            name: Symbol, short: T.nilable(String), long: T.nilable(String),
-            desc: T.nilable(String),
-            default: T.any(
-              NilClass,
-              String, T.proc.returns(String),
-              T::Array[String], T.proc.returns(T::Array[String])
-            ),
-            required: T::Boolean, multi: T::Boolean
-          ).void
-        end
+        #: (Symbol name, ?short: String?, ?long: String?, ?desc: String?, ?default: (String | ^-> String | Array[String] | ^-> Array[String])?, ?required: bool, ?multi: bool) -> void
         def add_option(name, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
           short, long = strip_prefixes_and_validate(short, long)
           option = Option.new(
@@ -53,20 +40,7 @@ module CLI
           @options << option
         end
 
-        sig do
-          params(
-            name: Symbol,
-            required: T::Boolean,
-            multi: T::Boolean,
-            desc: T.nilable(String),
-            default: T.any(NilClass, String, T.proc.returns(String)),
-            skip: T.any(
-              NilClass,
-              T.proc.returns(T::Boolean),
-              T.proc.params(arg0: String).returns(T::Boolean),
-            ),
-          ).void
-        end
+        #: (Symbol name, required: bool, multi: bool, ?desc: String?, ?default: (String | ^-> String)?, ?skip: (^-> bool | ^(String arg0) -> bool)?) -> void
         def add_position(name, required:, multi:, desc: nil, default: nil, skip: nil)
           position = Position.new(
             name: name, desc: desc, required: required, multi: multi,
@@ -77,7 +51,7 @@ module CLI
           @positions << position
         end
 
-        sig { void }
+        #: -> void
         def initialize
           @flags = []
           @options = []
@@ -88,19 +62,15 @@ module CLI
         end
 
         module OptBase
-          extend T::Sig
-
-          sig { returns(Symbol) }
+          #: Symbol
           attr_reader :name
 
-          sig { returns(T.nilable(String)) }
+          #: String?
           attr_reader :desc
         end
 
         module OptValue
-          extend T::Sig
-
-          sig { returns(T.any(NilClass, String, T::Array[String])) }
+          #: -> (String | Array[String])?
           def default
             if @default.is_a?(Proc)
               @default.call
@@ -109,43 +79,42 @@ module CLI
             end
           end
 
-          sig { returns(T::Boolean) }
+          #: -> bool
           def dynamic_default?
             @default.is_a?(Proc)
           end
 
-          sig { returns(T::Boolean) }
+          #: -> bool
           def required?
             @required
           end
 
-          sig { returns(T::Boolean) }
+          #: -> bool
           def multi?
             @multi
           end
 
-          sig { returns(T::Boolean) }
+          #: -> bool
           def optional?
             !required?
           end
         end
 
         class Flag
-          extend T::Sig
           include OptBase
 
-          sig { returns(T.nilable(String)) }
+          #: String?
           attr_reader :short
 
-          sig { returns(T.nilable(String)) }
+          #: String?
           attr_reader :long
 
-          sig { returns(String) }
+          #: -> String
           def as_written_by_user
             long ? "--#{long}" : "-#{short}"
           end
 
-          sig { params(name: Symbol, short: T.nilable(String), long: T.nilable(String), desc: T.nilable(String)).void }
+          #: (name: Symbol, ?short: String?, ?long: String?, ?desc: String?) -> void
           def initialize(name:, short: nil, long: nil, desc: nil)
             if long&.start_with?('-') || short&.start_with?('-')
               raise(ArgumentError, 'invalid - prefix')
@@ -159,24 +128,10 @@ module CLI
         end
 
         class Position
-          extend T::Sig
           include OptBase
           include OptValue
 
-          sig do
-            params(
-              name: Symbol,
-              desc: T.nilable(String),
-              required: T::Boolean,
-              multi: T::Boolean,
-              default: T.any(NilClass, String, T.proc.returns(String)),
-              skip: T.any(
-                NilClass,
-                T.proc.returns(T::Boolean),
-                T.proc.params(arg0: String).returns(T::Boolean),
-              ),
-            ).void
-          end
+          #: (name: Symbol, desc: String?, required: bool, multi: bool, ?default: (String | ^-> String)?, ?skip: (^-> bool | ^(String arg0) -> bool)?) -> void
           def initialize(name:, desc:, required:, multi:, default: nil, skip: nil)
             if multi && (default || required)
               raise(ArgumentError, 'multi-valued positions cannot have a default or required value')
@@ -190,34 +145,24 @@ module CLI
             @skip = skip
           end
 
-          sig { params(arg: String).returns(T::Boolean) }
+          #: (String arg) -> bool
           def skip?(arg)
             if @skip.nil?
               false
-            elsif T.must(@skip).arity == 0
-              T.cast(@skip, T.proc.returns(T::Boolean)).call
+            elsif @skip.arity == 0
+              prc = @skip #: as ^() -> bool
+              prc.call
             else
-              T.cast(@skip, T.proc.params(arg0: String).returns(T::Boolean)).call(arg)
+              prc = @skip #: as ^(String) -> bool
+              prc.call(arg)
             end
           end
         end
 
         class Option < Flag
-          extend T::Sig
           include OptValue
 
-          sig do
-            params(
-              name: Symbol, short: T.nilable(String), long: T.nilable(String),
-              desc: T.nilable(String),
-              default: T.any(
-                NilClass,
-                String, T.proc.returns(String),
-                T::Array[String], T.proc.returns(T::Array[String])
-              ),
-              required: T::Boolean, multi: T::Boolean
-            ).void
-          end
+          #: (name: Symbol, ?short: String?, ?long: String?, ?desc: String?, ?default: (String | ^-> String | Array[String] | ^-> Array[String])?, ?required: bool, ?multi: bool) -> void
           def initialize(name:, short: nil, long: nil, desc: nil, default: nil, required: false, multi: false)
             if multi && required
               raise(ArgumentError, 'multi-valued options cannot have a required value')
@@ -230,7 +175,7 @@ module CLI
           end
         end
 
-        sig { params(name: Symbol).returns(T.nilable(Flag)) }
+        #: (Symbol name) -> Flag?
         def lookup_flag(name)
           flagopt = @by_name[name]
           if flagopt.class == Flag
@@ -238,7 +183,7 @@ module CLI
           end
         end
 
-        sig { params(name: Symbol).returns(T.nilable(Option)) }
+        #: (Symbol name) -> Option?
         def lookup_option(name)
           flagopt = @by_name[name]
           if flagopt.class == Option
@@ -246,21 +191,21 @@ module CLI
           end
         end
 
-        sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
+        #: (String name) -> (Flag | Option)?
         def lookup_short(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
 
           @by_short[name]
         end
 
-        sig { params(name: String).returns(T.any(Flag, Option, NilClass)) }
+        #: (String name) -> (Flag | Option)?
         def lookup_long(name)
           raise(InvalidLookup, "invalid '-' prefix") if name.start_with?('-')
 
           @by_long[name]
         end
 
-        sig { params(name: Symbol).returns(T.nilable(Position)) }
+        #: (Symbol name) -> Position?
         def lookup_position(name)
           position = @by_name[name]
           if position.class == Position
@@ -270,12 +215,12 @@ module CLI
 
         private
 
-        sig { params(position: Position).void }
+        #: (Position position) -> void
         def validate_order(position)
           raise(InvalidPosition, 'Cannot have any more positional arguments after multi') if @positions.last&.multi?
         end
 
-        sig { params(short: String).returns(String) }
+        #: (String short) -> String
         def strip_short_prefix(short)
           unless short.match?(/^-[^-]/)
             raise(InvalidFlag, "Short flag '#{short}' does not start with '-'")
@@ -287,7 +232,7 @@ module CLI
           short.sub(/^-/, '')
         end
 
-        sig { params(long: String).returns(String) }
+        #: (String long) -> String
         def strip_long_prefix(long)
           unless long.match?(/^--[^-]/)
             raise(InvalidFlag, "Long flag '#{long}' does not start with '--'")
@@ -296,10 +241,7 @@ module CLI
           long.sub(/^--/, '')
         end
 
-        sig do
-          params(short: T.nilable(String), long: T.nilable(String))
-            .returns([T.nilable(String), T.nilable(String)])
-        end
+        #: (String? short, String? long) -> [String?, String?]
         def strip_prefixes_and_validate(short, long)
           if short.nil? && long.nil?
             raise(Error, 'One or more of short and long must be specified')
@@ -311,7 +253,7 @@ module CLI
           [short, long]
         end
 
-        sig { params(flagopt: Flag).void }
+        #: (Flag flagopt) -> void
         def add_resolution(flagopt)
           if flagopt.short
             if (existing = @by_short[flagopt.short])
@@ -330,7 +272,7 @@ module CLI
           add_name_resolution(flagopt)
         end
 
-        sig { params(arg: T.any(Flag, Position)).void }
+        #: ((Flag | Position) arg) -> void
         def add_name_resolution(arg)
           if (existing = @by_name[arg.name])
             raise(ConflictingFlag, "Flag '#{arg.name}' already defined by #{existing.name}")

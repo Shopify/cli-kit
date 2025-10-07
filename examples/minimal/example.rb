@@ -11,7 +11,7 @@ include(CLI::Kit)
 registry = CommandRegistry.new(default: 'hello')
 registry.add(
   Class.new(BaseCommand) do
-    sig { params(_args: T::Array[String], _name: String).void }
+    #: (Array[String], String) -> void
     def call(_args, _name)
       puts 'hello, world!'
     end

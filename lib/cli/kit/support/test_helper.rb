@@ -14,7 +14,8 @@ module CLI
           CLI::Kit::System.reset!
           # this is in minitest, but sorbet doesn't know that. probably we
           # could structure this better.
-          T.unsafe(self).assert(false, errors) if should_raise && !errors.nil?
+          uself = self #: as untyped
+          uself.assert(false, errors) if should_raise && !errors.nil?
           errors
         end
 
@@ -67,7 +68,8 @@ module CLI
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    T.unsafe(self).original_system(*a, sudo: sudo, env: env, **kwargs)
+                    uself = self #: as untyped
+                    uself.original_system(*a, sudo: sudo, env: env, **kwargs)
                   else
                     FakeSuccess.new(expected_command[:success])
                   end
@@ -83,7 +85,8 @@ module CLI
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    T.unsafe(self).original_capture2(*a, sudo: sudo, env: env, **kwargs)
+                    uself = self #: as untyped
+                    uself.original_capture2(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],
@@ -102,7 +105,8 @@ module CLI
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    T.unsafe(self).original_capture2e(*a, sudo: sudo, env: env, **kwargs)
+                    uself = self #: as untyped
+                    uself.original_capture2e(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],
@@ -121,7 +125,8 @@ module CLI
 
                   # Otherwise handle the command
                   if expected_command[:allow]
-                    T.unsafe(self).original_capture3(*a, sudo: sudo, env: env, **kwargs)
+                    uself = self #: as untyped
+                    uself.original_capture3(*a, sudo: sudo, env: env, **kwargs)
                   else
                     [
                       expected_command[:stdout],

@@ -6,3 +6,4 @@ examples/
 gen/template/
 --ignore
 vendor/
+--enable-experimental-rbs-comments

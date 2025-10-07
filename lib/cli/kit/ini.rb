@@ -17,14 +17,10 @@ module CLI
     # See the ini_test.rb file for more examples
     #
     class Ini
-      extend T::Sig
-
-      sig { returns(T::Hash[String, T::Hash[String, String]]) }
+      #: Hash[String, Hash[String, String]]
       attr_accessor :ini
 
-      sig do
-        params(path: T.nilable(String), config: T.nilable(String), default_section: String).void
-      end
+      #: (?String? path, ?config: String?, ?default_section: String) -> void
       def initialize(path = nil, config: nil, default_section: '[global]')
         @config = if path && File.exist?(path)
           File.readlines(path)
@@ -35,7 +31,7 @@ module CLI
         @current_key = default_section
       end
 
-      sig { returns(T::Hash[String, T::Hash[String, String]]) }
+      #: -> Hash[String, Hash[String, String]]
       def parse
         return @ini if @config.nil?
 
@@ -53,19 +49,19 @@ module CLI
         @ini
       end
 
-      sig { returns(String) }
+      #: -> String
       def git_format
         to_ini(git_format: true)
       end
 
-      sig { returns(String) }
+      #: -> String
       def to_s
         to_ini
       end
 
       private
 
-      sig { params(git_format: T::Boolean).returns(String) }
+      #: (?git_format: bool) -> String
       def to_ini(git_format: false)
         optional_tab = git_format ? "\t" : ''
         str = []
@@ -79,14 +75,14 @@ module CLI
         str.join("\n")
       end
 
-      sig { params(key: String, val: String).void }
+      #: (String key, String val) -> void
       def set_val(key, val)
         current_key = @current_key
         @ini[current_key] ||= {}
         @ini[current_key][key] = val
       end
 
-      sig { params(k: String).returns(T::Boolean) }
+      #: (String k) -> bool
       def section_designator?(k)
         k.start_with?('[') && k.end_with?(']')
       end

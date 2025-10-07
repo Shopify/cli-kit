@@ -6,21 +6,17 @@ module CLI
   module Kit
     module Util
       class << self
-        extend T::Sig
         #
         # Converts an integer representing bytes into a human readable format
         #
-        sig { params(bytes: Integer, precision: Integer, space: T::Boolean).returns(String) }
+        #: (Integer bytes, ?precision: Integer, ?space: bool) -> String
         def to_filesize(bytes, precision: 2, space: false)
           to_si_scale(bytes, 'B', precision: precision, space: space, factor: 1024)
         end
 
         # Converts a number to a human readable format on the SI scale
         #
-        sig do
-          params(number: Numeric, unit: String, factor: Integer, precision: Integer, space: T::Boolean)
-            .returns(String)
-        end
+        #: (Numeric number, ?String unit, ?factor: Integer, ?precision: Integer, ?space: bool) -> String
         def to_si_scale(number, unit = '', factor: 1000, precision: 2, space: false)
           raise ArgumentError, 'factor should only be 1000 or 1024' unless [1000, 1024].include?(factor)
 
@@ -37,11 +33,11 @@ module CLI
             if number < 1
               index = [-scale - 1, small_scale.length].min
               scale = -(index + 1)
-              prefix = T.must(small_scale[index])
+              prefix = small_scale[index] #: as !nil
             else
               index = [scale - 1, big_scale.length].min
               scale = index + 1
-              prefix = T.must(big_scale[index])
+              prefix = big_scale[index] #: as !nil
             end
           end
 
@@ -62,10 +58,7 @@ module CLI
         # Dir.chdir, when invoked in block form, complains when we call chdir
         # again recursively. There's no apparent good reason for this, so we
         # simply implement our own block form of Dir.chdir here.
-        sig do
-          type_parameters(:T).params(dir: String, block: T.proc.returns(T.type_parameter(:T)))
-            .returns(T.type_parameter(:T))
-        end
+        #: [T] (String dir) { -> T } -> T
         def with_dir(dir, &block)
           prev = Dir.pwd
           begin
@@ -85,44 +78,35 @@ module CLI
         # end.retry_after(ExpectedError) do
         #   costly_prep()
         # end
-        sig do
-          type_parameters(:T).params(block_that_might_raise: T.proc.returns(T.type_parameter(:T)))
-            .returns(Retrier[T.type_parameter(:T)])
-        end
+        #: [T] { -> T } -> Retrier[T]
         def begin(&block_that_might_raise)
           Retrier.new(block_that_might_raise)
         end
       end
 
+      #: [BlockReturnType]
       class Retrier
-        extend T::Sig
-        extend T::Generic
-
-        BlockReturnType = type_member
-
-        sig { params(block_that_might_raise: T.proc.returns(BlockReturnType)).void }
+        #: (^-> BlockReturnType block_that_might_raise) -> void
         def initialize(block_that_might_raise)
           @block_that_might_raise = block_that_might_raise
         end
 
-        sig do
-          params(
-            exception: T.class_of(Exception),
-            retries: Integer,
-            before_retry: T.nilable(T.proc.params(e: Exception).void),
-          ).returns(BlockReturnType)
-        end
+        #: (?singleton(Exception) exception, ?retries: Integer) ?{ (Exception e) -> void } -> BlockReturnType
         def retry_after(exception = StandardError, retries: 1, &before_retry)
           @block_that_might_raise.call
         rescue exception => e
           raise if (retries -= 1) < 0
 
           if before_retry
+            # rubocop:disable Style/IdenticalConditionalBranches
             if before_retry.arity == 0
-              T.cast(before_retry, T.proc.void).call
+              prc = before_retry #: as ^() -> void
+              prc.call
             else
-              T.cast(before_retry, T.proc.params(e: Exception).void).call(e)
+              prc = before_retry #: as ^(Exception) -> void
+              prc.call(e)
             end
+            # rubocop:enable Style/IdenticalConditionalBranches
           end
           retry
         end

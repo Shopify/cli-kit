@@ -8,12 +8,8 @@ require 'tmpdir'
 
 module Gen
   class Generator
-    extend T::Sig
-
     class << self
-      extend T::Sig
-
-      sig { params(project_name: String).void }
+      #: (String project_name) -> void
       def run(project_name)
         new(project_name).run
       end
@@ -44,7 +40,7 @@ module Gen
     }.freeze
     private_constant :BUNDLER_TRANSLATIONS
 
-    sig { params(project_name: String).void }
+    #: (String project_name) -> void
     def initialize(project_name)
       raise(
         CLI::Kit::Abort,
@@ -54,7 +50,7 @@ module Gen
       @title_case_project_name = @project_name.sub(/^./, &:upcase)
     end
 
-    sig { void }
+    #: -> void
     def run
       vendor = ask_vendor?
       create_project_dir
@@ -68,12 +64,12 @@ module Gen
 
     private
 
-    sig { returns(T::Boolean) }
+    #: -> bool
     def ask_vendor?
       return true if ENV['DEPS'] == 'vendor'
       return false if ENV['DEPS'] == 'bundler'
 
-      vendor = T.let(nil, T.nilable(String))
+      vendor = nil #: String?
       CLI::UI::Frame.open('Configuration') do
         q = 'How would you like the application to consume {{command:cli-kit}} and {{command:cli-ui}}?'
         vendor = CLI::UI::Prompt.ask(q) do |c|
@@ -84,7 +80,7 @@ module Gen
       vendor == 'vendor'
     end
 
-    sig { void }
+    #: -> void
     def create_project_dir
       info(create: '')
       FileUtils.mkdir(@project_name)
@@ -92,7 +88,7 @@ module Gen
       error("directory already exists: #{@project_name}")
     end
 
-    sig { params(translations: T::Hash[String, T.any(FalseClass, String)]).void }
+    #: (translations: Hash[String, (FalseClass | String)]) -> void
     def copy_files(translations:)
       each_template_file do |source_name|
         target_name = translations.fetch(source_name, source_name)
@@ -115,7 +111,7 @@ module Gen
       end
     end
 
-    sig { void }
+    #: -> void
     def update_deps
       Dir.mktmpdir do |tmp|
         clone(tmp, 'cli-ui')
@@ -127,7 +123,7 @@ module Gen
       end
     end
 
-    sig { params(dir: String, repo: String).void }
+    #: (String dir, String repo) -> void
     def clone(dir, repo)
       info(clone: repo)
       out, stat = Open3.capture2e('git', '-C', dir, 'clone', "https://github.com/shopify/#{repo}")
@@ -137,7 +133,7 @@ module Gen
       end
     end
 
-    sig { params(block: T.proc.params(rel_path: String).void).void }
+    #: { (String rel_path) -> void } -> void
     def each_template_file(&block)
       root = Pathname.new(TEMPLATE_ROOT)
       Dir.glob("#{TEMPLATE_ROOT}/**/*").each do |f|
@@ -146,7 +142,7 @@ module Gen
       end
     end
 
-    sig { params(s: String).returns(String) }
+    #: (String s) -> String
     def apply_template_variables(s)
       s
         .gsub('__app__', @project_name)
@@ -155,19 +151,19 @@ module Gen
         .gsub('__cli-ui-version__', cli_ui_version)
     end
 
-    sig { returns(String) }
+    #: -> String
     def cli_kit_version
       require 'cli/kit/version'
       CLI::Kit::VERSION.to_s
     end
 
-    sig { returns(String) }
+    #: -> String
     def cli_ui_version
       require 'cli/ui/version'
       CLI::UI::VERSION.to_s
     end
 
-    sig { params(create: T.nilable(String), clone: T.nilable(String), run: T.nilable(String)).void }
+    #: (?create: String?, ?clone: String?, ?run: String?) -> void
     def info(create: nil, clone: nil, run: nil)
       if clone
         puts(CLI::UI.fmt("\t{{bold:{{yellow:clone}}\t#{clone}}}"))
@@ -178,7 +174,7 @@ module Gen
       end
     end
 
-    sig { params(msg: String).void }
+    #: (String msg) -> void
     def error(msg)
       raise(CLI::Kit::Abort, msg)
     end

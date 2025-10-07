@@ -7,15 +7,13 @@ require 'fileutils'
 module CLI
   module Kit
     class Executor
-      extend T::Sig
-
-      sig { params(log_file: String).void }
+      #: (log_file: String) -> void
       def initialize(log_file:)
         FileUtils.mkpath(File.dirname(log_file))
         @log_file = log_file
       end
 
-      sig { params(command: T.class_of(CLI::Kit::BaseCommand), command_name: String, args: T::Array[String]).void }
+      #: (singleton(CLI::Kit::BaseCommand) command, String command_name, Array[String] args) -> void
       def call(command, command_name, args)
         with_traps do
           with_logging do |id|
@@ -36,10 +34,7 @@ module CLI
 
       private
 
-      sig do
-        type_parameters(:T).params(block: T.proc.params(id: String).returns(T.type_parameter(:T)))
-          .returns(T.type_parameter(:T))
-      end
+      #: [T] { (String id) -> T } -> T
       def with_logging(&block)
         CLI::UI.log_output_to(@log_file) do
           CLI::UI::StdoutRouter.with_id(on_streams: [CLI::UI::StdoutRouter.duplicate_output_to].compact) do |id|
@@ -48,18 +43,14 @@ module CLI
         end
       end
 
-      sig { type_parameters(:T).params(block: T.proc.returns(T.type_parameter(:T))).returns(T.type_parameter(:T)) }
+      #: [T] { -> T } -> T
       def with_traps(&block)
         twrap('QUIT', method(:quit_handler)) do
           twrap('INFO', method(:info_handler), &block)
         end
       end
 
-      sig do
-        type_parameters(:T)
-          .params(signal: String, handler: Method, block: T.proc.returns(T.type_parameter(:T)))
-          .returns(T.type_parameter(:T))
-      end
+      #: [T] (String signal, Method handler) { -> T } -> T
       def twrap(signal, handler, &block)
         return yield unless Signal.list.key?(signal)
 
@@ -78,7 +69,7 @@ module CLI
         end
       end
 
-      sig { params(_sig: T.untyped).void }
+      #: (untyped _sig) -> void
       def quit_handler(_sig)
         z = caller
         CLI::UI.raw do
@@ -88,7 +79,7 @@ module CLI
         exit(CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG)
       end
 
-      sig { params(_sig: T.untyped).void }
+      #: (untyped _sig) -> void
       def info_handler(_sig)
         z = caller
         CLI::UI.raw do

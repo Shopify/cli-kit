@@ -1,17 +1,10 @@
 # typed: true
 
 require 'cli/ui'
-
-unless defined?(T)
-  require('cli/kit/sorbet_runtime_stub')
-end
-
 require 'cli/kit/core_ext'
 
 module CLI
   module Kit
-    extend T::Sig
-
     autoload :Args,            'cli/kit/args'
     autoload :BaseCommand,     'cli/kit/base_command'
     autoload :CommandRegistry, 'cli/kit/command_registry'
@@ -32,6 +25,9 @@ module CLI
     EXIT_FAILURE_BUT_NOT_BUG = 30
     EXIT_BUG                 = 1
     EXIT_SUCCESS             = 0
+
+    UNTYPED_NIL = nil #: untyped
+    private_constant(:UNTYPED_NIL)
 
     # Abort, Bug, AbortSilent, and BugSilent are four ways of immediately bailing
     # on command-line execution when an unrecoverable error occurs.
@@ -76,9 +72,7 @@ module CLI
     GenericAbort = Class.new(Exception) # rubocop:disable Lint/InheritException
 
     class Abort < GenericAbort # bug:false; silent: false
-      extend(T::Sig)
-
-      sig { returns(T::Boolean) }
+      #: -> bool
       def bug?
         false
       end
@@ -88,31 +82,25 @@ module CLI
     end
 
     class BugSilent < GenericAbort # bug:true; silent:true
-      extend(T::Sig)
-
-      sig { returns(T::Boolean) }
+      #: -> bool
       def silent?
         true
       end
     end
 
     class AbortSilent < GenericAbort # bug:false; silent:true
-      extend(T::Sig)
-
-      sig { returns(T::Boolean) }
+      #: -> bool
       def bug?
         false
       end
 
-      sig { returns(T::Boolean) }
+      #: -> bool
       def silent?
         true
       end
     end
 
     class << self
-      extend T::Sig
-
       # Mirrors the API of Kernel#raise, but with the addition of a few new
       # optional keyword arguments. `bug` and `silent` attach metadata to the
       # exception being raised, which is interpreted later in the ErrorHandler to
@@ -121,31 +109,25 @@ module CLI
       # `depth` is used to trim leading elements of the backtrace. If you wrap
       # this method in your own wrapper, you'll want to pass `depth: 2`, for
       # example.
-      sig do
-        params(
-          exception: T.any(Class, String, Exception),
-          string: T.untyped,
-          array: T.nilable(T::Array[String]),
-          cause: T.nilable(Exception),
-          bug: T.nilable(T::Boolean),
-          silent: T.nilable(T::Boolean),
-          depth: Integer,
-        ).returns(T.noreturn)
-      end
+      #: (?(Class | String | Exception) exception, ?untyped string, ?Array[String]? array, ?cause: Exception?, ?bug: bool?, ?silent: bool?, ?depth: Integer) -> bot
       def raise(
         # default arguments
-        exception = T.unsafe(nil), string = T.unsafe(nil), array = T.unsafe(nil), cause: $ERROR_INFO,
+        exception = UNTYPED_NIL,
+        string = UNTYPED_NIL,
+        array = UNTYPED_NIL,
+        cause: $ERROR_INFO,
         # new arguments
         bug: nil, silent: nil, depth: 1
       )
+        k = Kernel #: as untyped
         if array
-          T.unsafe(Kernel).raise(exception, string, array, cause: cause)
+          k.raise(exception, string, array, cause: cause)
         elsif string
-          T.unsafe(Kernel).raise(exception, string, Kernel.caller(depth), cause: cause)
+          k.raise(exception, string, Kernel.caller(depth), cause: cause)
         elsif exception.is_a?(String)
-          T.unsafe(Kernel).raise(RuntimeError, exception, Kernel.caller(depth), cause: cause)
+          k.raise(RuntimeError, exception, Kernel.caller(depth), cause: cause)
         else
-          T.unsafe(Kernel).raise(exception, exception.message, Kernel.caller(depth), cause: cause)
+          k.raise(exception, exception.message, Kernel.caller(depth), cause: cause)
         end
       rescue Exception => e # rubocop:disable Lint/RescueException
         e.bug!(bug) unless bug.nil?

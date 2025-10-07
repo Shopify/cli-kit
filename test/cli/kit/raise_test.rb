@@ -40,12 +40,12 @@ module CLI
           exc = e
         end
         assert(exc)
-        exc = T.must(exc)
+        exc = exc #: as !nil
         assert_equal(bug, exc.bug?) unless bug.nil?
         assert_equal(silent, exc.silent?) unless silent.nil?
         assert_equal(message, exc.message) unless message.nil?
         assert_equal(klass, exc.class) unless klass.nil?
-        want_function = T.must(caller_locations(1, 1)&.first&.label)
+        want_function = caller_locations(1, 1)&.first&.label #: as !nil
         assert(
           exc.backtrace&.detect { |l| !l.match?(/sorbet-runtime/) }&.index(want_function),
           'backtrace trimming looks wrong',
