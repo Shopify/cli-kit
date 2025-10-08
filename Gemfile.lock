@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cli-kit (5.1.0)
+    cli-kit (5.2.0)
       cli-ui (~> 2.4)
 
 GEM
