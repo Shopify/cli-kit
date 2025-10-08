@@ -7,27 +7,23 @@ module CLI
     module Args
       class Parser
         class Node
-          extend T::Sig
-
-          sig { void }
+          #: -> void
           def initialize
           end
 
-          sig { params(other: T.untyped).returns(T::Boolean) }
+          #: (untyped other) -> bool
           def ==(other)
             self.class == other.class
           end
 
           class Option < Node
-            extend T::Sig
-
-            sig { returns(String) }
+            #: String
             attr_reader :name
 
-            sig { returns(String) }
+            #: String
             attr_reader :value
 
-            sig { params(name: String, value: String).void }
+            #: (String name, String value) -> void
             def initialize(name, value)
               @name = name
               @value = value
@@ -35,12 +31,12 @@ module CLI
             end
             private_class_method(:new) # don't instantiate this class directly
 
-            sig { returns(String) }
+            #: -> String
             def inspect
               "#<#{self.class.name} #{@name}=#{@value}>"
             end
 
-            sig { params(other: T.untyped).returns(T::Boolean) }
+            #: (untyped other) -> bool
             def ==(other)
               !!(super(other) && @value == other.value && @name == other.name)
             end
@@ -55,22 +51,22 @@ module CLI
           end
 
           class Flag < Node
-            sig { returns(String) }
+            #: String
             attr_reader :value
 
-            sig { params(value: String).void }
+            #: (String value) -> void
             def initialize(value)
               @value = value
               super()
             end
             private_class_method(:new) # don't instantiate this class directly
 
-            sig { returns(String) }
+            #: -> String
             def inspect
               "#<#{self.class.name} #{@value}>"
             end
 
-            sig { params(other: T.untyped).returns(T::Boolean) }
+            #: (untyped other) -> bool
             def ==(other)
               !!(super(other) && @value == other.value)
             end
@@ -85,42 +81,42 @@ module CLI
           end
 
           class Argument < Node
-            sig { returns(String) }
+            #: String
             attr_reader :value
 
-            sig { params(value: String).void }
+            #: (String value) -> void
             def initialize(value)
               @value = value
               super()
             end
 
-            sig { returns(String) }
+            #: -> String
             def inspect
               "#<#{self.class.name} #{@value}>"
             end
 
-            sig { params(other: T.untyped).returns(T::Boolean) }
+            #: (untyped other) -> bool
             def ==(other)
               !!(super(other) && @value == other.value)
             end
           end
 
           class Unparsed < Node
-            sig { returns(T::Array[String]) }
+            #: Array[String]
             attr_reader :value
 
-            sig { params(value: T::Array[String]).void }
+            #: (Array[String] value) -> void
             def initialize(value)
               @value = value
               super()
             end
 
-            sig { returns(String) }
+            #: -> String
             def inspect
               "#<#{self.class.name} #{@value.join(" ")}>"
             end
 
-            sig { params(other: T.untyped).returns(T::Boolean) }
+            #: (untyped other) -> bool
             def ==(other)
               !!(super(other) && @value == other.value)
             end

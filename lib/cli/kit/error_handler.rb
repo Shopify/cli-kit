@@ -6,23 +6,12 @@ require 'English'
 module CLI
   module Kit
     class ErrorHandler
-      extend T::Sig
+      #: type exception_reporter_or_proc = singleton(ExceptionReporter) | ^() -> singleton(ExceptionReporter)
 
-      ExceptionReporterOrProc = T.type_alias do
-        T.any(T.class_of(ExceptionReporter), T.proc.returns(T.class_of(ExceptionReporter)))
-      end
-
-      sig { params(override_exception_handler: T.proc.params(arg0: Exception).returns(Integer)).void }
+      #: ^(Exception arg0) -> Integer
       attr_writer :override_exception_handler
 
-      sig do
-        params(
-          log_file: T.nilable(String),
-          exception_reporter: ExceptionReporterOrProc,
-          tool_name: T.nilable(String),
-          dev_mode: T::Boolean,
-        ).void
-      end
+      #: (?log_file: String?, ?exception_reporter: exception_reporter_or_proc, ?tool_name: String?, ?dev_mode: bool) -> void
       def initialize(log_file: nil, exception_reporter: NullExceptionReporter, tool_name: nil, dev_mode: false)
         @log_file = log_file
         @exception_reporter_or_proc = exception_reporter
@@ -30,33 +19,28 @@ module CLI
         @dev_mode = dev_mode
       end
 
+      # @abstract
       class ExceptionReporter
-        extend T::Sig
-        extend T::Helpers
-        abstract!
-
         class << self
-          extend T::Sig
-
-          sig { abstract.params(exception: T.nilable(Exception), logs: T.nilable(String)).void }
-          def report(exception, logs = nil); end
+          # @abstract
+          #: (Exception?, ?String?) -> void
+          def report(exception, logs = nil)
+            raise(NotImplementedError)
+          end
         end
       end
 
       class NullExceptionReporter < ExceptionReporter
-        extend T::Sig
-
         class << self
-          extend T::Sig
-
-          sig { override.params(_exception: T.nilable(Exception), _logs: T.nilable(String)).void }
+          # @override
+          #: (Exception? _exception, ?String? _logs) -> void
           def report(_exception, _logs = nil)
             nil
           end
         end
       end
 
-      sig { params(block: T.proc.void).returns(Integer) }
+      #: { -> void } -> Integer
       def call(&block)
         # @at_exit_exception is set if handle_abort decides to submit an error.
         # $ERROR_INFO is set if we terminate because of a signal.
@@ -64,7 +48,7 @@ module CLI
         triage_all_exceptions(&block)
       end
 
-      sig { params(error: T.nilable(Exception)).void }
+      #: (Exception? error) -> void
       def report_exception(error)
         if (notify_with = exception_for_submission(error))
           logs = nil
@@ -92,7 +76,7 @@ module CLI
       # they're #bug?
       #
       # Returns an exit status for the program.
-      sig { params(block: T.proc.void).returns(Integer) }
+      #: { -> void } -> Integer
       def triage_all_exceptions(&block)
         begin
           block.call
@@ -130,7 +114,7 @@ module CLI
         e.bug? ? CLI::Kit::EXIT_BUG : CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
-      sig { params(error: T.nilable(Exception)).returns(T.nilable(Exception)) }
+      #: (Exception? error) -> Exception?
       def exception_for_submission(error)
         # happens on normal non-error termination
         return if error.nil?
@@ -161,14 +145,14 @@ module CLI
         end
       end
 
-      sig { params(message: String).void }
+      #: (String message) -> void
       def stderr_puts(message)
         $stderr.puts(CLI::UI.fmt("{{red:#{message}}}"))
       rescue Errno::EPIPE, Errno::EIO
         nil
       end
 
-      sig { returns(T.class_of(ExceptionReporter)) }
+      #: -> singleton(ExceptionReporter)
       def exception_reporter
         case @exception_reporter_or_proc
         when Proc

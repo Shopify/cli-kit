@@ -5,58 +5,60 @@ require 'cli/kit'
 module CLI
   module Kit
     class CommandRegistry
-      extend T::Sig
+      #: type command_or_proc = singleton(CLI::Kit::BaseCommand) | ^() -> singleton(CLI::Kit::BaseCommand)
 
-      CommandOrProc = T.type_alias do
-        T.any(T.class_of(CLI::Kit::BaseCommand), T.proc.returns(T.class_of(CLI::Kit::BaseCommand)))
-      end
-
-      sig { returns(T::Hash[String, CommandOrProc]) }
+      #: Hash[String, command_or_proc]
       attr_reader :commands
 
-      sig { returns(T::Hash[String, String]) }
+      #: Hash[String, String]
       attr_reader :aliases
 
+      # @interface
       module ContextualResolver
-        extend T::Sig
-        extend T::Helpers
-        interface!
+        # @abstract
+        #: -> Array[String]
+        def command_names
+          raise(NotImplementedError)
+        end
 
-        sig { abstract.returns(T::Array[String]) }
-        def command_names; end
+        # @abstract
+        #: -> Hash[String, String]
+        def aliases
+          raise(NotImplementedError)
+        end
 
-        sig { abstract.returns(T::Hash[String, String]) }
-        def aliases; end
-
-        sig { abstract.params(_name: String).returns(T.class_of(CLI::Kit::BaseCommand)) }
-        def command_class(_name); end
+        # @abstract
+        #: (String) -> singleton(CLI::Kit::BaseCommand)
+        def command_class(_name)
+          raise(NotImplementedError)
+        end
       end
 
       module NullContextualResolver
-        extend T::Sig
         extend ContextualResolver
 
         class << self
-          extend T::Sig
-
-          sig { override.returns(T::Array[String]) }
+          # @override
+          #: -> Array[String]
           def command_names
             []
           end
 
-          sig { override.returns(T::Hash[String, String]) }
+          # @override
+          #: -> Hash[String, String]
           def aliases
             {}
           end
 
-          sig { override.params(_name: String).returns(T.class_of(CLI::Kit::BaseCommand)) }
+          # @override
+          #: (String _name) -> singleton(CLI::Kit::BaseCommand)
           def command_class(_name)
             raise(CLI::Kit::Abort, 'Cannot be called on the NullContextualResolver since command_names is empty')
           end
         end
       end
 
-      sig { params(default: String, contextual_resolver: ContextualResolver).void }
+      #: (default: String, ?contextual_resolver: ContextualResolver) -> void
       def initialize(default:, contextual_resolver: NullContextualResolver)
         @commands = {}
         @aliases  = {}
@@ -64,47 +66,49 @@ module CLI
         @contextual_resolver = contextual_resolver
       end
 
-      sig { returns(T::Hash[String, T.class_of(CLI::Kit::BaseCommand)]) }
+      #: -> Hash[String, singleton(CLI::Kit::BaseCommand)]
       def resolved_commands
         @commands.each_with_object({}) do |(k, v), a|
           a[k] = resolve_class(v)
         end
       end
 
-      sig { params(const: CommandOrProc, name: String).void }
+      #: (command_or_proc const, String name) -> void
       def add(const, name)
         commands[name] = const
       end
 
-      sig { params(name: T.nilable(String)).returns([T.nilable(T.class_of(CLI::Kit::BaseCommand)), String]) }
+      #: (String? name) -> [singleton(CLI::Kit::BaseCommand)?, String]
       def lookup_command(name)
         name = @default if name.to_s.empty?
-        resolve_command(T.must(name))
+        resolve_command(
+          name, #: as !nil
+        )
       end
 
-      sig { params(from: String, to: String).void }
+      #: (String from, String to) -> void
       def add_alias(from, to)
         aliases[from] = to unless aliases[from]
       end
 
-      sig { returns(T::Array[String]) }
+      #: -> Array[String]
       def command_names
         @contextual_resolver.command_names + commands.keys
       end
 
-      sig { params(name: String).returns(T::Boolean) }
+      #: (String name) -> bool
       def exist?(name)
         !resolve_command(name).first.nil?
       end
 
       private
 
-      sig { params(name: String).returns(String) }
+      #: (String name) -> String
       def resolve_alias(name)
         aliases[name] || @contextual_resolver.aliases.fetch(name, name)
       end
 
-      sig { params(name: String).returns([T.nilable(T.class_of(CLI::Kit::BaseCommand)), String]) }
+      #: (String name) -> [singleton(CLI::Kit::BaseCommand)?, String]
       def resolve_command(name)
         name = resolve_alias(name)
         resolve_global_command(name) ||
@@ -112,7 +116,7 @@ module CLI
           [nil, name]
       end
 
-      sig { params(name: String).returns(T.nilable([T.class_of(CLI::Kit::BaseCommand), String])) }
+      #: (String name) -> [singleton(CLI::Kit::BaseCommand), String]?
       def resolve_global_command(name)
         klass = resolve_class(commands.fetch(name, nil))
         return unless klass
@@ -122,7 +126,7 @@ module CLI
         nil
       end
 
-      sig { params(name: String).returns(T.nilable([T.class_of(CLI::Kit::BaseCommand), String])) }
+      #: (String name) -> [singleton(CLI::Kit::BaseCommand), String]?
       def resolve_contextual_command(name)
         found = @contextual_resolver.command_names.include?(name)
         return unless found
@@ -130,7 +134,7 @@ module CLI
         [@contextual_resolver.command_class(name), name]
       end
 
-      sig { params(class_or_proc: T.nilable(CommandOrProc)).returns(T.nilable(T.class_of(CLI::Kit::BaseCommand))) }
+      #: (command_or_proc? class_or_proc) -> singleton(CLI::Kit::BaseCommand)?
       def resolve_class(class_or_proc)
         case class_or_proc
         when nil

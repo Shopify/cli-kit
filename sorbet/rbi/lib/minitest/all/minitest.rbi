@@ -23,7 +23,7 @@ module Minitest
 end
 
 module Minitest::Assertions
-  extend T::Sig
+  
 
   sig { params(test: T.untyped, msg: T.nilable(String)).returns(TrueClass) }
   def assert(test, msg = nil); end

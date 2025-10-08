@@ -5,8 +5,6 @@ require 'gen'
 module Gen
   module Commands
     class New < Gen::Command
-      extend T::Sig
-
       command_name('new')
       desc('Create a new project')
       long_desc(<<~LONGDESC)
@@ -18,15 +16,13 @@ module Gen
       example('mycliapp', "create a new project called 'mycliapp'")
 
       class Opts < CLI::Kit::Opts
-        extend(T::Sig)
-
-        sig { returns(String) }
+        #: -> String
         def project_name
           position!
         end
       end
 
-      sig { params(op: Opts, _name: T.untyped).returns(T.untyped) }
+      #: (Opts op, untyped _name) -> untyped
       def invoke(op, _name)
         Gen::Generator.run(op.project_name)
       end

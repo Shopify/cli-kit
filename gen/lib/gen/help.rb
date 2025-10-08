@@ -4,12 +4,8 @@ require 'gen'
 
 module Gen
   module Help
-    extend T::Sig
-
     class << self
-      extend T::Sig
-
-      sig { params(path: T::Array[String], to: IO).void }
+      #: (Array[String] path, ?to: IO) -> void
       def generate(path, to: STDOUT)
         case path.size
         when 0
@@ -21,7 +17,7 @@ module Gen
         end
       end
 
-      sig { params(to: IO).void }
+      #: (?to: IO) -> void
       def generate_toplevel(to: STDOUT)
         to.write(CLI::UI.fmt(<<~HELP))
           {{bold:{{command:cli-kit}} generates new cli-kit apps.}}
@@ -44,7 +40,7 @@ module Gen
         end
       end
 
-      sig { params(cmd_name: String, to: IO).void }
+      #: (String cmd_name, ?to: IO) -> void
       def generate_command_help(cmd_name, to: STDOUT)
         klass = Gen::Commands::Registry.resolved_commands[cmd_name]
         unless klass

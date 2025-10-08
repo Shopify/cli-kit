@@ -1,5 +1,3 @@
-require 'sorbet-runtime' unless ENV['BUNDLE_WITHOUT'] == 'typecheck'
-
 addpath = lambda do |p|
   path = File.expand_path("../../#{p}", __FILE__)
   $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
@@ -25,7 +23,6 @@ require 'simplecov'
 SimpleCov.start do
   # SimpleCov uses a "creative" DSL here with block rebinding.
   # Sorbet doesn't like it.
-  T.unsafe(self).add_filter('/lib/cli/kit/sorbet_runtime_stub.rb')
   T.unsafe(self).add_filter('/test/')
   T.unsafe(self).add_filter('/gen/')
   T.unsafe(self).add_filter('/examples/')

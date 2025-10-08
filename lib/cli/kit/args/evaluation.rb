@@ -6,38 +6,31 @@ module CLI
   module Kit
     module Args
       class Evaluation
-        extend T::Sig
-
         Error = Class.new(Args::Error)
 
         class MissingRequiredOption < Error
-          extend T::Sig
-          sig { params(name: String).void }
+          #: (String name) -> void
           def initialize(name)
             super("missing required option `#{name}'")
           end
         end
 
         class MissingRequiredPosition < Error
-          extend T::Sig
-          sig { void }
+          #: -> void
           def initialize
             super('more arguments required')
           end
         end
 
         class TooManyPositions < Error
-          extend T::Sig
-          sig { void }
+          #: -> void
           def initialize
             super('too many arguments')
           end
         end
 
         class FlagProxy
-          extend T::Sig
-
-          sig { params(sym: Symbol).returns(T::Boolean) }
+          #: (Symbol sym) -> bool
           def method_missing(sym)
             flag = @evaluation.defn.lookup_flag(sym)
             unless flag
@@ -47,21 +40,19 @@ module CLI
             @evaluation.send(:lookup_flag, flag)
           end
 
-          sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
+          #: (Symbol sym, ?bool include_private) -> bool
           def respond_to_missing?(sym, include_private = false)
             !!@evaluation.defn.lookup_flag(sym)
           end
 
-          sig { params(evaluation: Evaluation).void }
+          #: (Evaluation evaluation) -> void
           def initialize(evaluation)
             @evaluation = evaluation
           end
         end
 
         class OptionProxy
-          extend T::Sig
-
-          sig { params(sym: Symbol).returns(T.any(NilClass, String, T::Array[String])) }
+          #: (Symbol sym) -> (String | Array[String])?
           def method_missing(sym)
             opt = @evaluation.defn.lookup_option(sym)
             unless opt
@@ -71,21 +62,19 @@ module CLI
             @evaluation.send(:lookup_option, opt)
           end
 
-          sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
+          #: (Symbol sym, ?bool include_private) -> bool
           def respond_to_missing?(sym, include_private = false)
             !!@evaluation.defn.lookup_option(sym)
           end
 
-          sig { params(evaluation: Evaluation).void }
+          #: (Evaluation evaluation) -> void
           def initialize(evaluation)
             @evaluation = evaluation
           end
         end
 
         class PositionProxy
-          extend T::Sig
-
-          sig { params(sym: Symbol).returns(T.any(NilClass, String, T::Array[String])) }
+          #: (Symbol sym) -> (String | Array[String])?
           def method_missing(sym)
             position = @evaluation.defn.lookup_position(sym)
             unless position
@@ -95,57 +84,54 @@ module CLI
             @evaluation.send(:lookup_position, position)
           end
 
-          sig { params(sym: Symbol, include_private: T::Boolean).returns(T::Boolean) }
+          #: (Symbol sym, ?bool include_private) -> bool
           def respond_to_missing?(sym, include_private = false)
             !!@evaluation.defn.lookup_position(sym)
           end
 
-          sig { params(evaluation: Evaluation).void }
+          #: (Evaluation evaluation) -> void
           def initialize(evaluation)
             @evaluation = evaluation
           end
         end
 
-        sig { returns(FlagProxy) }
+        #: -> FlagProxy
         def flag
           @flag_proxy ||= FlagProxy.new(self)
         end
 
-        sig { returns(OptionProxy) }
+        #: -> OptionProxy
         def opt
           @option_proxy ||= OptionProxy.new(self)
         end
 
-        sig { returns(PositionProxy) }
+        #: -> PositionProxy
         def position
           @position_proxy ||= PositionProxy.new(self)
         end
 
-        sig { returns(Definition) }
+        #: Definition
         attr_reader :defn
 
-        sig { returns(T::Array[Parser::Node]) }
+        #: Array[Parser::Node]
         attr_reader :parse
 
-        sig { returns(T::Array[String]) }
+        #: -> Array[String]
         def unparsed
           @unparsed ||= begin
-            nodes = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::Unparsed) },
-              T::Array[Parser::Node::Unparsed],
-            )
+            nodes = parse.select { |node| node.is_a?(Parser::Node::Unparsed) } #: as Array[Parser::Node::Unparsed]
             nodes.flat_map(&:value)
           end
         end
 
-        sig { params(defn: Definition, parse: T::Array[Parser::Node]).void }
+        #: (Definition defn, Array[Parser::Node] parse) -> void
         def initialize(defn, parse)
           @defn = defn
           @parse = parse
           check_required_options!
         end
 
-        sig { void }
+        #: -> void
         def check_required_options!
           @defn.options.each do |opt|
             next unless opt.required?
@@ -153,56 +139,54 @@ module CLI
             node = @parse.detect do |node|
               node.is_a?(Parser::Node::Option) && node.name.to_sym == opt.name
             end
-            if !node || T.cast(node, Parser::Node::Option).value.nil?
+            unless node
+              raise(MissingRequiredOption, opt.as_written_by_user)
+            end
+
+            node = node #: as Parser::Node::Option
+            if node.value.nil?
               raise(MissingRequiredOption, opt.as_written_by_user)
             end
           end
         end
 
-        sig { void }
+        #: -> void
         def resolve_positions!
           args_i = 0
           @position_values = Hash.new
           @defn.positions.each do |position|
             raise(MissingRequiredPosition) if position.required? && args_i >= args.size
-            next if args_i >= args.size || position.skip?(T.must(args[args_i]))
+            next if args_i >= args.size || position.skip?(
+              args[args_i], #: as !nil
+            )
 
             if position.multi?
               @position_values[position.name] = args[args_i..]
               args_i = args.size
             else
-              @position_values[position.name] = T.must(args[args_i])
+              @position_values[position.name] = args[args_i] #: as !nil
               args_i += 1
             end
           end
           raise(TooManyPositions) if args_i < args.size
         end
 
-        sig { params(flag: Definition::Flag).returns(T::Boolean) }
+        #: (Definition::Flag flag) -> bool
         def lookup_flag(flag)
           if flag.short
-            flags = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::ShortFlag) },
-              T::Array[Parser::Node::ShortFlag],
-            )
+            flags = parse.select { |node| node.is_a?(Parser::Node::ShortFlag) } #: as Array[Parser::Node::ShortFlag]
             return true if flags.any? { |node| node.value == flag.short }
           end
           if flag.long
-            flags = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::LongFlag) },
-              T::Array[Parser::Node::LongFlag],
-            )
+            flags = parse.select { |node| node.is_a?(Parser::Node::LongFlag) } #: as Array[Parser::Node::LongFlag]
             return true if flags.any? { |node| node.value == flag.long }
           end
           false
         end
 
-        sig { params(opt: Definition::Option).returns(T.any(NilClass, String, T::Array[String])) }
+        #: (Definition::Option opt) -> (String | Array[String])?
         def lookup_option(opt)
-          opts = T.cast(
-            parse.select { |node| node.is_a?(Parser::Node::ShortOption) || node.is_a?(Parser::Node::LongOption) },
-            T::Array[T.any(Parser::Node::ShortOption, Parser::Node::LongOption)],
-          )
+          opts = parse.select { |node| node.is_a?(Parser::Node::ShortOption) || node.is_a?(Parser::Node::LongOption) } #: as Array[Parser::Node::ShortOption | Parser::Node::LongOption]
           matches = opts.select { |node| (opt.short && node.name == opt.short) || (opt.long && node.name == opt.long) }
           if (last = matches.last)
             return (opt.multi? ? matches.map(&:value) : last.value)
@@ -211,20 +195,17 @@ module CLI
           opt.default
         end
 
-        sig { params(position: Definition::Position).returns(T.any(NilClass, String, T::Array[String])) }
+        #: (Definition::Position position) -> (String | Array[String])?
         def lookup_position(position)
           @position_values.fetch(position.name) { position.multi? ? [] : position.default }
         end
 
         private
 
-        sig { returns(T::Array[String]) }
+        #: -> Array[String]
         def args
           @args ||= begin
-            nodes = T.cast(
-              parse.select { |node| node.is_a?(Parser::Node::Argument) },
-              T::Array[Parser::Node::Argument],
-            )
+            nodes = parse.select { |node| node.is_a?(Parser::Node::Argument) } #: as Array[Parser::Node::Argument]
             nodes.map(&:value)
           end
         end

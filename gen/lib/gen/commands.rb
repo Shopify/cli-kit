@@ -4,16 +4,10 @@ require 'gen'
 
 module Gen
   module Commands
-    extend T::Sig
-
     Registry = CLI::Kit::CommandRegistry.new(default: 'help')
 
     class << self
-      extend T::Sig
-
-      sig do
-        params(const: Symbol, cmd: String, path: String, lamda_const: T.proc.returns(T.class_of(Gen::Command))).void
-      end
+      #: (Symbol const, String cmd, String path, ^-> singleton(Gen::Command) lamda_const) -> void
       def register(const, cmd, path, lamda_const)
         autoload(const, path)
         Registry.add(lamda_const, cmd)

@@ -28,13 +28,13 @@ require 'cli/kit'
 module CLI
   module Kit
     module Levenshtein
-      extend T::Sig
+      
 
       # This code is based directly on the Text gem implementation
       # Copyright (c) 2006-2013 Paul Battley, Michael Neumann, Tim Fletcher.
       #
       # Returns a value representing the "cost" of transforming str1 into str2
-      sig { params(str1: String, str2: String).returns(Integer) }
+      #: (String str1, String str2) -> Integer
       def distance(str1, str2)
         n = str1.length
         m = str2.length
@@ -51,10 +51,12 @@ module CLI
           j = 0
           while j < m
             cost = char1 == str2_codepoints[j] ? 0 : 1
+            a = d[j] #: as !nil
+            b = d[j + 1] #: as !nil
             x = min3(
-              T.must(d[j + 1]) + 1, # insertion
+              b + 1,
               i + 1, # deletion
-              T.must(d[j]) + cost, # substitution
+              a + cost, # substitution
             )
             d[j] = i
             i = x
@@ -74,7 +76,7 @@ module CLI
       # faster than `[a, b, c].min` and puts less GC pressure.
       # See https://github.com/yuki24/did_you_mean/pull/1 for a performance
       # benchmark.
-      sig { params(a: Integer, b: Integer, c: Integer).returns(Integer) }
+      #: (Integer a, Integer b, Integer c) -> Integer
       def min3(a, b, c)
         if a < b && a < c
           a

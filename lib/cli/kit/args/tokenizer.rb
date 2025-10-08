@@ -6,43 +6,37 @@ module CLI
   module Kit
     module Args
       module Tokenizer
-        extend T::Sig
-
         Error = Class.new(Args::Error)
 
         class InvalidShortOption < Error
-          extend T::Sig
-          sig { params(short_option: String).void }
+          #: (String short_option) -> void
           def initialize(short_option)
             super("invalid short option: '-#{short_option}'")
           end
         end
 
         class InvalidCharInShortOption < Error
-          extend T::Sig
-          sig { params(short_option: String, char: String).void }
+          #: (String short_option, String char) -> void
           def initialize(short_option, char)
             super("invalid character '#{char}' in short option: '-#{short_option}'")
           end
         end
 
         class Token
-          extend T::Sig
-
-          sig { returns(String) }
+          #: String
           attr_reader :value
 
-          sig { params(value: String).void }
+          #: (String value) -> void
           def initialize(value)
             @value = value
           end
 
-          sig { returns(String) }
+          #: -> String
           def inspect
             "#<#{self.class.name} #{@value}>"
           end
 
-          sig { params(other: T.untyped).returns(T::Boolean) }
+          #: (untyped other) -> bool
           def ==(other)
             self.class == other.class && @value == other.value
           end
@@ -58,9 +52,7 @@ module CLI
         end
 
         class << self
-          extend T::Sig
-
-          sig { params(raw_args: T::Array[String]).returns(T::Array[Token]) }
+          #: (Array[String] raw_args) -> Array[Token]
           def tokenize(raw_args)
             args = []
 
@@ -76,12 +68,17 @@ module CLI
                   mode = :unparsed
                 when /\A--./
                   name, value = arg.split('=', 2)
-                  args << Token::LongOptionName.new(T.must(T.must(name)[2..-1]))
+                  name = name #: as !nil
+                  args << Token::LongOptionName.new(
+                    name[2..-1], #: as !nil
+                  )
                   if value
                     args << Token::OptionValue.new(value)
                   end
                 when /\A-./
-                  args.concat(tokenize_short_option(T.must(arg[1..-1])))
+                  args.concat(tokenize_short_option(
+                    arg[1..-1], #: as !nil
+                  ))
                 else
                   args << if args.last.is_a?(Token::OptionName)
                     Token::OptionValueOrPositionalArgument.new(arg)
@@ -95,7 +92,7 @@ module CLI
             args
           end
 
-          sig { params(arg: String).returns(T::Array[Token]) }
+          #: (String arg) -> Array[Token]
           def tokenize_short_option(arg)
             args = []
             mode = :init

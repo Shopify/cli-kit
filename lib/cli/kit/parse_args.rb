@@ -6,18 +6,12 @@ module CLI
       # because sorbet type-checking takes the pedantic route that module doesn't include Kernel, therefore
       # this is necessary (even tho it's ~probably fine~)
       include Kernel
-      extend T::Sig
 
-      # T.untyped is used in two places. The interpretation of dynamic values from the provided `opts`
+      # untyped is used in two places. The interpretation of dynamic values from the provided `opts`
       # and the resulting args[:opts] is pretty broad. There seems to be minimal value in expressing a
-      # tighter subset of T.untyped.
+      # tighter subset of untyped.
 
-      sig do
-        params(
-          args: T.any(Array, String),
-          opts_defn: T::Hash[Symbol, T::Array[T.untyped]],
-        ).returns(T::Hash[Symbol, T.untyped])
-      end
+      #: ((Array | String) args, Hash[Symbol, Array[untyped]] opts_defn) -> Hash[Symbol, untyped]
       def parse_args(args, opts_defn)
         start_opts, parser_config = opts_defn.reduce([{}, []]) do |(ini, pcfg), (n, cfg)|
           (vals, desc, short, klass) = cfg
@@ -38,7 +32,8 @@ module CLI
             long = "--#{n.to_s.tr("_", "-")}" + (mark.nil? ? '' : " #{mark}")
             opt_args = klass.nil? ? [short, long, desc] : [short, long, klass, desc]
 
-            T.unsafe(opt_p).on(*opt_args) do |v|
+            unsafe_opt_p = opt_p #: as untyped
+            unsafe_opt_p.on(*opt_args) do |v|
               acc_opts[n] = if acc_opts.key?(n)
                 Array(acc_opts[n]) + Array(v || def_val)
               else

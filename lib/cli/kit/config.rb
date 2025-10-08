@@ -6,11 +6,9 @@ require 'fileutils'
 module CLI
   module Kit
     class Config
-      extend T::Sig
-
       XDG_CONFIG_HOME = 'XDG_CONFIG_HOME'
 
-      sig { params(tool_name: String).void }
+      #: (tool_name: String) -> void
       def initialize(tool_name:)
         @tool_name = tool_name
       end
@@ -28,13 +26,13 @@ module CLI
       # #### Example Usage
       # `config.get('name.of.config')`
       #
-      sig { params(section: String, name: String, default: T.nilable(String)).returns(T.nilable(String)) }
+      #: (String section, String name, ?default: String?) -> String?
       def get(section, name, default: nil)
         all_configs.dig("[#{section}]", name) || default
       end
 
       # Coalesce and enforce the value of a config to a boolean
-      sig { params(section: String, name: String, default: T.nilable(T::Boolean)).returns(T.nilable(T::Boolean)) }
+      #: (String section, String name, ?default: bool?) -> bool?
       def get_bool(section, name, default: false)
         case get(section, name)
         when 'true'
@@ -58,14 +56,15 @@ module CLI
       # #### Example Usage
       # `config.set('section', 'name.of.config', 'value')`
       #
-      sig { params(section: String, name: String, value: T.nilable(T.any(String, T::Boolean))).void }
+      #: (String section, String name, (String | bool)? value) -> void
       def set(section, name, value)
         all_configs["[#{section}]"] ||= {}
+        section = all_configs["[#{section}]"] #: as !nil
         case value
         when nil
-          T.must(all_configs["[#{section}]"]).delete(name)
+          section.delete(name)
         else
-          T.must(all_configs["[#{section}]"])[name] = value.to_s
+          section[name] = value.to_s
         end
         write_config
       end
@@ -79,7 +78,7 @@ module CLI
       # #### Example Usage
       # `config.unset('section', 'name.of.config')`
       #
-      sig { params(section: String, name: String).void }
+      #: (String section, String name) -> void
       def unset(section, name)
         set(section, name, nil)
       end
@@ -92,12 +91,12 @@ module CLI
       # #### Example Usage
       # `config.get_section('section')`
       #
-      sig { params(section: String).returns(T::Hash[String, String]) }
+      #: (String section) -> Hash[String, String]
       def get_section(section)
         (all_configs["[#{section}]"] || {}).dup
       end
 
-      sig { returns(String) }
+      #: -> String
       def to_s
         ini.to_s
       end
@@ -107,7 +106,7 @@ module CLI
       # if ENV['XDG_CONFIG_HOME'] is not set, we default to ~/.config, e.g.:
       #   ~/.config/tool/config
       #
-      sig { returns(String) }
+      #: -> String
       def file
         config_home = ENV.fetch(XDG_CONFIG_HOME, '~/.config')
         File.expand_path(File.join(@tool_name, 'config'), config_home)
@@ -115,17 +114,17 @@ module CLI
 
       private
 
-      sig { returns(T::Hash[String, T::Hash[String, String]]) }
+      #: -> Hash[String, Hash[String, String]]
       def all_configs
         ini.ini
       end
 
-      sig { returns(CLI::Kit::Ini) }
+      #: -> CLI::Kit::Ini
       def ini
         @ini ||= CLI::Kit::Ini.new(file).tap(&:parse)
       end
 
-      sig { void }
+      #: -> void
       def write_config
         all_configs.each do |section, sub_config|
           all_configs.delete(section) if sub_config.empty?

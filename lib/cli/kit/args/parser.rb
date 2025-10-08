@@ -6,32 +6,28 @@ module CLI
   module Kit
     module Args
       class Parser
-        extend T::Sig
-
         autoload :Node, 'cli/kit/args/parser/node'
 
         Error = Class.new(Args::Error)
 
         class InvalidOptionError < Error
-          extend T::Sig
-          sig { params(option: String).void }
+          #: (String option) -> void
           def initialize(option)
             super("invalid option -- '#{option}'")
           end
         end
 
         class OptionRequiresAnArgumentError < Error
-          extend T::Sig
-          sig { params(option: String).void }
+          #: (String option) -> void
           def initialize(option)
             super("option requires an argument -- '#{option}'")
           end
         end
 
-        sig { params(tokens: T::Array[Tokenizer::Token]).returns(T::Array[Node]) }
+        #: (Array[Tokenizer::Token] tokens) -> Array[Node]
         def parse(tokens)
-          nodes = T.let([], T::Array[Node])
-          args = T.let(tokens, T::Array[T.nilable(Tokenizer::Token)])
+          nodes = [] #: Array[Node]
+          args = tokens #: Array[Tokenizer::Token?]
           args << nil # to make each_cons pass (args.last, nil) on the final round.
           state = :init
           # TODO: test that "--height -- 3" is parsed correctly.
@@ -40,7 +36,10 @@ module CLI
             when :skip
               state = :init
             when :init
-              state, val = parse_token(T.must(arg), next_arg)
+              state, val = parse_token(
+                arg, #: as !nil
+                next_arg,
+              )
               nodes << val
             when :unparsed
               unless arg.is_a?(Tokenizer::Token::UnparsedArgument)
@@ -60,17 +59,14 @@ module CLI
           nodes
         end
 
-        sig { params(definition: Definition).void }
+        #: (Definition definition) -> void
         def initialize(definition)
           @defn = definition
         end
 
         private
 
-        sig do
-          params(token: Tokenizer::Token, next_token: T.nilable(Tokenizer::Token))
-            .returns([Symbol, Parser::Node])
-        end
+        #: (Tokenizer::Token token, Tokenizer::Token? next_token) -> [Symbol, Parser::Node]
         def parse_token(token, next_token)
           case token
           when Tokenizer::Token::LongOptionName
@@ -104,7 +100,7 @@ module CLI
           end
         end
 
-        sig { params(arg: Tokenizer::Token::OptionName, next_arg: T.nilable(Tokenizer::Token)).returns(Node) }
+        #: (Tokenizer::Token::OptionName arg, Tokenizer::Token? next_arg) -> Node
         def parse_option(arg, next_arg)
           case next_arg
           when nil, Tokenizer::Token::LongOptionName,
