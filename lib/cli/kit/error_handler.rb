@@ -114,12 +114,20 @@ module CLI
         e.bug? ? CLI::Kit::EXIT_BUG : CLI::Kit::EXIT_FAILURE_BUT_NOT_BUG
       end
 
+      #: (Exception? error) -> bool
+      def caused_by_benign_signal?(error)
+        current = error #: Exception?
+        while current
+          return true if current.is_a?(SignalException) && SIGNALS_THAT_ARENT_BUGS.include?(current.message)
+
+          current = current.cause
+        end
+        false
+      end
+
       #: (Exception? error) -> Exception?
       def exception_for_submission(error)
-        # happens on normal non-error termination
-        return if error.nil?
-
-        return unless error.bug?
+        return if error.nil? || !error.bug? || caused_by_benign_signal?(error)
 
         case error
         when SignalException
