@@ -176,6 +176,39 @@ module CLI
         skip
       end
 
+      def test_benign_signal_wrapped_by_epipe_is_not_reported
+        # When a finalizer raises Errno::EPIPE after a SIGTERM, the EPIPE
+        # becomes the top-level exception with SIGTERM as its cause.
+        # The error handler should still filter it as benign.
+        wrapped_error = build_wrapped_error(
+          cause: SignalException.new('SIGTERM'),
+          outer: Errno::EPIPE,
+        )
+
+        @rep.expects(:report).never
+        @eh.report_exception(wrapped_error)
+      end
+
+      def test_benign_signal_wrapped_by_ebadf_is_not_reported
+        wrapped_error = build_wrapped_error(
+          cause: SignalException.new('SIGHUP'),
+          outer: Errno::EBADF,
+        )
+
+        @rep.expects(:report).never
+        @eh.report_exception(wrapped_error)
+      end
+
+      def test_non_benign_signal_wrapped_is_still_reported
+        wrapped_error = build_wrapped_error(
+          cause: SignalException.new('SIGSEGV'),
+          outer: Errno::EPIPE,
+        )
+
+        @rep.expects(:report).once
+        @eh.report_exception(wrapped_error)
+      end
+
       def test_bug_signal
         # e.g. SIGSEGV
         skip
@@ -194,6 +227,15 @@ module CLI
       end
 
       private
+
+      # Builds an exception where `outer` has `cause` as its cause.
+      # We can't use raise/rescue with SignalException because Ruby
+      # actually delivers the signal. Instead, we stub #cause.
+      def build_wrapped_error(cause:, outer:)
+        error = outer.is_a?(Exception) ? outer : outer.new
+        error.define_singleton_method(:cause) { cause }
+        error
+      end
 
       def error_handler(tool_name: nil, dev_mode: false)
         ErrorHandler.new(
