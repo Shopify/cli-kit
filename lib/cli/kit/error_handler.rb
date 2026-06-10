@@ -84,7 +84,7 @@ module CLI
         rescue Interrupt => e # Ctrl-C
           # transform message, prevent bugsnag
           exc = e.exception('Interrupt')
-          CLI::Kit.raise(exc, bug: false)
+          CLI::Kit.raise(exc, fault: Exception::Fault::TERROIR)
         rescue Errno::ENOSPC => e
           # transform message, prevent bugsnag
           message = if @tool_name
@@ -93,7 +93,7 @@ module CLI
             'Your disk is full - free space is required to operate'
           end
           exc = e.exception(message)
-          CLI::Kit.raise(exc, bug: false)
+          CLI::Kit.raise(exc, fault: Exception::Fault::TERROIR)
         end
       # If SystemExit was raised, e.g. `exit()`, then
       # return whatever status is attached to the exception
@@ -125,9 +125,27 @@ module CLI
         false
       end
 
+      # Walks the cause chain looking for anything that should be reported as a
+      # bug. A terroir wrapper (e.g. Errno::EPIPE raised by a finalizer) can
+      # mask a real bug as its cause, so we can't only inspect the outermost
+      # exception. A non-benign signal (e.g. SIGSEGV) also counts as a bug.
+      #: (Exception? error) -> bool
+      def caused_by_bug?(error)
+        current = error #: Exception?
+        while current
+          return true if current.bug?
+          if current.is_a?(SignalException) && !SIGNALS_THAT_ARENT_BUGS.include?(current.message)
+            return true
+          end
+
+          current = current.cause
+        end
+        false
+      end
+
       #: (Exception? error) -> Exception?
       def exception_for_submission(error)
-        return if error.nil? || !error.bug? || caused_by_benign_signal?(error)
+        return if error.nil? || caused_by_benign_signal?(error) || !caused_by_bug?(error)
 
         case error
         when SignalException

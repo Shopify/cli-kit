@@ -109,7 +109,7 @@ module CLI
       # `depth` is used to trim leading elements of the backtrace. If you wrap
       # this method in your own wrapper, you'll want to pass `depth: 2`, for
       # example.
-      #: (?(Class | String | Exception) exception, ?untyped string, ?Array[String]? array, ?cause: Exception?, ?bug: bool?, ?silent: bool?, ?depth: Integer) -> bot
+      #: (?(Class | String | Exception) exception, ?untyped string, ?Array[String]? array, ?cause: Exception?, ?bug: bool?, ?silent: bool?, ?fault: Exception::Fault?, ?depth: Integer) -> bot
       def raise(
         # default arguments
         exception = UNTYPED_NIL,
@@ -117,7 +117,7 @@ module CLI
         array = UNTYPED_NIL,
         cause: $ERROR_INFO,
         # new arguments
-        bug: nil, silent: nil, depth: 1
+        bug: nil, silent: nil, fault: nil, depth: 1
       )
         k = Kernel #: as untyped
         if array
@@ -132,6 +132,7 @@ module CLI
       rescue Exception => e # rubocop:disable Lint/RescueException
         e.bug!(bug) unless bug.nil?
         e.silent!(silent) unless silent.nil?
+        e.fault!(fault) if fault
         Kernel.raise(e, cause: cause)
       end
     end
