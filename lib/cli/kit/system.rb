@@ -157,23 +157,38 @@ module CLI
             }
           end
 
+          process_reaped = false
           previous_trailing = Hash.new('')
-          loop do
-            break if Process.wait(pid, Process::WNOHANG)
+          ios = [err_r, out_r]
 
-            ios = [err_r, out_r].reject(&:closed?)
-            next if ios.empty?
+          loop do
+            # Break only when child exited AND there are no more open pipes
+            break if ios.empty? && process_reaped
 
             readers, = IO.select(ios, [], [], 1)
-            next if readers.nil? # If IO.select times out we iterate again so we can check if the process has exited
 
-            readers.each do |io|
+            readers&.each do |io|
               data, trailing = split_partial_characters(io.readpartial(4096))
               handlers[io].call(previous_trailing[io] + data)
               previous_trailing[io] = trailing
             rescue IOError
+              # Pipe closed - this is expected when process exits
               io.close
+              ios.delete(io)
             end
+
+            # Non-blocking reap of child; only do it once
+            process_reaped ||= !Process.wait(pid, Process::WNOHANG).nil?
+          end
+
+          # Ensure we've fully reaped the child (if WNOHANG never caught it)
+          Process.wait(pid) unless process_reaped
+
+          # Flush any remaining trailing fragments so nothing is lost
+          previous_trailing.each do |io, trailing|
+            next if trailing.empty?
+
+            handlers[io].call(trailing)
           end
 
           $CHILD_STATUS
