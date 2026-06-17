@@ -134,14 +134,6 @@ module CLI
           opts = opts_class
           return unless opts
 
-          methods = []
-          loop do
-            methods.concat(opts.public_instance_methods(false))
-            break if opts.superclass == CLI::Kit::Opts
-
-            opts = opts.superclass
-          end
-
           @defn = Args::Definition.new
           o = opts.new
           o.define!(@defn)
