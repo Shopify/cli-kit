@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency('cli-ui', '~> 2.4')
+  spec.add_runtime_dependency('logger', '~> 1.7')
 
   spec.required_ruby_version = '>= 3.2'
 

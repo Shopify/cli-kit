@@ -3,6 +3,7 @@ PATH
   specs:
     cli-kit (5.2.1)
       cli-ui (~> 2.4)
+      logger (~> 1.7)
 
 GEM
   remote: https://rubygems.org/
