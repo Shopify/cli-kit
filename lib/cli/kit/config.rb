@@ -14,11 +14,9 @@ module CLI
       # pointing into +/nix/store+).
       #
       # Inherits from SystemCallError so existing `rescue SystemCallError`
-      # handlers around +Config#set+ continue to match. The message contains
-      # only the keys that actually changed; unchanged keys (which may
-      # include sensitive values such as API tokens) are intentionally
-      # excluded so the failure message can never leak secrets through
-      # stderr or exception reports.
+      # handlers around +Config#set+ continue to match. Diagnostics contain
+      # only changed section/key names, never their values. Config contents
+      # are not retained on the exception, to keep them out of error reports.
       class ConfigWriteError < SystemCallError
         class << self
           # Ruby's +SystemCallError.===+ uses errno-based matching,
@@ -41,10 +39,10 @@ module CLI
           # checkers and callers see the real signature, and allocate
           # the instance manually to bypass +SystemCallError+'s
           # factory behaviour.
-          #: (String config_path, String old_content, String new_content, SystemCallError cause) -> ConfigWriteError
-          def new(config_path, old_content, new_content, cause)
+          #: (String config_path, Hash[String, Hash[String, String]] old_config, Hash[String, Hash[String, String]] new_config, SystemCallError cause) -> ConfigWriteError
+          def new(config_path, old_config, new_config, cause)
             instance = allocate
-            instance.__send__(:initialize, config_path, old_content, new_content, cause)
+            instance.__send__(:initialize, config_path, old_config, new_config, cause)
             instance
           end
         end
@@ -53,10 +51,7 @@ module CLI
         attr_reader :config_path
 
         #: String
-        attr_reader :old_content
-
-        #: String
-        attr_reader :new_content
+        attr_reader :diff
 
         # rubocop:disable Lint/MissingSuper
         # +SystemCallError#initialize+ has a factory-style signature that
@@ -65,16 +60,15 @@ module CLI
         # initialize via Exception so we just get a message-only
         # exception that +rescue SystemCallError+ still catches via
         # inheritance. +super+ would not work here.
-        #: (String config_path, String old_content, String new_content, SystemCallError cause) -> void
-        def initialize(config_path, old_content, new_content, cause)
+        #: (String config_path, Hash[String, Hash[String, String]] old_config, Hash[String, Hash[String, String]] new_config, SystemCallError cause) -> void
+        def initialize(config_path, old_config, new_config, cause)
           @config_path = config_path
-          @old_content = old_content
-          @new_content = new_content
+          @diff = build_diff(old_config, new_config)
           @wrapped_errno = cause.errno
           message = <<~MSG.rstrip
             Could not write to #{config_path}: #{cause.message}
 
-            Attempted changes (unchanged keys omitted):
+            Attempted changes (values and unchanged keys omitted):
             #{diff}
           MSG
           Exception.instance_method(:initialize).bind(self).call(message)
@@ -88,19 +82,14 @@ module CLI
           @wrapped_errno
         end
 
-        # A line-by-line diff of only the sections/keys that changed
-        # between +old_content+ and +new_content+. Unchanged keys are
-        # omitted so that sensitive values stored elsewhere in the config
-        # are never included in the failure message.
-        #: -> String
-        def diff
-          old_ini = CLI::Kit::Ini.new(config: @old_content).tap(&:parse).ini
-          new_ini = CLI::Kit::Ini.new(config: @new_content).tap(&:parse).ini
+        private
 
+        #: (Hash[String, Hash[String, String]] old_config, Hash[String, Hash[String, String]] new_config) -> String
+        def build_diff(old_config, new_config)
           lines = []
-          (old_ini.keys | new_ini.keys).each do |section|
-            old_section = old_ini[section] || {}
-            new_section = new_ini[section] || {}
+          (old_config.keys | new_config.keys).each do |section|
+            old_section = old_config[section] || {}
+            new_section = new_config[section] || {}
 
             changes = []
             (old_section.keys | new_section.keys).each do |key|
@@ -108,8 +97,8 @@ module CLI
               new_val = new_section[key]
               next if old_val == new_val
 
-              changes << "- #{key} = #{old_val}" if old_val
-              changes << "+ #{key} = #{new_val}" if new_val
+              changes << "- #{key}" if old_val
+              changes << "+ #{key}" if new_val
             end
             next if changes.empty?
 
@@ -270,8 +259,8 @@ module CLI
           # for nix/home-manager configs that live in +/nix/store+. Wrap
           # it the same way as +EACCES+/+EPERM+ so callers always see
           # the diff and any +rescue ConfigWriteError+ handler matches.
-          old_content = read_config_for_diff(config_path)
-          raise(ConfigWriteError.new(config_path, old_content, new_content, e))
+          old_config = read_config_for_diff(config_path)
+          raise(ConfigWriteError.new(config_path, old_config, all_configs, e))
         end
       end
 
@@ -306,11 +295,11 @@ module CLI
         end
       end
 
-      #: (String config_path) -> String
+      #: (String config_path) -> Hash[String, Hash[String, String]]
       def read_config_for_diff(config_path)
-        File.read(config_path)
+        CLI::Kit::Ini.new(config: File.read(config_path)).tap(&:parse).ini
       rescue SystemCallError
-        ''
+        {}
       end
 
       # Resolve +config_path+ through any symlinks so the atomic rename

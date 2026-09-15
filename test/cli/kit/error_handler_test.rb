@@ -87,6 +87,37 @@ module CLI
         end
       end
 
+      def test_config_write_failure_omits_values_from_stderr_and_reporter
+        Dir.mktmpdir do |dir|
+          with_env('XDG_CONFIG_HOME' => dir) do
+            config = Config.new(tool_name: 'tool')
+            config.set('buildkite', 'api_token', 'old_secret_token')
+            Tempfile.stubs(:new).raises(Errno::EACCES.new(config.file))
+
+            reported_error = nil
+            @rep.expects(:report).once.with do |error, _logs|
+              reported_error = error
+              true
+            end
+
+            out, err, code = with_handler do
+              config.set('buildkite', 'api_token', 'new_secret_token')
+            end
+
+            assert_equal('', out)
+            assert_equal(CLI::Kit::EXIT_BUG, code)
+            assert_kind_of(Config::ConfigWriteError, reported_error)
+            assert_includes(err, 'api_token')
+            assert_includes(reported_error.message, 'api_token')
+            ['old_secret_token', 'new_secret_token'].each do |value|
+              refute_includes(err, value)
+              refute_includes(reported_error.message, value)
+              refute_includes(Marshal.dump(reported_error), value)
+            end
+          end
+        end
+      end
+
       def test_out_of_space_with_name
         @eh = error_handler(tool_name: 'foo')
         run_test(
