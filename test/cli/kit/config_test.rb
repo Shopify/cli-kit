@@ -169,8 +169,8 @@ module CLI
         end
 
         assert_includes(error.message, @file)
-        assert_includes(error.message, '- key = original')
-        assert_includes(error.message, '+ key = updated')
+        assert_includes(error.message, '- key')
+        assert_includes(error.message, '+ key')
       ensure
         FileUtils.chmod(0o755, config_dir) if config_dir && File.directory?(config_dir)
       end
@@ -186,7 +186,7 @@ module CLI
         end
 
         assert_includes(error.message, '+ [hooks]')
-        assert_includes(error.message, '+ path_check_enabled = false')
+        assert_includes(error.message, '+ path_check_enabled')
       ensure
         FileUtils.chmod(0o755, config_dir) if config_dir && File.directory?(config_dir)
       end
@@ -222,10 +222,66 @@ module CLI
           '[buildkite]',
           'sections with no changes must not appear in the error message',
         )
-        assert_includes(error.message, '- path_check_enabled = true')
-        assert_includes(error.message, '+ path_check_enabled = false')
+        refute_includes(Marshal.dump(error), 'super_secret_token_xyz')
+        assert_includes(error.message, '- path_check_enabled')
+        assert_includes(error.message, '+ path_check_enabled')
       ensure
         FileUtils.chmod(0o755, config_dir) if config_dir && File.directory?(config_dir)
+      end
+
+      def test_config_write_error_omits_new_sensitive_values
+        Tempfile.stubs(:new).raises(Errno::EACCES.new(@file))
+
+        error = assert_raises(Config::ConfigWriteError) do
+          @config.set('buildkite', 'api_token', 'new_secret_token')
+        end
+
+        assert_equal("+ [buildkite]\n+ api_token", error.diff)
+        assert_includes(error.message, error.diff)
+        refute_includes(error.message, 'new_secret_token')
+        refute_includes(Marshal.dump(error), 'new_secret_token')
+      end
+
+      def test_config_write_error_omits_rotated_sensitive_values
+        @config.set('buildkite', 'api_token', 'old_secret_token')
+        Tempfile.stubs(:new).raises(Errno::EROFS.new(@file))
+
+        error = assert_raises(Config::ConfigWriteError) do
+          @config.set('buildkite', 'api_token', 'new_secret_token')
+        end
+
+        assert_equal("  [buildkite]\n- api_token\n+ api_token", error.diff)
+        assert_includes(error.message, error.diff)
+        ['old_secret_token', 'new_secret_token'].each do |value|
+          refute_includes(error.message, value)
+          refute_includes(Marshal.dump(error), value)
+        end
+      end
+
+      def test_config_write_error_omits_deleted_sensitive_values
+        @config.set('buildkite', 'api_token', 'old_secret_token')
+        Tempfile.stubs(:new).raises(Errno::EPERM.new(@file))
+
+        error = assert_raises(Config::ConfigWriteError) do
+          @config.unset('buildkite', 'api_token')
+        end
+
+        assert_equal("- [buildkite]\n- api_token", error.diff)
+        assert_includes(error.message, error.diff)
+        refute_includes(error.message, 'old_secret_token')
+        refute_includes(Marshal.dump(error), 'old_secret_token')
+      end
+
+      def test_config_write_error_does_not_parse_multiline_values_as_keys_or_sections
+        Tempfile.stubs(:new).raises(Errno::EACCES.new(@file))
+
+        error = assert_raises(Config::ConfigWriteError) do
+          @config.set('buildkite', 'api_token', "secret_line_one\n[secret_section]\nsecret_key = secret_value")
+        end
+
+        assert_equal("+ [buildkite]\n+ api_token", error.diff)
+        refute_includes(error.message, 'secret_')
+        refute_includes(Marshal.dump(error), 'secret_')
       end
 
       def test_config_write_error_is_rescued_as_system_call_error
@@ -266,8 +322,8 @@ module CLI
         end
 
         assert_includes(error.message, @file)
-        assert_includes(error.message, '- key = original')
-        assert_includes(error.message, '+ key = updated')
+        assert_includes(error.message, '- key')
+        assert_includes(error.message, '+ key')
         assert_equal(Errno::EROFS::Errno, error.errno)
       end
 
@@ -323,8 +379,8 @@ module CLI
             'symlink must NOT be replaced with a regular file when the target is read-only',
           )
           assert_equal(target_path, File.readlink(link_path))
-          assert_includes(error.message, '- key = original')
-          assert_includes(error.message, '+ key = updated')
+          assert_includes(error.message, '- key')
+          assert_includes(error.message, '+ key')
         ensure
           if defined?(target_dir) && target_dir && File.directory?(target_dir)
             FileUtils.chmod(0o755, target_dir)
