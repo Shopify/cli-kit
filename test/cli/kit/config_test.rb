@@ -124,32 +124,38 @@ module CLI
         assert_equal(['config'], siblings, "expected only 'config', got #{siblings.inspect}")
       end
 
-      def test_atomic_write_applies_umask_for_new_file_permissions
-        # Tempfile defaults to 0o600. New configs should instead use
-        # the umask-adjusted default that +File.write+ would produce.
-        original_umask = File.umask(0o022)
+      def test_atomic_write_limits_new_file_permissions_to_owner
+        original_umask = File.umask
         begin
-          @config.set('section', 'key', 'value')
+          [[0o000, 0o600], [0o002, 0o600], [0o022, 0o600], [0o077, 0o600], [0o277, 0o400]].each do |umask, expected_mode|
+            config = Config.new(tool_name: "tool-#{umask}")
+            File.umask(original_umask)
+            FileUtils.mkdir_p(File.dirname(config.file))
+            File.umask(umask)
+            config.set('service', 'api_token', 'secret_token')
 
-          mode = File.stat(@file).mode & 0o777
-          assert_equal(0o644, mode, "expected 0o644 with umask 0o022, got #{mode.to_s(8)}")
+            mode = File.stat(config.file).mode & 0o777
+            assert_equal(expected_mode, mode, "unexpected permissions with umask #{umask.to_s(8)}")
+            assert_includes(File.read(config.file), 'api_token = secret_token')
+          end
         ensure
           File.umask(original_umask)
         end
       end
 
-      def test_atomic_write_preserves_existing_file_permissions
-        # When the config already exists, its mode should be preserved
-        # across the rename rather than replaced by the umask default.
+      def test_atomic_write_removes_group_and_other_permissions
         config_dir = File.dirname(@file)
         FileUtils.mkdir_p(config_dir)
-        File.write(@file, "[section]\nkey = original\n")
-        FileUtils.chmod(0o640, @file)
+        [[0o666, 0o600], [0o644, 0o600], [0o640, 0o600], [0o600, 0o600], [0o400, 0o400]].each do |original_mode, expected_mode|
+          File.write(@file, "[service]\napi_token = old_secret_token\n")
+          FileUtils.chmod(original_mode, @file)
 
-        @config.set('section', 'key', 'updated')
+          Config.new(tool_name: 'tool').set('service', 'api_token', 'new_secret_token')
 
-        mode = File.stat(@file).mode & 0o777
-        assert_equal(0o640, mode, "expected mode to be preserved at 0o640, got #{mode.to_s(8)}")
+          mode = File.stat(@file).mode & 0o777
+          assert_equal(expected_mode, mode)
+          assert_includes(File.read(@file), 'api_token = new_secret_token')
+        end
       end
 
       def test_write_to_readonly_dir_raises_config_write_error
@@ -285,6 +291,7 @@ module CLI
           assert(File.symlink?(link_path), 'symlink must be preserved after write')
           assert_equal(target_path, File.readlink(link_path))
           assert_includes(File.read(target_path), 'key = updated')
+          assert_equal(0o600, File.stat(target_path).mode & 0o777)
         end
       end
 

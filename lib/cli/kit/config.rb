@@ -285,17 +285,14 @@ module CLI
         begin
           tmpfile.write(new_content)
           tmpfile.close
-          # Tempfile defaults to 0o600. Match the permissions a plain
-          # +File.write+ would have produced: preserve the existing
-          # mode when the config is being updated, and use the
-          # umask-adjusted default (matching +open(2)+ for new files)
-          # otherwise. This avoids silently tightening permissions on
-          # an existing config and avoids creating new configs with
-          # the more restrictive Tempfile default.
+          # Configs may contain credentials. Keep them private to the
+          # owner, including when replacing a previously shared file.
+          # Preserve stricter owner permissions on existing files and
+          # respect the umask when creating new ones.
           mode = if File.exist?(config_path)
-            File.stat(config_path).mode
+            File.stat(config_path).mode & 0o600
           else
-            0o666 & ~File.umask
+            0o600 & ~File.umask
           end
           File.chmod(mode, tmpfile_path)
           File.rename(tmpfile_path, config_path)
