@@ -19,7 +19,20 @@ module CLI
 
         example('-q -u neato', "quietly do a thing with 'neato'")
 
-        class Opts < CLI::Kit::Opts
+        class BaseOpts < CLI::Kit::Opts
+          class << self
+            def inherited(subclass)
+              super
+              subclass.class_eval do
+                def dry_run
+                  flag(short: '-d', desc: 'dry run')
+                end
+              end
+            end
+          end
+        end
+
+        class Opts < BaseOpts
           def quiet
             flag(short: '-q', desc: 'be quiet')
           end
@@ -47,6 +60,7 @@ module CLI
             \e[0;36mtest a-command\e[0m -q -u neato  \e[0;3;38;5;244m# quietly do a thing with 'neato'\e[0m
 
           \e[0;1mOptions:\e[0m
+            -d  \e[0;3;38;5;244m# dry run\e[0m
             -h, --help  \e[0;3;38;5;244m# Show this help message\e[0m
             -l, --loud  \e[0;3;38;5;244m# be loud\e[0m
             -q  \e[0;3;38;5;244m# be quiet\e[0m
