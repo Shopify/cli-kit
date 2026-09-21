@@ -17,6 +17,7 @@ class Exception
     def to_s = raise NotImplementedError, 'abstract method called'
 
     # A bug in the tool itself (dev, tec, cli-kit, etc.).
+    # @sealed
     class System < Fault
       # @override
       #: -> String
