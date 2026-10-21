@@ -59,7 +59,7 @@ module CLI
             module System
               class << self
                 alias_method :original_system, :system
-                def system(cmd, *a, sudo: false, env: {}, stdin: nil, **kwargs)
+                def system(cmd, *a, sudo: false, env: {}, stdin: nil, **kwargs, &block)
                   a.unshift(cmd)
                   expected_command = expected_command(a, sudo: sudo, env: env)
 
@@ -69,7 +69,7 @@ module CLI
                   # Otherwise handle the command
                   if expected_command[:allow]
                     uself = self #: as untyped
-                    uself.original_system(*a, sudo: sudo, env: env, **kwargs)
+                    uself.original_system(*a, sudo: sudo, env: env, **kwargs, &block)
                   else
                     FakeSuccess.new(expected_command[:success])
                   end
