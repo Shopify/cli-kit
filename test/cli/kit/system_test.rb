@@ -167,6 +167,16 @@ module CLI
         end
       end
 
+      def test_system_passes_on_stdout_before_stderr_when_both_are_waiting
+        order = []
+        run_sh('echo out; echo err >&2', stall_after_spawn: 0.2) do |o, e|
+          order << :out unless o.empty?
+          order << :err unless e.empty?
+        end
+
+        assert_equal([:out, :err], order)
+      end
+
       def test_post_exit_drain_limit_is_not_public_api
         assert_raises(NameError) { System::POST_EXIT_DRAIN_LIMIT }
       end

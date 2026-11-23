@@ -178,7 +178,7 @@ module CLI
             nil
           end
 
-          ios = [err_r, out_r]
+          ios = [out_r, err_r]
           status = nil #: Process::Status?
           begin
             until status
@@ -221,7 +221,7 @@ module CLI
               handlers[io].call(trailing) unless trailing.empty?
             end
           ensure
-            [err_r, out_r].each { |io| io.close unless io.closed? }
+            [out_r, err_r].each { |io| io.close unless io.closed? }
             # The block raised before the child exited: reap it in the background rather than leave a zombie.
             Process.detach(pid) unless status
           end
