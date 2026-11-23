@@ -11,6 +11,7 @@ module CLI
       # Pipes buffer 64 KiB by default. An unprivileged process can raise that with F_SETPIPE_SZ, but only up
       # to /proc/sys/fs/pipe-max-size, which defaults to 1 MiB. Root can go further.
       POST_EXIT_DRAIN_LIMIT = 1024 * 1024
+      private_constant(:POST_EXIT_DRAIN_LIMIT)
 
       class << self
         # Ask for sudo access with a message explaning the need for it

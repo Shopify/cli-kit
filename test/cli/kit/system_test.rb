@@ -167,6 +167,10 @@ module CLI
         end
       end
 
+      def test_post_exit_drain_limit_is_not_public_api
+        assert_raises(NameError) { System::POST_EXIT_DRAIN_LIMIT }
+      end
+
       private
 
       def open_fd_count
