@@ -168,43 +168,62 @@ module CLI
             previous_trailing[io] = trailing
           end
 
-          ios = [err_r, out_r]
-          status = nil #: Process::Status?
-          until status
-            if ios.empty?
-              _, status = Process.wait2(pid)
-              break
-            end
-
-            readers, = IO.select(ios, [], [], 1)
-            readers&.each do |io|
-              forward.call(io, io.readpartial(4096))
-            rescue IOError
-              io.close
-              ios.delete(io)
-            end
-
-            _, status = Process.wait2(pid, Process::WNOHANG)
-          end
-
-          # The child can exit before we read anything it wrote, so collect what is still buffered.
-          # Don't wait for EOF: a background process the child started may hold the pipes open, and may
-          # keep writing, so read at most POST_EXIT_DRAIN_LIMIT from each.
-          ios.each do |io|
-            remaining = POST_EXIT_DRAIN_LIMIT
-            while remaining > 0
-              chunk = io.read_nonblock([4096, remaining].min)
-              remaining -= chunk.bytesize
-              forward.call(io, chunk)
-            end
-          rescue IO::WaitReadable, IOError
+          # Rescue only around the read, so an IOError raised by the caller's block is not mistaken for EOF.
+          read = ->(io, len) do
+            io.read_nonblock(len)
+          rescue IO::WaitReadable
+            :wait_readable
+          rescue EOFError
             nil
           end
 
-          previous_trailing.each do |io, trailing|
-            handlers[io].call(trailing) unless trailing.empty?
+          ios = [err_r, out_r]
+          status = nil #: Process::Status?
+          begin
+            until status
+              if ios.empty?
+                _, status = Process.wait2(pid)
+                break
+              end
+
+              readers, = IO.select(ios, [], [], 1)
+              readers&.each do |io|
+                chunk = read.call(io, 4096)
+                next if chunk == :wait_readable
+
+                if chunk.nil?
+                  io.close
+                  ios.delete(io)
+                else
+                  forward.call(io, chunk)
+                end
+              end
+
+              _, status = Process.wait2(pid, Process::WNOHANG)
+            end
+
+            # The child can exit before we read anything it wrote, so collect what is still buffered.
+            # Don't wait for EOF: a background process the child started may hold the pipes open, and may
+            # keep writing, so read at most POST_EXIT_DRAIN_LIMIT from each.
+            ios.each do |io|
+              remaining = POST_EXIT_DRAIN_LIMIT
+              while remaining > 0
+                chunk = read.call(io, [4096, remaining].min)
+                break unless chunk.is_a?(String)
+
+                remaining -= chunk.bytesize
+                forward.call(io, chunk)
+              end
+            end
+
+            previous_trailing.each do |io, trailing|
+              handlers[io].call(trailing) unless trailing.empty?
+            end
+          ensure
+            [err_r, out_r].each { |io| io.close unless io.closed? }
+            # The block raised before the child exited: reap it in the background rather than leave a zombie.
+            Process.detach(pid) unless status
           end
-          [err_r, out_r].each { |io| io.close unless io.closed? }
 
           status #: as !nil
         end

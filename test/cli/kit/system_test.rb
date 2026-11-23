@@ -141,7 +141,50 @@ module CLI
         assert_equal(20000, out.bytesize)
       end
 
+      def test_system_closes_its_pipes_and_reaps_the_child_when_the_block_raises
+        fds_before = open_fd_count
+        child = nil
+        assert_raises(RuntimeError) do
+          run_sh('echo $$; sleep 0.2') do |o, _|
+            child = o.to_i
+            raise 'handler failed'
+          end
+        end
+
+        assert_equal(fds_before, open_fd_count)
+        assert(reaped_within?(child, 5), "child #{child} was left as a zombie")
+      end
+
+      def test_system_raises_an_io_error_from_the_block_while_the_child_runs
+        assert_raises(IOError) do
+          run_sh('echo out; sleep 0.2') { raise IOError, 'handler failed' }
+        end
+      end
+
+      def test_system_raises_an_io_error_from_the_block_after_the_child_exits
+        assert_raises(IOError) do
+          run_sh('echo out', stall_after_spawn: 0.2) { raise IOError, 'handler failed' }
+        end
+      end
+
       private
+
+      def open_fd_count
+        Dir.children('/dev/fd').size
+      end
+
+      # kill(0) still succeeds on a zombie, so ESRCH means the child was reaped.
+      def reaped_within?(pid, seconds)
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + seconds
+        loop do
+          Process.kill(0, pid)
+          return false if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+
+          sleep(0.05)
+        end
+      rescue Errno::ESRCH
+        true
+      end
 
       def run_sh(script, stall_after_spawn: nil, &on_output)
         skip('needs a POSIX shell') if CLI::Kit::System.os == :windows
@@ -153,7 +196,7 @@ module CLI
           System.system('sh', '-c', script) do |o, e|
             out << o
             err << e
-            on_output&.call
+            on_output&.call(o, e)
           end
         end
         [out, err, stat]
