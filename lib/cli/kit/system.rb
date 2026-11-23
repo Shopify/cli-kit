@@ -8,7 +8,8 @@ module CLI
   module Kit
     module System
       SUDO_PROMPT = CLI::UI.fmt('{{info:(sudo)}} Password: ')
-      # Linux's default maximum pipe size (/proc/sys/fs/pipe-max-size); macOS pipes are smaller.
+      # Pipes buffer 64 KiB by default. An unprivileged process can raise that with F_SETPIPE_SZ, but only up
+      # to /proc/sys/fs/pipe-max-size, which defaults to 1 MiB. Root can go further.
       POST_EXIT_DRAIN_LIMIT = 1024 * 1024
 
       class << self
@@ -188,7 +189,7 @@ module CLI
 
           # The child can exit before we read anything it wrote, so collect what is still buffered.
           # Don't wait for EOF: a background process the child started may hold the pipes open, and may
-          # keep writing. A pipe can't buffer more than POST_EXIT_DRAIN_LIMIT, so that is all we read.
+          # keep writing, so read at most POST_EXIT_DRAIN_LIMIT from each.
           ios.each do |io|
             remaining = POST_EXIT_DRAIN_LIMIT
             while remaining > 0

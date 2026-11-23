@@ -6,19 +6,6 @@ module CLI
     include CLI::Kit::Support::TestHelper
 
     class SystemTest < Minitest::Test
-      module StallAfterSpawn
-        class << self
-          attr_accessor :seconds
-        end
-
-        def spawn(*args, **kwargs)
-          pid = super
-          sleep(StallAfterSpawn.seconds) if StallAfterSpawn.seconds
-          pid
-        end
-      end
-      Process.singleton_class.prepend(StallAfterSpawn)
-
       def test_split_partial_characters_doesnt_split_single_byte_characters
         str = 'ルビー is cool'
 
@@ -111,12 +98,18 @@ module CLI
 
       def test_system_returns_once_the_child_exits_even_if_a_descendant_holds_its_output
         started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        out, _, stat = run_sh('echo started; sleep 5 &')
+        out, _, stat = run_sh('sleep 30 & echo $!')
         elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
 
         assert_predicate(stat, :success?)
-        assert_equal("started\n", out)
-        assert_operator(elapsed, :<, 2.5)
+        assert_match(/\A\d+\n\z/, out)
+        assert_operator(elapsed, :<, 10)
+      ensure
+        begin
+          Process.kill('TERM', out.to_i) if out&.match?(/\A\d+\n\z/)
+        rescue Errno::ESRCH
+          nil
+        end
       end
 
       def test_system_stops_reading_when_a_descendant_keeps_writing_after_the_child_exits
@@ -132,7 +125,7 @@ module CLI
 
       def test_system_does_not_wait_out_the_poll_interval_after_the_pipes_close
         started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        _, _, stat = run_sh('exec >&- 2>&-; sleep 0.2')
+        _, _, stat = run_sh('exec >&- 2>&-; sleep 0.05')
         elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
 
         assert_predicate(stat, :success?)
@@ -156,15 +149,34 @@ module CLI
         CLI::Kit::System.fake('sh', '-c', script, allow: true)
         out = +''
         err = +''
-        StallAfterSpawn.seconds = stall_after_spawn
-        stat = System.system('sh', '-c', script) do |o, e|
-          out << o
-          err << e
-          on_output&.call
+        stat = with_stall_after_spawn(stall_after_spawn) do
+          System.system('sh', '-c', script) do |o, e|
+            out << o
+            err << e
+            on_output&.call
+          end
         end
         [out, err, stat]
-      ensure
-        StallAfterSpawn.seconds = nil
+      end
+
+      # Stands in for the calling thread losing the GVL between spawn and its first read.
+      def with_stall_after_spawn(seconds)
+        return yield unless seconds
+
+        Process.singleton_class.class_eval do
+          alias_method(:__spawn_without_stall, :spawn)
+          define_method(:spawn) do |*args, **kwargs|
+            __spawn_without_stall(*args, **kwargs).tap { sleep(seconds) }
+          end
+        end
+        begin
+          yield
+        ensure
+          Process.singleton_class.class_eval do
+            alias_method(:spawn, :__spawn_without_stall)
+            remove_method(:__spawn_without_stall)
+          end
+        end
       end
 
       def with_script_in_tmpdir(script_name)
