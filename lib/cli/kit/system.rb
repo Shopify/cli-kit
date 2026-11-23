@@ -8,6 +8,9 @@ module CLI
   module Kit
     module System
       SUDO_PROMPT = CLI::UI.fmt('{{info:(sudo)}} Password: ')
+      # Linux's default maximum pipe size (/proc/sys/fs/pipe-max-size); macOS pipes are smaller.
+      POST_EXIT_DRAIN_LIMIT = 1024 * 1024
+
       class << self
         # Ask for sudo access with a message explaning the need for it
         # Will make subsequent commands capable of running with sudo for a period of time
@@ -158,25 +161,51 @@ module CLI
           end
 
           previous_trailing = Hash.new('')
-          loop do
-            break if Process.wait(pid, Process::WNOHANG)
-
-            ios = [err_r, out_r].reject(&:closed?)
-            next if ios.empty?
-
-            readers, = IO.select(ios, [], [], 1)
-            next if readers.nil? # If IO.select times out we iterate again so we can check if the process has exited
-
-            readers.each do |io|
-              data, trailing = split_partial_characters(io.readpartial(4096))
-              handlers[io].call(previous_trailing[io] + data)
-              previous_trailing[io] = trailing
-            rescue IOError
-              io.close
-            end
+          forward = ->(io, chunk) do
+            data, trailing = split_partial_characters(chunk)
+            handlers[io].call(previous_trailing[io] + data)
+            previous_trailing[io] = trailing
           end
 
-          $CHILD_STATUS
+          ios = [err_r, out_r]
+          status = nil #: Process::Status?
+          until status
+            if ios.empty?
+              _, status = Process.wait2(pid)
+              break
+            end
+
+            readers, = IO.select(ios, [], [], 1)
+            readers&.each do |io|
+              forward.call(io, io.readpartial(4096))
+            rescue IOError
+              io.close
+              ios.delete(io)
+            end
+
+            _, status = Process.wait2(pid, Process::WNOHANG)
+          end
+
+          # The child can exit before we read anything it wrote, so collect what is still buffered.
+          # Don't wait for EOF: a background process the child started may hold the pipes open, and may
+          # keep writing. A pipe can't buffer more than POST_EXIT_DRAIN_LIMIT, so that is all we read.
+          ios.each do |io|
+            remaining = POST_EXIT_DRAIN_LIMIT
+            while remaining > 0
+              chunk = io.read_nonblock([4096, remaining].min)
+              remaining -= chunk.bytesize
+              forward.call(io, chunk)
+            end
+          rescue IO::WaitReadable, IOError
+            nil
+          end
+
+          previous_trailing.each do |io, trailing|
+            handlers[io].call(trailing) unless trailing.empty?
+          end
+          [err_r, out_r].each { |io| io.close unless io.closed? }
+
+          status #: as !nil
         end
 
         # Split off trailing partial UTF-8 Characters. UTF-8 Multibyte characters start with a 11xxxxxx byte that tells
